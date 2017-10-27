@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>CityView</title>
+	<link rel="stylesheet" type="text/css" href= {{ url_for("static", filename="style.css") }}>
+</head>
+<body>
+	{% block content %}
+	{% endblock %}
+	<script type="text/javascript" src="{{ url_for("static", filename="main.js") }}"></script>
+</body>
+</html>
