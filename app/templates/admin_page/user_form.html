@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block content %}
+	<h1>This is user form page</h1>
+	<form action="{% if user and user.name %}/user_edit{% else %}/user_form{% endif %}" method="POST">
+
+		<input type="hidden" name="user_id" id="form_user_id" value="{% if user and user.id %}{{ user.id }}{% endif %}">
+
+		<label class="form_user_label" for="form_user_name">
+			<input type="text" name="user_name" id="form_user_name" value="{% if user and user.name %}{{ user.name }}{% endif %}">
+		User name
+		</label>
+
+		<label class="form_user_label"  for="form_user_alias">
+			<input type="text" name="user_alias" id="form_user_alias" value="{% if user and user.alias %}{{ user.alias }}{% endif %}">
+		Alias
+		</label>
+
+		<label class="form_user_label"  for="form_user_email">
+			<input type="text" name="user_email" id="form_user_email"  value="{% if user and user.email %}{{ user.email }}{% endif %}">
+		E-mail
+		</label>
+
+		<label class="form_user_label"  for="form_user_role">
+			<input type="text" name="user_role" id="form_user_role" value="{% if user and user.role_id %}{{ user.role_id }}{% endif %}">
+		Role
+		</label>
+
+		<label class="form_user_label"  for="form_user_delete_date">
+			<input type="text" name="user_delete_date" id="form_user_delete_date"  value="{% if user and user.delete_date %}{{ user.delete_date }}{% endif %}">
+		Delete date
+		</label>
+		
+		<input type="submit" name="" value="Save">
+
+	</form>
+
+
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block content %}
+	<h1>Welcome to the Admin page</h1>
+	<table class="user_table">
+		<tr>
+			<th class="user_table-cell">Id</th>
+			<th class="user_table-cell">User</th>
+			<th class="user_table-cell">Alias</th>
+			<th class="user_table-cell">E-mail</th>
+			<th class="user_table-cell">Role</th>
+			<th class="user_table-cell">Avatar</th>
+			<th class="user_table-cell">Delete date</th>
+			<th class="user_table-cell"></th>
+		</tr>
+
+		{% for user in users %}
+		<tr>
+			<td class="user_table-cell">{{ user.id }}</td>
+			<td class="user_table-cell">{{ user.name }}</td>
+			<td class="user_table-cell">{{ user.alias }}</td>
+			<td class="user_table-cell">{{ user.email }}</td>
+			<td class="user_table-cell">{{ user.role_id }}</td>
+			<td class="user_table-cell">{{ user.avatar }}</td>
+			<td class="user_table-cell">{{ user.delete_date }}</td>
+			<td class="user_table-cell"><a href="/user_edit?id={{ user.id }}">Edit</a></td>
+		</tr>
+
+		{% endfor %}
+	</table>
+	<a href="/user_form" class="button">Add new user</a>
+{% endblock %}
