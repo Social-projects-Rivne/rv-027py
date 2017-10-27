@@ -3,10 +3,7 @@
 	<h1>This is user form page</h1>
 	<form action="{% if user and user.name %}/user_edit{% else %}/user_form{% endif %}" method="POST">
 
-		<label class="form_user_label" for="form_user_id">
-			<input type="text" name="user_id" id="form_user_id" value="{% if user and user.id %}{{ user.id }}{% endif %}">
-		User id
-		</label>
+		<input type="hidden" name="user_id" id="form_user_id" value="{% if user and user.id %}{{ user.id }}{% endif %}">
 
 		<label class="form_user_label" for="form_user_name">
 			<input type="text" name="user_name" id="form_user_name" value="{% if user and user.name %}{{ user.name }}{% endif %}">

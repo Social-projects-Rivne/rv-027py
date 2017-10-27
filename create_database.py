@@ -1,15 +1,13 @@
-from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
+import os
 from sqlalchemy_utils.functions.database import create_database, database_exists
-
-from models import Attachment, Category, IssueHistory, Issue, Role, Status, User, db
-from config import db_credentals
+from app.admin_page.models import Attachment, Category, IssueHistory, Issue, Role, Status, User
+from app import db
 
 #Checking if database exists, and if not -> create it with all tables.
-if not database_exists(dbCredentals):
-	create_database(dbCredentals)  
-	db.create_all()
-	db.session.commit()
+if not database_exists(os.environ['DATABASE_URL']):
+    create_database(os.environ['DATABASE_URL'])
+    db.create_all()
+    db.session.commit()
 
 
 #Creating some test data.

@@ -1,13 +1,8 @@
-from flask import Flask, render_template, request, url_for, redirect, g
-from flask_sqlalchemy import SQLAlchemy
+from flask import flash, render_template, redirect, request, url_for 
+from sqlalchemy.exc import SQLAlchemyError
 from models import Attachment, Category, IssueHistory, Issue, Role, Status, User
-from config import db_credentals
-
-
-app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = db_credentals
-app.config.from_pyfile('config.py')
-db = SQLAlchemy(app)
+from app import app
+from app.database import db
 
 
 @app.route('/')
@@ -18,19 +13,19 @@ def index():
 
 @app.route('/admin')
 def admin():
-    return render_template('adminPage.html')
+    return render_template('/admin_page/admin_page.html')
 
 
 @app.route('/user_page')
 def user_page():
     users = db.session.query(User).all()
-    return render_template('userPage.html', users=users)
+    return render_template('admin_page/user_page.html', users=users)
 
 
 @app.route('/user_form', methods=['GET', 'POST'])
 def user_form():
     if request.method == 'GET' and request.args.get('id') is None:
-        return render_template('userForm.html')
+        return render_template('admin_page/user_form.html')
 
     elif request.method == 'POST':
         data = request.form.to_dict()
@@ -45,7 +40,7 @@ def user_form():
 def user_edit():
     if request.method == 'GET':
         user = db.session.query(User).get(request.args.get('id'))
-        return render_template('userForm.html', user=user)
+        return render_template('admin_page/user_form.html', user=user)
 
     elif request.method == 'POST':
         data = request.form.to_dict()
