@@ -1,29 +1,19 @@
-# rv-027py
+rename config.py.example to config.py and fill db_credentials with your's data
 
-### Installation
+or
 
- For installing required libs and frameworks execute next commands:
-```
-pip install -r requirements.txt
-```
-### Configuration
+rename config.py.example to config.py and:
+* for Unix:  
+	* export APP_SETTINGS="config.DevelopmentConfig"  
+	* export DATABASE_URL='postgresql://DBUSERNAME:DBPASSWORD@localhost/DBNAME'  
 
-Copy config.py.example and rename this file to config.py
-```
-Set db credentials
-```
+* for Windows:  
+	* set APP_SETTINGS=config.DevelopmentConfig  
+	* set DATABASE_URL=postgresql://DBUSERNAME:DBPASSWORD@localhost/DBNAME  
 
-### Migrations
 
-1) Initialize migration 
-```
-manage.py db init
-```
-2) Create migrations files  
-```
-manage.py db migrate
-```
-3) Create tables from migrations  
-```
-manage.py db upgrade
-```
+
+pip install -r requipments.txt  
+python create_database.py  
+python run.py  
+
