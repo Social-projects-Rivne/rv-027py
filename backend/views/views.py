@@ -20,7 +20,6 @@ def admin():
         flash('Dont have access ...')
         return redirect(url_for('index'))
 
-
 @app.route('/user_page')
 def user_page():
     users = db.session.query(User, Role).filter(
@@ -113,3 +112,4 @@ def logout():
     session.pop('role_id', None)
     flash("Logout success")
     return redirect(url_for('index'))
+

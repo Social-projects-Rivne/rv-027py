@@ -1,18 +1,50 @@
-{% extends "base.html" %}
+{% extends '/base.html' %}
+
+{% block title %}CityView - Users view{% endblock %}
+
+{% block navbar %}
+<div class="container">
+    <div class="row">
+        <div class="col-sm-12">
+
+            <nav class="navbar navbar-default">
+                <ul class="nav navbar-nav">
+                    <li><a href="{{ url_for('index')}}">Main page</a></li>
+                    <li><a href="{{ url_for('logout') }}">Logout</a></li>
+                </ul>
+            </nav>
+
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+
 {% block content %}
-<form method="POST" action="/user_modify">
-    {{ form.csrf_token }}
-    {{ form.hidden_tag() }}
-    {{ form.name.label }} {{ form.name(size=40) }}
-    <br>
-    {{ form.alias.label }} {{ form.alias(size=20) }}
-    <br>
-    {{ form.email.label }} {{ form.email(size=60) }}
-    <br>
-    {{ form.role_id.label }} {{ form.role_id(size=10) }}
-    <br>
-    {{ form.delete_date.label }} {{ form.delete_date() }}
-    <br>
-    <input type="submit" value="Save">
-</form>
+<div class="container">
+    <div class="row">
+        <div class="col-sm-12">
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    <ul class="list-unstyled">
+                        {% for message in messages %}
+                            <li class="alert alert-info">{{ message }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            {% endwith %}
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-5 col-sm-12">
+            <h1>User modifying form</h1>
+            {{ wtf.quick_form(form, action="/user_modify",  method="POST") }}
+        </div>
+    </div>
+</div>
+
 {% endblock %}
