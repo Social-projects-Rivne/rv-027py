@@ -43,7 +43,7 @@
     <div class="row">
         <div class="col-md-5 col-sm-12">
             <h1>Login page</h1>
-            {{ wtf.quick_form(form, action="/login",  method="POST") }}
+            {{ wtf.quick_form(form, action="/login",  method="POST", button_map={'submit_button' : 'success'}) }}
         </div>
     </div>
 </div>
