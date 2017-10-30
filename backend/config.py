@@ -8,11 +8,11 @@ class Config(object):
     SECRET_KEY = 'SECRET_OR_NOT_KEY'
     WTF_CSRF_ENABLED = True
     WTF_CSRF_SECRET_KEY = 'SECRET_OR_NOT_KEY'
+    # Change database credentials to yours.
+    db_credentials = 'postgres://user:password@localhost/db_name'
     if 'DATABASE_URL' in os.environ:
     	db_credentials = os.environ['DATABASE_URL']
-    else:
-    	# Change database credentials to yours.
-    	db_credentials = 'postgres://user:password@localhost/db_name'
+    	
     SQLALCHEMY_DATABASE_URI = db_credentials
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 

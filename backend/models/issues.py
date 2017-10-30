@@ -61,16 +61,6 @@ class Issue(db.Model):
     user = db.relationship(u'User')
 
 
-class Role(db.Model):
-    """This class is used for role table in database."""
-
-    __tablename__ = 'roles'
-
-    id = db.Column(db.Integer, primary_key=True)
-    role = db.Column(db.Text, nullable=False)
-
-
-
 class Status(db.Model):
     """This class is used for status table in database."""
 
@@ -78,21 +68,3 @@ class Status(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     status = db.Column(db.Text)
-
-
-class User(db.Model):
-    """This class is used for user table in database."""
-
-    __tablename__ = 'users'
-
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.Text)
-    alias = db.Column(db.Text)
-    email = db.Column(db.Text)
-    password = db.Column(db.Text)
-    role_id = db.Column(db.ForeignKey(u'roles.id'), index=True)
-    avatar = db.Column(db.Text)
-    delete_date = db.Column(db.Date)
-
-    role = db.relationship(u'Role')
-

@@ -1,6 +1,7 @@
 import os
 from sqlalchemy_utils.functions.database import create_database, database_exists
-from models.models import Attachment, Category, IssueHistory, Issue, Role, Status, User
+from models.users import Role, User
+from models.issues import Attachment, Category, Issue, IssueHistory, Status
 from manage import db
 from config import Config
 

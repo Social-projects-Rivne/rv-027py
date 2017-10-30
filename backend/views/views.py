@@ -2,7 +2,8 @@ from datetime import datetime
 from flask import flash, render_template, redirect, request, session, url_for
 from manage import app, db
 from forms.forms import LoginForm, UserForm
-from models.models import Attachment, Category, IssueHistory, Issue, Role, Status, User
+from models.users import Role, User
+from models.issues import Attachment, Category, Issue, IssueHistory, Status
 
 
 @app.route('/')
