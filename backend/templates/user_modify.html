@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block content %}
+<form method="POST" action="/user_modify">
+    {{ form.csrf_token }}
+    {{ form.hidden_tag() }}
+    {{ form.name.label }} {{ form.name(size=40) }}
+    <br>
+    {{ form.alias.label }} {{ form.alias(size=20) }}
+    <br>
+    {{ form.email.label }} {{ form.email(size=60) }}
+    <br>
+    {{ form.role_id.label }} {{ form.role_id(size=10) }}
+    <br>
+    {{ form.delete_date.label }} {{ form.delete_date() }}
+    <br>
+    <input type="submit" value="Save">
+</form>
+{% endblock %}
