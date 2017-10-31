@@ -9,7 +9,7 @@ from flask_bootstrap import Bootstrap
 config_object = 'config.DevelopmentConfig'
 
 if 'APP_SETTINGS' in os.environ:
-	config_object = os.environ['APP_SETTINGS']
+    config_object = os.environ['APP_SETTINGS']
 
 app = Flask(__name__)
 app.config.from_object(config_object)
@@ -19,9 +19,3 @@ Bootstrap(app)
 migrate = Migrate(app, db)
 manager = Manager(app)
 manager.add_command('db', MigrateCommand)
-
-
-
-
-
-

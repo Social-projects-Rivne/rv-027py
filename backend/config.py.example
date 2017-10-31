@@ -9,13 +9,14 @@ class Config(object):
     DEBUG = False
 
     SECRET_KEY = 'SECRET_OR_NOT_KEY'
+
     WTF_CSRF_ENABLED = True
+
     WTF_CSRF_SECRET_KEY = 'SECRET_OR_NOT_KEY'
 
-
     SQLALCHEMY_DATABASE_URI = db_credentials
-    SQLALCHEMY_TRACK_MODIFICATIONS = False
 
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 class ProductionConfig(Config):
     DEBUG = False

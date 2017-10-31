@@ -3,7 +3,6 @@ from flask import flash, render_template, redirect, request, session, url_for
 from manage import app, db
 from forms.forms import LoginForm, UserForm
 from models.users import Role, User
-from models.issues import Attachment, Category, Issue, IssueHistory, Status
 
 
 @app.route('/')
@@ -19,6 +18,7 @@ def admin():
     else:
         flash('Dont have access ...')
         return redirect(url_for('index'))
+
 
 @app.route('/user_page')
 def user_page():
@@ -40,29 +40,20 @@ def user_modify():
 
     elif request.method == "POST":
 
-        if form.validate_on_submit():
+        if (form.validate_on_submit() and
+                User(**User().clear_form_data(form.data)).data_validataion()):
             if form.id.data:
                 user = db.session.query(User).get(form.id.data)
                 user.name = form.name.data
                 user.alias = form.alias.data
                 user.email = form.email.data
                 user.role_id = form.role_id.data
-
-                if form.delete_date.data:
-                    user.delete_date = form.delete_date.data
-                else:
-                    user.delete_date = None
+                user.delete_date = form.delete_date.data
 
                 db.session.commit()
                 flash("user modified")
             else:
-                newuser = User(name=form.name.data,
-                               alias=form.alias.data,
-                               email=form.email.data,
-                               password=None,
-                               role_id=form.role_id.data,
-                               avatar=None,
-                               delete_date=None)
+                newuser = User(**User().clear_form_data(form.data))
                 db.session.add(newuser)
                 db.session.commit()
                 flash("user added")
@@ -98,7 +89,7 @@ def login():
                 session['role_id'] = user.role_id
                 flash('Wellcome %s' % user.name)
                 return redirect(url_for('index'))
-            else: 
+            else:
                 flash('Incorrect login/password data...')
                 return render_template('login_page.html', form=form)
         else:
@@ -112,4 +103,3 @@ def logout():
     session.pop('role_id', None)
     flash("Logout success")
     return redirect(url_for('index'))
-
