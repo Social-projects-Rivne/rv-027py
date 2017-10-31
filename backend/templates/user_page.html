@@ -38,7 +38,12 @@
 		</div>
 	</div>
 </div>
-
+<div class="container"> 
+	<form action="/user_page" method="get" name="search">
+		<h5> Search user:  {{form.search(size=40)}} by: {{form.field_by() }}
+			<input type="submit" value="Search"> </h5>
+	</form>
+</div>
 <div class="container">
 	<div class="row">
 		<div class="col-sm-12">
