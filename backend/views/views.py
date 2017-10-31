@@ -20,10 +20,34 @@ def admin():
         flash('Dont have access ...')
         return redirect(url_for('index'))
 
-@app.route('/user_page')
+
+@app.route('/user_page', methods=['GET', 'POST'])
 def user_page():
-    users = db.session.query(User, Role).filter(
-        User.role_id == Role.id).order_by(User.id).all()
+    data = None
+    users = None
+
+    if request.method == 'GET':
+
+        users = db.session.query(User, Role).filter(User.role_id == Role.id).order_by(User.id).all()
+    if request.method == 'POST':
+        data = request.form.to_dict()
+
+    if data:
+        if 'delete_date_checkbox' in data and 'role_checkbox' in data:
+            users = db.session.query(User, Role).filter(User.role_id == Role.id) \
+                .order_by(User.role_id, User.delete_date).all()
+
+        elif 'delete_date_checkbox' in data:
+            users = db.session.query(User, Role).filter(User.role_id == Role.id) \
+                .order_by(User.delete_date).all()
+
+        elif 'role_checkbox' in data:
+            users = db.session.query(User, Role).filter(User.role_id == Role.id) \
+                .order_by(User.role_id).all()
+        else:
+            users = db.session.query(User, Role).filter(User.role_id == Role.id) \
+                .order_by(User.role_id).all()
+
     return render_template('user_page.html', users=users)
 
 
