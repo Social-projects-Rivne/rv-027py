@@ -1,4 +1,7 @@
 <!DOCTYPE html>
 {% extends "bootstrap/base.html" %}
 {% import "bootstrap/wtf.html" as wtf %}
-
+{% block scripts %}
+{{ super() }}
+<script src="/static/js/scripts.js"></script>
+{% endblock %}

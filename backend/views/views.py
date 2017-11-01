@@ -65,12 +65,38 @@ def user_modify():
 
 @app.route('/delete_user')
 def delete_user():
+    msg = "cannot delete user"
     if 'id' in request.args:
         today = datetime.today().strftime('%Y-%m-%d')
         user = db.session.query(User).get(request.args.get('id'))
-        user.delete_date = today
+        if not is_last_admin(user):
+            user.delete_date = today
+            db.session.commit()
+            msg = "user deleted"
+        flash(msg)
+
+    return redirect(url_for('user_page'))
+
+
+def is_last_admin(user):
+    admins = User.query.filter_by(role_id='1')
+    count = admins.count()
+    if count > 1:
+        return False
+    else:
+        admin = admins.first()
+        if user.id != admin.id:
+            return False
+        return True
+
+
+@app.route('/restore_user')
+def restore_user():
+    if 'id' in request.args:
+        user = db.session.query(User).get(request.args.get('id'))
+        user.delete_date = None
         db.session.commit()
-        flash("user deleted")
+        flash("user restored")
 
     return redirect(url_for('user_page'))
 
