@@ -26,6 +26,7 @@ class User(db.Model):
     delete_date = db.Column(db.Date)
     role = db.relationship(u'Role')
 
+    # getting the password
     @hybrid_property
     def hash_password(self):
         return self.password
