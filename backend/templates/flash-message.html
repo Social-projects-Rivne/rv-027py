@@ -1,0 +1,17 @@
+{% block flash_message %}
+	<div class="container">
+		<div class="row">
+			<div class="col-sm-12">
+				{% with messages = get_flashed_messages() %}
+					{% if messages %}
+						<ul class="list-unstyled">
+							{% for message in messages %}
+								<li class="alert alert-info">{{ message }}</li>
+							{% endfor %}
+						</ul>
+					{% endif %}
+				{% endwith %}
+			</div>
+		</div>
+	</div>
+{% endblock %}

@@ -100,7 +100,7 @@ ENV/
 # mypy
 .mypy_cache/
 
-backend/config.py
+# virtual env
 flask
 
 #configuration file

@@ -1,8 +1,30 @@
 from datetime import datetime
+from functools import wraps
+
 from flask import flash, render_template, redirect, request, session, url_for
-from manage import app, db
+
+from app_builder import app, db
 from forms.forms import LoginForm, UserForm
 from models.users import Role, User
+
+
+def admin_permissions(func):
+    """Decorator to check admin rights to access some route."""
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        if not 'user_id' in session or session['role_id'] != 1:
+            flash("Don't have access")
+            return redirect(url_for('index'))
+        return func(*args, **kwargs)
+    return wrapper
+
+
+def form_data_clean(data):
+    """Remove unnessery fields from form.data."""
+    data.pop('csrf_token', None)
+    data.pop('submit_button', None)
+    data.pop('id', None)
+    return data
 
 
 @app.route('/')
@@ -12,15 +34,13 @@ def index():
 
 
 @app.route('/admin')
+@admin_permissions
 def admin():
-    if 'user_id' in session and session['role_id'] == 1:
-        return render_template('admin_page.html')
-    else:
-        flash('Dont have access ...')
-        return redirect(url_for('index'))
+    return render_template('admin_page.html')
 
 
 @app.route('/user_page')
+@admin_permissions
 def user_page():
     users = db.session.query(User, Role).filter(
         User.role_id == Role.id).order_by(User.id).all()
@@ -28,32 +48,29 @@ def user_page():
 
 
 @app.route("/user_modify", methods=['GET', 'POST'])
+@admin_permissions
 def user_modify():
     form = UserForm(request.form)
 
     if 'id' in request.args:
-        user = db.session.query(User).get(request.args.get('id'))
-        form = UserForm(obj=user)
+        chosen_one = db.session.query(User).get(request.args.get('id'))
+        form = UserForm(obj=chosen_one)
 
     if request.method == "GET":
         return render_template('user_modify.html', form=form)
 
     elif request.method == "POST":
 
-        if (form.validate_on_submit() and
-                User(**User().clear_form_data(form.data)).data_validataion()):
+        if form.validate_on_submit():
             if form.id.data:
                 user = db.session.query(User).get(form.id.data)
-                user.name = form.name.data
-                user.alias = form.alias.data
-                user.email = form.email.data
-                user.role_id = form.role_id.data
-                user.delete_date = form.delete_date.data
+
+                form.populate_obj(user)
 
                 db.session.commit()
                 flash("user modified")
             else:
-                newuser = User(**User().clear_form_data(form.data))
+                newuser = User(**form_data_clean(form.data))
                 db.session.add(newuser)
                 db.session.commit()
                 flash("user added")

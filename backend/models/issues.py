@@ -1,4 +1,4 @@
-from manage import db
+from app_builder import db
 
 
 class Attachment(db.Model):

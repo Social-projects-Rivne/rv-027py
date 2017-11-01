@@ -1,9 +1,9 @@
 import os
-from sqlalchemy_utils.functions.database import create_database, \
-    database_exists
+from sqlalchemy_utils.functions.database import (create_database,
+                                                 database_exists)
 from models.users import Role, User
 from models.issues import Attachment, Category, Issue, IssueHistory, Status
-from manage import db
+from app_builder import db
 from config import Config
 
 # Checking if database exists, and if not -> create it with all tables.
@@ -67,8 +67,8 @@ issueHistory4 = IssueHistory(user_id='3', issue_id='3', status_id='2',
 issueHistory5 = IssueHistory(user_id='3', issue_id='3', status_id='3',
                              transaction_date='2017/09/26', delete_date=None)
 
-print user1.data_validataion()
-Insert test data into database.
+
+# Insert test data into database.
 db.session.add_all([role, role1, role2,
                     category, category1, category2,
                     status1, status2, status3,

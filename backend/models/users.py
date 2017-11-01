@@ -1,5 +1,5 @@
-import re
-from manage import db
+# import re
+from app_builder import db
 
 
 class Role(db.Model):
@@ -27,21 +27,13 @@ class User(db.Model):
 
     role = db.relationship(u'Role')
 
-    def data_validataion(self):
-        """Validate the user's data"""
-        self.name_check = re.match(r'^[\w]{4,32}$', self.name)
-        self.alias_check = re.match(r'^[\w]{3,32}$', self.alias)
-        self.email_check = re.match(r'^[^@]+@[^@]+.[^@]+$', self.email)
-        self.role_id_check = re.match(r'^[1-3]$', self.role_id)
-        if (self.name_check and self.alias_check and
-                self.email_check and self.role_id_check):
-            return True
-        return False
-
-    def clear_form_data(self, data):
-        """Remove unnessesary key:value from form data"""
-        self.data = data
-        self.data.pop('csrf_token', None)
-        self.data.pop('submit_button', None)
-        self.data.pop('id', None)
-        return self.data
+    # def data_validataion(self):
+    #     """Validate the user's data"""
+    #     self.name_check = re.match(r'^[\w]{4,32}$', self.name)
+    #     self.alias_check = re.match(r'^[\w]{3,32}$', self.alias)
+    #     self.email_check = re.match(r'^[^@]+@[^@]+.[^@]+$', self.email)
+    #     self.role_id_check = re.match(r'^[1-3]$', self.role_id)
+    #     if (self.name_check and self.alias_check and
+    #             self.email_check and self.role_id_check):
+    #         return True
+    #     return False

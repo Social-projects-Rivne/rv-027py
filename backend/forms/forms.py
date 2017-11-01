@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, IntegerField, DateField, \
-    HiddenField, PasswordField, SelectField, \
-    SubmitField
+from wtforms import (StringField, IntegerField, DateField,
+                     HiddenField, PasswordField, SelectField,
+                     SubmitField)
 from wtforms.validators import DataRequired, Email, Optional, Length, Regexp
 
 
@@ -15,8 +15,8 @@ class UserForm(FlaskForm):
                            Length(min=3, max=32),
                            Regexp(
                                r"^[\w]{3,32}$",
-                               message="""Name must be between 3 and 32 chars 
-                                    and only letters, numbers and "_" may be used.""")
+                               message='Name must be between 3 and 32 chars '
+                               'and only letters, numbers and "_" may be used.')
                        ])
     alias = StringField('alias',
                         description=u'Length between 3 and 32 chars',
@@ -25,8 +25,8 @@ class UserForm(FlaskForm):
                             Length(min=3, max=32),
                             Regexp(
                                 r"^[\w]{3,32}$",
-                                message="""Alias must be between 3 and 32 chars 
-                                    and only letters, numbers and "_" may be used.""")
+                                message='Alias must be between 3 and 32 chars '
+                                'and only letters, numbers and "_" may be used.')
                         ])
     email = StringField('email', validators=[Email()])
     role_id = SelectField('role_id', choices=[
