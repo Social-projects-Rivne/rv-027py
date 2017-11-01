@@ -111,3 +111,4 @@ backend/config.py
 
 #Migrations files
 /backend/migrations
+
