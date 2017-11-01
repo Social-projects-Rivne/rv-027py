@@ -48,6 +48,7 @@ def user_page():
             for user in results:
                 if not user in search_users:
                     search_users.append(user)
+        search_users.sort(key=lambda user: user[0].id)
         if search_users == []:
             flash("Search didn`t give result")
             return render_template('user_page.html', form=form, users=users)
