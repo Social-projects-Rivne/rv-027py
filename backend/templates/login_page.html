@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+
+{% block title %}CityView{% endblock %}
+
+
+{% block navbar %}
+<div class="container">
+    <div class="row">
+        <div class="col-sm-12">
+
+            <nav class="navbar navbar-default">
+                <ul class="nav navbar-nav">
+                    <li><a href="{{ url_for('index')}}">Main page</a></li>
+                </ul>
+            </nav>
+
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-sm-12">
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    <ul class="list-unstyled">
+                        {% for message in messages %}
+                            <li class="alert alert-info">{{ message }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            {% endwith %}
+        </div>
+    </div>
+</div>
+
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-5 col-sm-12">
+            <h1>Login page</h1>
+            {{ wtf.quick_form(form, action="/login",  method="POST", button_map={'submit_button' : 'success'}) }}
+        </div>
+    </div>
+</div>
+
+{% endblock %}

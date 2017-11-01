@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+
+
+{% block title %}CityView - Admin page {% endblock %}
+
+
+{% block navbar %}
+<div class="container">
+	<div class="row">
+		<div class="col-sm-12">
+
+			<nav class="navbar navbar-default">
+				<ul class="nav navbar-nav">
+					<li><a href="{{ url_for('index')}}">Main page</a></li>
+					<li><a href="{{ url_for('logout') }}">Logout</a></li>
+				</ul>
+			</nav>
+
+		</div>
+	</div>
+</div>
+{% endblock %}
+
+
+{% block content %}
+<div class="container">
+	<div class="row">
+		<div class="col-sm-12">
+			{% with messages = get_flashed_messages() %}
+				{% if messages %}
+					<ul class="list-unstyled">
+						{% for message in messages %}
+							<li class="alert alert-info">{{ message }}</li>
+						{% endfor %}
+					</ul>
+				{% endif %}
+			{% endwith %}
+		</div>
+	</div>
+</div>
+
+<div class="container">
+	<div class="row">
+		<div class="col-sm-12">
+			<div class="table-responsive">
+				<table class="table table-bordered table-striped">
+						<tr>
+							<th class="user_table-cell">Id</th>
+							<th class="user_table-cell">User</th>
+							<th class="user_table-cell">Alias</th>
+							<th class="user_table-cell">E-mail</th>
+							<th class="user_table-cell">Role</th>
+							<th class="user_table-cell">Avatar</th>
+							<th class="user_table-cell">Delete date</th>
+							<th class="user_table-cell"></th>
+							<th class="user_table-cell"></th>
+						</tr>
+						{% for user in users %}
+						<tr>
+							<td class="user_table-cell">{{ user[0].id }}</td>
+							<td class="user_table-cell">{{ user[0].name }}</td>
+							<td class="user_table-cell">{{ user[0].alias }}</td>
+							<td class="user_table-cell">{{ user[0].email }}</td>
+							<td class="user_table-cell">{{ user[1].role }}</td>
+							<td class="user_table-cell">{{ user[0].avatar }}</td>
+							<td class="user_table-cell">{{ user[0].delete_date }}</td>
+							<td class="user_table-cell"><a href="/user_modify?id={{ user[0].id }}" class="btn btn-primary">Edit</a></td>
+                            {% if not user[0].delete_date %}
+                                <td class="user_table-cell"><a class="btn btn-danger" data-toggle="modal" data-target="#deletion" data-user-id="{{ user[0].id }}" data-user-name="{{ user[0].name }}">Delete</a></td>
+                            {% else %}
+                                <td class="user_table-cell"><a id="restore" href="/restore_user?id={{ user[0].id }}" class="btn btn-success">Restore</a></td>
+                            {% endif %}
+                        </tr>
+                        {% endfor %}
+                </table>
+            </div>
+            <a href="/user_modify" class="btn btn-success">Add new user</a>
+        </div>
+
+    </div>
+    <div class="modal fade" id="deletion" role="dialog">
+        <div class="modal-dialog">
+
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title"></h4>
+                </div>
+                <div class="modal-body">
+                    <p>Please click Delete button if you want to delete data.</p>
+                </div>
+                <div class="modal-footer">
+                    <a id="delete-user" href="#" class="btn btn-danger">Delete</a>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}
