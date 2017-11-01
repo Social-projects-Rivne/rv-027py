@@ -99,5 +99,7 @@ ENV/
 
 # mypy
 .mypy_cache/
+
+users/config.py
 backend/config.py
 flask

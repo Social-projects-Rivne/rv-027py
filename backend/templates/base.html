@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>CityView</title>
+	<link rel="stylesheet" type="text/css" href= {{ url_for("static", filename="css/style.css") }}>
+</head>
+<body>
+	{% with messages = get_flashed_messages() %}
+	{% if messages %}
+	<ul>
+	{% for message in messages %}
+	
+		<li class="flash_message">{{ message }}</li>
+	
+	{% endfor %}
+	</ul>
+	{% endif %}
+	{% endwith %}
+	<div>
+		<a href="{{ url_for("index") }}">Main page</a>
+	</div>
+	{% block content %}
+	{% endblock %}
+	<script type="text/javascript" src="{{ url_for("static", filename="js/main.js") }}"></script>
+</body>
+</html>
