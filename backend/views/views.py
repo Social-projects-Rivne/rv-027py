@@ -1,8 +1,6 @@
 from datetime import datetime
 from flask import flash, render_template, redirect, \
                   request, session, url_for
-from werkzeug.security import generate_password_hash, \
-                              check_password_hash
 from manage import app, db
 from forms.forms import LoginForm, UserForm
 from models.users import Role, User
