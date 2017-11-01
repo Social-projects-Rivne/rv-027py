@@ -26,15 +26,14 @@ def user_page():
     form = SearchForm(request.form)
     users = db.session.query(User, Role).filter(
         User.role_id == Role.id).order_by(User.id).all()
-    if request.args.get('search')!="" and request.args.get('search')>=2:
+    if request.args.get('search') != "" and request.args.get('search') >= 2:
         key = int(request.args.get('field_by'))
         search_string = str(request.args.get('search'))
-        if (search_string == "" or len(search_string) < 2):
-            return redirect(url_for('user_page'))
         search_paremeters = []
         search_users = []
         for one_string in search_string.split(' '):
-            search_paremeters.append(''.join(["%", one_string, "%"]))
+            if len(one_string) >= 2:
+                search_paremeters.append(''.join(["%", one_string, "%"]))
         for search_paremeter in search_paremeters:
             dic = {1:"users.name LIKE  '%s'" %(search_paremeter),\
                 2:"users.alias LIKE  '%s'" %(search_paremeter),\
@@ -52,7 +51,8 @@ def user_page():
         if search_users == []:
             flash("Search didn`t give result")
             return render_template('user_page.html', form=form, users=users)
-        return render_template('user_page.html', form=form, users=search_users) 
+        flash("Search results")
+        return render_template('user_page.html', form=form, users=search_users)
     else:
         return render_template('user_page.html', form=form, users=users)
 
