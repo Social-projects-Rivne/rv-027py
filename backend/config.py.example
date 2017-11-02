@@ -1,8 +1,6 @@
-# Rename this file to config.py and fill db_credentials with your's data.
+# Rename this file to config.py and fill SQLALCHEMY_DATABASE_URI with your's data.
 
 class Config(object):
-    # Change database credentials to yours.
-    db_credentials = 'postgres://user:password@localhost/db_name'
 
     DEBUG = False
 
@@ -11,8 +9,9 @@ class Config(object):
     WTF_CSRF_ENABLED = True
 
     WTF_CSRF_SECRET_KEY = 'SECRET_OR_NOT_KEY'
-
-    SQLALCHEMY_DATABASE_URI = db_credentials
+    
+    # Change database credentials to yours.
+    SQLALCHEMY_DATABASE_URI = 'postgres://user:password@localhost/db_name'
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
