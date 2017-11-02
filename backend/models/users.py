@@ -12,7 +12,7 @@ class Role(db.Model):
 
 
 class User(db.Model):
-    
+
     """This class is used for user table in database."""
 
     __tablename__ = 'users'
@@ -27,4 +27,3 @@ class User(db.Model):
     delete_date = db.Column(db.TIMESTAMP)
 
     role = db.relationship(u'Role')
-
