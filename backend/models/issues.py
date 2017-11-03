@@ -1,4 +1,4 @@
-from manage import db
+from app import db
 
 
 class Attachment(db.Model):
@@ -9,7 +9,7 @@ class Attachment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     issue_id = db.Column(db.ForeignKey(u'issues.id'), index=True)
     image_url = db.Column(db.Text)
-    delete_date = db.Column(db.Date)
+    delete_date = db.Column(db.TIMESTAMP)
 
     issue = db.relationship(u'Issue')
 
@@ -33,8 +33,8 @@ class IssueHistory(db.Model):
     user_id = db.Column(db.ForeignKey(u'users.id'))
     issue_id = db.Column(db.ForeignKey(u'issues.id'), index=True)
     status_id = db.Column(db.ForeignKey(u'statuses.id'), index=True)
-    transaction_date = db.Column(db.Date)
-    delete_date = db.Column(db.Date)
+    transaction_date = db.Column(db.TIMESTAMP)
+    delete_date = db.Column(db.TIMESTAMP)
 
     issue = db.relationship(u'Issue')
     status = db.relationship(u'Status')
@@ -53,9 +53,9 @@ class Issue(db.Model):
         u'category.id'), nullable=False, index=True)
     location = db.Column(db.Text)
     description = db.Column(db.Text)
-    open_date = db.Column(db.Date)
-    close_date = db.Column(db.Date)
-    delete_date = db.Column(db.Date)
+    open_date = db.Column(db.TIMESTAMP)
+    close_date = db.Column(db.TIMESTAMP)
+    delete_date = db.Column(db.TIMESTAMP)
 
     category = db.relationship(u'Category')
     user = db.relationship(u'User')

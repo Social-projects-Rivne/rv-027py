@@ -1,6 +1,8 @@
-from manage import db
+from app import db
+
 
 class Role(db.Model):
+
     """This class is used for role table in database."""
 
     __tablename__ = 'roles'
@@ -10,6 +12,7 @@ class Role(db.Model):
 
 
 class User(db.Model):
+
     """This class is used for user table in database."""
 
     __tablename__ = 'users'
@@ -21,6 +24,6 @@ class User(db.Model):
     password = db.Column(db.Text)
     role_id = db.Column(db.ForeignKey(u'roles.id'), index=True)
     avatar = db.Column(db.Text)
-    delete_date = db.Column(db.Date)
+    delete_date = db.Column(db.TIMESTAMP)
 
     role = db.relationship(u'Role')

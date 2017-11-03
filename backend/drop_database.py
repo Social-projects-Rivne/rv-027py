@@ -1,7 +1,18 @@
 import os
+
 from sqlalchemy_utils.functions.database import drop_database
 
-#Dropping our test base.
-drop_database(os.environ['DATABASE_URL'])
+from config import Config
 
-print 'DB dropped'
+
+db_credentials = Config.SQLALCHEMY_DATABASE_URI
+
+if 'DATABASE_URL' in os.environ:
+    db_credentials = os.environ['DATABASE_URL']
+
+def db_drop():
+	drop_database(db_credentials)
+	print 'DB dropped'
+
+if __name__ == '__main__':
+	db_drop()

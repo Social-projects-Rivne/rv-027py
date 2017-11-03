@@ -1,33 +1,41 @@
-{% extends "base.html" %}
+{% extends 'layouts.html' %}
+
+
+{% block title_suffix %}Users managements{% endblock title_suffix %}
+
+{% block navbar_li %}
+    <li><a href="{{ url_for('index')}}">Main page</a></li>
+    <li><a href="{{ url_for('logout') }}">Logout</a></li>
+{% endblock navbar_li %}
+
 {% block content %}
-	<h1>Welcome to the Admin page</h1>
-	<table class="user_table">
-		<tr>
-			<th class="user_table-cell">Id</th>
-			<th class="user_table-cell">User</th>
-			<th class="user_table-cell">Alias</th>
-			<th class="user_table-cell">E-mail</th>
-			<th class="user_table-cell">Role</th>
-			<th class="user_table-cell">Avatar</th>
-			<th class="user_table-cell">Delete date</th>
-			<th class="user_table-cell"></th>
-			<th class="user_table-cell"></th>
-		</tr>
-
-		{% for user in users %}
-		<tr>
-			<td class="user_table-cell">{{ user[0].id }}</td>
-			<td class="user_table-cell">{{ user[0].name }}</td>
-			<td class="user_table-cell">{{ user[0].alias }}</td>
-			<td class="user_table-cell">{{ user[0].email }}</td>
-			<td class="user_table-cell">{{ user[1].role }}</td>
-			<td class="user_table-cell">{{ user[0].avatar }}</td>
-			<td class="user_table-cell">{{ user[0].delete_date }}</td>
-			<td class="user_table-cell"><a href="/user_modify?id={{ user[0].id }}">Edit</a></td>
-			<td class="user_table-cell"><a href="/delete_user?id={{ user[0].id }}">Delete</a></td>
-		</tr>
-
-		{% endfor %}
-	</table>
-	<a href="/user_modify" class="button">Add new user</a>
+	<div class="table-responsive">
+		<table class="table table-bordered table-striped">
+			<tr>
+				<th>Id</th>
+				<th>User</th>
+				<th>Alias</th>
+				<th>E-mail</th>
+				<th>Role</th>
+				<th>Avatar</th>
+				<th>Delete date</th>
+				<th></th>
+				<th></th>
+			</tr>
+			{% for user, role in users %}
+				<tr>
+					<td>{{ user.id }}</td>
+					<td>{{ user.name }}</td>
+					<td>{{ user.alias }}</td>
+					<td>{{ user.email }}</td>
+					<td>{{ role.role }}</td>
+					<td>{{ user.avatar }}</td>
+					<td>{{ user.delete_date }}</td>
+					<td><a href="{{ url_for('user_modify', users_id=user.id) }}" class="btn btn-primary">Edit</a></td>
+					<td><a href="{{ url_for('delete_user', users_id=user.id) }}" class="btn btn-danger">Delete</a></td>
+				</tr>
+			{% endfor %}
+		</table>
+	</div>
+		<a href="{{ url_for('user_add') }}" class="btn btn-success">Add new user</a>
 {% endblock %}

@@ -1,6 +1,14 @@
-{% extends "base.html" %}
+{% extends 'layouts.html' %}
+
+{% block title_suffix %}Admins managements{% endblock title_suffix %}
+
+{% block navbar_li %}
+	<li><a href="{{ url_for('index') }}">Main page</a></li>
+	<li><a href="{{ url_for('admin') }}">Admin page</a></li>
+	<li><a href="{{ url_for('logout') }}">Logout</a></li>
+{% endblock navbar_li %}
+
 {% block content %}
-	<h1>Welcome to the Admin page</h1>
-	
-	<a href="/user_page" class="button">Work with users</a>
+	<h1>Welcome to the Admins managements</h1>
+	<a href="{{ url_for('user_page') }}" class="btn btn-primary">Work with users</a>
 {% endblock %}

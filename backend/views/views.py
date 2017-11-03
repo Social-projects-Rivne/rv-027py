@@ -1,9 +1,25 @@
 from datetime import datetime
-from flask import flash, render_template, redirect, request, session, url_for
-from manage import app, db
+from functools import wraps
+
+from flask import flash, redirect, request, render_template, session, url_for
+
+from app import app, db
 from forms.forms import LoginForm, UserForm
 from models.users import Role, User
-from models.issues import Attachment, Category, Issue, IssueHistory, Status
+
+ROLE_ADMIN = 1
+ROLE_MODERATOR = 2
+ROLE_USER = 3
+
+def admin_permissions(func):
+    """Decorator to check admin rights to access some route."""
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        if not 'user_id' in session or session['role_id'] != ROLE_ADMIN:
+            flash("Don't have access")
+            return redirect(url_for('login'))
+        return func(*args, **kwargs)
+    return wrapper
 
 
 @app.route('/')
@@ -13,75 +29,70 @@ def index():
 
 
 @app.route('/admin')
+@admin_permissions
 def admin():
-    if 'user_id' in session and session['role_id'] == 1:
-        return render_template('admin_page.html')
-    else:
-        flash('Dont have access ...')
-        return redirect(url_for('index'))
+    return render_template('admin_page.html')
 
 
-@app.route('/user_page')
+@app.route('/userpage')
+@admin_permissions
 def user_page():
     users = db.session.query(User, Role).filter(
         User.role_id == Role.id).order_by(User.id).all()
     return render_template('user_page.html', users=users)
 
 
-@app.route("/user_modify", methods=['GET', 'POST'])
-def user_modify():
+@app.route('/useradd', methods=['GET', 'POST'])
+@admin_permissions
+def user_add():
+    route_to = url_for('user_add')
     form = UserForm(request.form)
 
-    if 'id' in request.args:
-        user = db.session.query(User).get(request.args.get('id'))
-        form = UserForm(obj=user)
+    if request.method == "GET":
+        return render_template('user_modify.html', form=form, route_to=route_to)
+
+    if form.validate_on_submit():
+        newuser = User()
+        newuser.name = form.name.data
+        newuser.alias = form.alias.data
+        newuser.role_id = form.role_id.data
+        newuser.email = form.email.data
+        db.session.add(newuser)
+        db.session.commit()
+        flash("user added")
+        return redirect(url_for('user_page'))
+    else:
+        flash("wrong data")
+        return render_template('user_modify.html', form=form, route_to=route_to)
+
+
+@app.route('/usermodify/<int:users_id>', methods=['GET', 'POST'])
+@admin_permissions
+def user_modify(users_id):
+    route_to = url_for('user_modify', users_id=users_id)
+    user = db.session.query(User).get(users_id)
+    form = UserForm(obj=user)
 
     if request.method == "GET":
-        return render_template('user_modify.html', form=form)
+        return render_template('user_modify.html', form=form, route_to=route_to)
 
-    elif request.method == "POST":
-
-        if form.validate_on_submit():
-            if form.id.data:
-                user = db.session.query(User).get(form.id.data)
-                user.name = form.name.data
-                user.alias = form.alias.data
-                user.email = form.email.data
-                user.role_id = form.role_id.data
-
-                if form.delete_date.data:
-                    user.delete_date = form.delete_date.data
-                else:
-                    user.delete_date = None
-
-                db.session.commit()
-                flash("user modified")
-            else:
-                newuser = User(name=form.name.data,
-                               alias=form.alias.data,
-                               email=form.email.data,
-                               password=None,
-                               role_id=form.role_id.data,
-                               avatar=None,
-                               delete_date=None)
-                db.session.add(newuser)
-                db.session.commit()
-                flash("user added")
-            return redirect(url_for('user_page'))
-        else:
-            flash("wrong data")
-            return render_template('user_modify.html', form=form)
-
-
-@app.route('/delete_user')
-def delete_user():
-    if 'id' in request.args:
-        today = datetime.today().strftime('%Y-%m-%d')
-        user = db.session.query(User).get(request.args.get('id'))
-        user.delete_date = today
+    if form.validate_on_submit():
+        form.populate_obj(user)
         db.session.commit()
-        flash("user deleted")
+        flash("user modified")
+        return redirect(url_for('user_page'))
+    else:
+        flash("wrong data")
+        return render_template('user_modify.html', form=form, route_to=route_to)
 
+
+@app.route('/deleteuser/<int:users_id>')
+def delete_user(users_id):
+    current_moment = datetime.now()
+    user = db.session.query(User).get(users_id)
+    user.delete_date = current_moment
+    db.session.commit()
+    flash("user deleted")
     return redirect(url_for('user_page'))
 
 
@@ -90,21 +101,21 @@ def login():
     form = LoginForm(request.form)
     if request.method == 'GET':
         return render_template('login_page.html', form=form)
-    if request.method == 'POST':
-        if form.validate_on_submit():
-            user = db.session.query(User).filter(
-                User.email == form.email.data).first()
-            if user and user.password == form.password.data:
-                session['user_id'] = user.id
-                session['role_id'] = user.role_id
-                flash('Wellcome %s' % user.name)
-                return redirect(url_for('index'))
-            else: 
-                flash('Incorrect login/password data...')
-                return render_template('login_page.html', form=form)
+
+    if form.validate_on_submit():
+        user = db.session.query(User).filter(
+            User.email == form.email.data).first()
+        if user and user.password == form.password.data:
+            session['user_id'] = user.id
+            session['role_id'] = user.role_id
+            flash('Wellcome %s' % user.name)
+            return redirect(url_for('index'))
         else:
             flash('Incorrect login/password data...')
             return render_template('login_page.html', form=form)
+    else:
+        flash('Incorrect login/password data...')
+        return render_template('login_page.html', form=form)
 
 
 @app.route('/logout')

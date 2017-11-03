@@ -100,7 +100,7 @@ ENV/
 # mypy
 .mypy_cache/
 
-users/config.py
+# virtual env
 flask
 
 #configuration file
@@ -111,3 +111,4 @@ backend/config.py
 
 #Migrations files
 /backend/migrations
+

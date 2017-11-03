@@ -1,9 +1,15 @@
-{% extends "base.html" %}
+{% extends 'layouts.html' %}
+
+
+{% block title_suffix %}Main page{% endblock title_suffix %}
+
+{% block navbar_li %}
+	<li><a href="{{ url_for('index') }}">Main page</a></li>
+	<li><a href="{{ url_for('admin') }}">Admin page</a></li>
+	<li><a href="{{ url_for('login') }}">Login</a></li>
+	<li><a href="{{ url_for('logout') }}">Logout</a></li>
+{% endblock navbar_li %}
+
 {% block content %}
 	<h1>Welcome to the CityView</h1>
-	<a href="/login">Login</a>
-	<br>
-	<a href="/logout">Logout</a>
-	<br>
-	<a href="/admin">Admin page</a>
 {% endblock %}
