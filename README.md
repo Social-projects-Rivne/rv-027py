@@ -10,11 +10,12 @@ Rename file config.py.example into config.py and
 fill config.py with your's database credentials.
 ```
 ### Prepare Command Line Interface
+On Windows use **set** instead of **export**
 ```
-set FLASK_APP=app.py
-set FLASK_DEBUG=1
+export  FLASK_APP=app.py
+export  FLASK_DEBUG=1
 ```
-### Create database and test records.  
+### Create database and test records  
 ```
 flask initdb
 flask insertdata 
