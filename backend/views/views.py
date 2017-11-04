@@ -11,6 +11,7 @@ from models.users import Role, User
 ROLE_ADMIN = 1
 ROLE_MODERATOR = 2
 ROLE_USER = 3
+
 MIN_SEARCH_STR = 2
 
 def admin_permissions(func):
@@ -39,39 +40,41 @@ def admin():
 @app.route('/userpage', methods=['GET'])
 @admin_permissions
 def user_page():
-    form = SearchForm(request.form)
-    users = db.session.query(User, Role).filter(
-        User.role_id == Role.id).order_by(User.id).all()
-    if request.args.get('search') != "" and request.args.get('search') >= MIN_SEARCH_STR:
-    # if form.validate_on_submit():
+    form = SearchForm(request.args, csrf_enabled=False)
+    if  form.validate():
         key = int(request.args.get('field_by'))
         search_string = str(request.args.get('search'))
-        search_paremeters = []
-        search_users = []
-        for one_string in search_string.split(' '):
+        search_parameters = []
+        condition_list = []
+        for one_string in search_string.split():
             if len(one_string) >= MIN_SEARCH_STR:
-                search_paremeters.append(''.join(["%", one_string, "%"]))
-        for search_paremeter in search_paremeters:
-            conditions = {1:"users.name LIKE  '%s'" %(search_paremeter),
-                          2:"users.alias LIKE  '%s'" %(search_paremeter),
-                          3:"users.email LIKE  '%s'" %(search_paremeter)}
-            conditions[4] = ' '.join([conditions[1], "OR", conditions[2]])
-            conditions[5] = ' '.join([conditions[2], "OR", conditions[3]])
-            conditions[6] = ' '.join([conditions[1], "OR", conditions[3]])
-            conditions[7] = ' '.join([conditions[1], "OR", conditions[2], "OR", conditions[3]])
-            condition = conditions.get(key)
-            results = db.session.query(User, Role).filter(and_(
-                User.role_id == Role.id, str(condition))).distinct(User.id).order_by(User.id).all()
-            for user in results:
-                if not user in search_users:
-                    search_users.append(user)
-        search_users.sort(key=lambda user: user[0].id)
-        if search_users == []:
+                search_parameters.append('%{}%'.format(one_string))
+        for search_parameter in search_parameters:
+            name_search = User.name.like(search_parameter)
+            alias_search = User.alias.like(search_parameter)
+            email_search = User.email.like(search_parameter)
+            conditions = [
+                name_search,
+                alias_search,
+                email_search,
+                or_(name_search, alias_search),
+                or_(alias_search, email_search),
+                or_(email_search, name_search),
+                or_(name_search, alias_search, email_search)
+                ]
+            condition_list.append(conditions[key-1])
+        condition = or_(condition_list)
+        search_users = db.session.query(User, Role).filter(and_(
+            User.role_id == Role.id, condition)).order_by(User.id).all()
+        if search_users:
+            flash("Search results")
+            return render_template('user_page.html', form=form, users=search_users)
+        else:
             flash("Search didn`t give result")
-            return redirect(url_for('user_page'))
-        flash("Search results")
-        return render_template('user_page.html', form=form, users=search_users)
+            return render_template('user_page.html', form=form, users=[])
     else:
+        users = db.session.query(User, Role).filter(
+            User.role_id == Role.id).order_by(User.id).all()
         return render_template('user_page.html', form=form, users=users)
 
 

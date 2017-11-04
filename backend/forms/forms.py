@@ -69,13 +69,13 @@ class SearchForm(FlaskForm):
     field_by = SelectField(
         'by',
         choices=[
-            (1, 'name'),
-            (2, 'alias'),
-            (3, 'email'),
-            (4, 'name+alias'),
-            (5, 'alias+email'),
-            (6, 'email+name'),
-            (7, 'email+name+alias')
+            ('1', 'name'),
+            ('2', 'alias'),
+            ('3', 'email'),
+            ('4', 'name+alias'),
+            ('5', 'alias+email'),
+            ('6', 'email+name'),
+            ('7', 'email+name+alias')
             ]
         )
 
