@@ -32,10 +32,34 @@
 					<td>{{ user.avatar }}</td>
 					<td>{{ user.delete_date }}</td>
 					<td><a href="{{ url_for('user_modify', users_id=user.id) }}" class="btn btn-primary">Edit</a></td>
-					<td><a href="{{ url_for('delete_user', users_id=user.id) }}" class="btn btn-danger">Delete</a></td>
+					{% if not user.delete_date %}
+					<td><a class="btn btn-danger" data-toggle="modal" data-target="#deletion" data-user-id="{{ user.id }}"
+                           data-user-name="{{ user.name }}">Delete</a></td>
+	                {% else %}
+	                <td><a id="restore" href="/restoreuser/{{ user.id }}" class="btn btn-success">Restore</a></td>
+	                {% endif %}
 				</tr>
 			{% endfor %}
 		</table>
 	</div>
 		<a href="{{ url_for('user_add') }}" class="btn btn-success">Add new user</a>
+
+    <div class="modal fade" id="deletion" role="dialog">
+    <div class="modal-dialog">
+
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title"></h4>
+        </div>
+        <div class="modal-body">
+          <p>Please click Delete button if you want to delete data.</p>
+        </div>
+        <div class="modal-footer">
+            <a id="delete-user" href="#" class="btn btn-danger">Delete</a>
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+
+    </div>
 {% endblock %}
