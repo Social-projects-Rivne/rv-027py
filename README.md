@@ -1,40 +1,32 @@
 # rv-027py
 
-### Installation
-
- For installing required libs and frameworks execute next commands:
+### Installing required libs and frameworks
 ```
 pip install -r requirements.txt
 ```
 ### Configuration
-
-Copy config.py.example and rename this file to config.py
 ```
-Set db credentials
+Rename file config.py.example into config.py and 
+fill config.py with your's database credentials.
 ```
-
-### Migrations and DB
-
-1) Initialize migration (choose directory with migrations.py) & enter following command
+### Prepare Command Line Interface
+On Windows use **set** instead of **export**
 ```
-migrations.py db init
+export  FLASK_APP=app.py
+export  FLASK_DEBUG=1
 ```
-2) Create migrations files  
+### Create database and test records  
 ```
-migrations.py db migrate
-```
-3) Create tables from migrations  
-```
-migrations.py db upgrade
-```
-Create test records  
-```
-python create_database.py  
+flask initdb
+flask insertdata 
 ```
 
 ### Run application
-
-For the start application execute  
 ```
-python run.py  
+flask run 
+```
+
+To drop database (must do: Prepare Command Line Interface step)
+```
+flask dropdb 
 ```
