@@ -93,15 +93,26 @@ def delete_user():
     message = "Can't delete user"
     user = db.session.query(User).get(users_id)
 
-    if is_last_admin():
+    if is_not_last_admin():
         user.set_delete_date()
         db.session.commit()
         message = "User deleted"
 
-    return jsonify({'message': message, 'date': user.delete_date})
+    return message
 
 
-def is_last_admin():
+@app.route('/restoreuser',  methods=['POST'])
+def restore_user():
+    users_id = request.form['id']
+
+    user = db.session.query(User).get(users_id)
+    user.delete_date = None
+    db.session.commit()
+
+    return 'User restored'
+
+
+def is_not_last_admin():
     admins = db.session.query(User).filter_by(role_id=ROLE_ADMIN, delete_date=None)
     count = admins.count()
     if count > 1:

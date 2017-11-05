@@ -1,24 +1,25 @@
 function Users()
 {
-    $(".remove").click($.proxy(this.onRemoveClick, this));
+    $(".action").click($.proxy(this.onActionClick, this));
 }
 
-Users.prototype.onRemoveClick = function (event)
+Users.prototype.onActionClick = function (event)
 {
     event.preventDefault();
 
     var target = $(event.target);
-    var id = target.attr('data-user-id');
+    var url = target.attr('data-url');
+    var id = target.parent('td').attr('data-user-id');
     var $this = this;
 
     bootbox.confirm("Are you sure?", function (confirmed) {
         if (confirmed) {
-           $this.AJAXSetup(id);
+           $this.AJAXSetup(url, id);
         }});
 
 };
 
-Users.prototype.AJAXSetup = function (id) {
+Users.prototype.AJAXSetup = function (url, id) {
 
     var csrftoken = $('meta[name=csrf-token]').attr('content');
 
@@ -32,11 +33,11 @@ Users.prototype.AJAXSetup = function (id) {
 
     $.ajax({
         type: "POST",
-        url: '/deleteuser',
+        url: url,
         data: {id: id},
         success: function (response) {
             bootbox.alert({
-                message: response.message,
+                message: response,
                 size: 'small'
             });
             setTimeout(function () {
@@ -46,14 +47,13 @@ Users.prototype.AJAXSetup = function (id) {
         },
         error: function (response) {
             bootbox.alert({
-                message: response.message,
+                message: response,
                 size: 'small'
             });
         }
     });
 
 };
-
 
 $(function()
 {
