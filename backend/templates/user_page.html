@@ -33,10 +33,14 @@
                     <td>{{ user.delete_date }}</td>
                     <td><a href="{{ url_for('user_modify', users_id=user.id) }}" class="btn btn-primary">Edit</a></td>
                     {% if not user.delete_date %}
-                        <td><a class="btn btn-danger" data-toggle="modal" data-target="#deletion" data-user-id="{{ user.id }}"
-                               data-user-name="{{ user.name }}">Delete</a></td>
+                        <td><a class="btn btn-danger" data-toggle="modal" data-target="#deletion" data-user-id="{{ user.id }}" data-user-name="{{ user.name }}">Delete</a></td>
                     {% else %}
-                        <td><a id="restore" href="/restoreuser/{{ user.id }}" class="btn btn-success">Restore</a></td>
+                        <td>
+                            <form id="restore-user" method="post" action="/restoreuser/{{ user.id }}">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                <button type="submit" class="btn btn-success">Restore</button>
+                            </form>
+                        </td>
                     {% endif %}
                 </tr>
             {% endfor %}
@@ -56,8 +60,11 @@
                     <p>Please click Delete button if you want to delete data.</p>
                 </div>
                 <div class="modal-footer">
-                    <a id="delete-user" href="#" class="btn btn-danger">Delete</a>
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <form id="delete-user" method="post" action="#">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </form>
                 </div>
             </div>
 

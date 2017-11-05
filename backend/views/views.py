@@ -86,7 +86,7 @@ def user_modify(users_id):
         return render_template('user_modify.html', form=form, route_to=route_to)
 
 
-@app.route('/deleteuser/<int:users_id>')
+@app.route('/deleteuser/<int:users_id>', methods=['POST'])
 @admin_permissions
 def delete_user(users_id):
     msg = "cannot delete user"
@@ -112,7 +112,7 @@ def is_last_admin(user):
         return True
 
 
-@app.route('/restoreuser/<int:users_id>')
+@app.route('/restoreuser/<int:users_id>', methods=['POST'])
 @admin_permissions
 def restore_user(users_id):
     user = db.session.query(User).get(users_id)
