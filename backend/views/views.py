@@ -101,7 +101,7 @@ def delete_user(users_id):
 
 
 def is_last_admin(user):
-    admins = db.session.query(User).filter_by(role_id=ROLE_ADMIN)
+    admins = db.session.query(User).filter_by(role_id=ROLE_ADMIN, delete_date=None)
     count = admins.count()
     if count > 1:
         return False
