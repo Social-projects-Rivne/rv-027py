@@ -33,7 +33,8 @@
                     <td>{{ user.delete_date }}</td>
                     <td><a href="{{ url_for('user_modify', users_id=user.id) }}" class="btn btn-primary">Edit</a></td>
                     {% if not user.delete_date %}
-                        <td><a class="btn btn-danger" data-toggle="modal" data-target="#deletion" data-user-id="{{ user.id }}" data-user-name="{{ user.name }}">Delete</a></td>
+                        <td><a class="btn btn-danger" data-toggle="modal" data-target="#deletion" data-user-id="{{ user.id }}"
+                               data-user-name="{{ user.name }}">Delete</a></td>
                     {% else %}
                         <td>
                             <form id="restore-user" method="post" action="/restoreuser/{{ user.id }}">
