@@ -2,8 +2,11 @@ import click
 from flask import Flask
 from flask_bootstrap import Bootstrap
 from flask_sqlalchemy import SQLAlchemy
+from flask_wtf.csrf import CsrfProtect
+
 
 app = Flask(__name__)
+CsrfProtect(app)
 app.config.from_object('config.DevelopmentConfig')
 db = SQLAlchemy(app)
 Bootstrap(app)

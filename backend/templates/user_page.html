@@ -9,10 +9,12 @@
 {% endblock navbar_li %}
 
 {% block content %}
-	<div class="table-responsive">
+    <h2>Users table</h2>
+
+	<div class="table-responsive" id="users-table">
 		<table class="table table-bordered table-striped">
 			<tr>
-				<th>Id</th>
+				<th>#</th>
 				<th>User</th>
 				<th>Alias</th>
 				<th>E-mail</th>
@@ -24,7 +26,7 @@
 			</tr>
 			{% for user, role in users %}
 				<tr>
-					<td>{{ user.id }}</td>
+					<td>{{ loop.index }}</td>
 					<td>{{ user.name }}</td>
 					<td>{{ user.alias }}</td>
 					<td>{{ user.email }}</td>
@@ -32,7 +34,9 @@
 					<td>{{ user.avatar }}</td>
 					<td>{{ user.delete_date }}</td>
 					<td><a href="{{ url_for('user_modify', users_id=user.id) }}" class="btn btn-primary">Edit</a></td>
-					<td><a href="{{ url_for('delete_user', users_id=user.id) }}" class="btn btn-danger">Delete</a></td>
+					<td>
+                        <button class="btn btn-danger remove" data-toggle="confirmation" data-user-id="{{ user.id }}" >Delete</button>
+                    </td>
 				</tr>
 			{% endfor %}
 		</table>
