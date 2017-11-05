@@ -90,24 +90,27 @@ def user_modify(users_id):
 def delete_user():
     users_id = request.form['id']
 
-    message = "User deleted"
+    message = "Can't delete user"
     user = db.session.query(User).get(users_id)
-    user.set_delete_date()
 
     if is_last_admin():
+        user.set_delete_date()
         db.session.commit()
-        message = "Can't delete user"
+        message = "User deleted"
 
     return jsonify({'message': message, 'date': user.delete_date})
 
 
 def is_last_admin():
-    admins = db.session.query(User).filter_by(role_id=ROLE_ADMIN)
+    admins = db.session.query(User).filter_by(role_id=ROLE_ADMIN, delete_date=None)
     count = admins.count()
     if count > 1:
-        return False
-    else:
+        print count
         return True
+    else:
+        print count
+
+        return False
 
 
 @app.route('/login', methods=['GET', 'POST'])
