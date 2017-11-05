@@ -1,7 +1,7 @@
-from datetime import datetime
+# from datetime import datetime
 from functools import wraps
 
-from flask import flash, redirect, request, render_template, session, url_for
+from flask import flash, jsonify, redirect, request, render_template, session, url_for
 
 from app import app, db
 from forms.forms import LoginForm, UserForm
@@ -86,14 +86,42 @@ def user_modify(users_id):
         return render_template('user_modify.html', form=form, route_to=route_to)
 
 
-@app.route('/deleteuser/<int:users_id>')
-def delete_user(users_id):
-    current_moment = datetime.now()
+@app.route('/deleteuser',  methods=['POST'])
+def delete_user():
+    users_id = request.form['id']
+
+    message = "Can't delete user"
     user = db.session.query(User).get(users_id)
-    user.delete_date = current_moment
+
+    if is_not_last_admin():
+        user.set_delete_date()
+        db.session.commit()
+        message = "User deleted"
+
+    return message
+
+
+@app.route('/restoreuser',  methods=['POST'])
+def restore_user():
+    users_id = request.form['id']
+
+    user = db.session.query(User).get(users_id)
+    user.delete_date = None
     db.session.commit()
-    flash("user deleted")
-    return redirect(url_for('user_page'))
+
+    return 'User restored'
+
+
+def is_not_last_admin():
+    admins = db.session.query(User).filter_by(role_id=ROLE_ADMIN, delete_date=None)
+    count = admins.count()
+    if count > 1:
+        print count
+        return True
+    else:
+        print count
+
+        return False
 
 
 @app.route('/login', methods=['GET', 'POST'])

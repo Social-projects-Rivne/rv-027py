@@ -9,10 +9,12 @@
 {% endblock navbar_li %}
 
 {% block content %}
-	<div class="table-responsive">
+    <h2>Users table</h2>
+
+	<div class="table-responsive" id="users-table">
 		<table class="table table-bordered table-striped">
 			<tr>
-				<th>Id</th>
+				<th>#</th>
 				<th>User</th>
 				<th>Alias</th>
 				<th>E-mail</th>
@@ -23,19 +25,28 @@
 				<th></th>
 			</tr>
 			{% for user, role in users %}
-				<tr>
-					<td>{{ user.id }}</td>
-					<td>{{ user.name }}</td>
-					<td>{{ user.alias }}</td>
-					<td>{{ user.email }}</td>
-					<td>{{ role.role }}</td>
-					<td>{{ user.avatar }}</td>
-					<td>{{ user.delete_date }}</td>
-					<td><a href="{{ url_for('user_modify', users_id=user.id) }}" class="btn btn-primary">Edit</a></td>
-					<td><a href="{{ url_for('delete_user', users_id=user.id) }}" class="btn btn-danger">Delete</a></td>
-				</tr>
-			{% endfor %}
-		</table>
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td>{{ user.name }}</td>
+                    <td>{{ user.alias }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>{{ role.role }}</td>
+                    <td>{{ user.avatar }}</td>
+                    <td>{{ user.delete_date }}</td>
+                    <td><a href="{{ url_for('user_modify', users_id=user.id) }}" class="btn btn-primary">Edit</a></td>
+                    <td data-user-id="{{ user.id }}">
+                        <button class="btn btn-warning action" data-toggle="confirmation"
+                                data-url="/restoreuser" {{ 'disabled' if not user.delete_date  else '' }}>
+                            Restore
+                        </button>
+                        <button class="btn btn-danger pull-right action" data-toggle="confirmation"
+                                data-url="/deleteuser" {{ 'disabled' if user.delete_date  else '' }}>
+                            Delete
+                        </button>
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
 	</div>
 		<a href="{{ url_for('user_add') }}" class="btn btn-success">Add new user</a>
 {% endblock %}
