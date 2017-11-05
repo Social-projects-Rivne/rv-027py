@@ -1,8 +1,9 @@
+from datetime import datetime
+
 from app import db
 
 
 class Role(db.Model):
-
     """This class is used for role table in database."""
 
     __tablename__ = 'roles'
@@ -12,7 +13,6 @@ class Role(db.Model):
 
 
 class User(db.Model):
-
     """This class is used for user table in database."""
 
     __tablename__ = 'users'
@@ -27,3 +27,6 @@ class User(db.Model):
     delete_date = db.Column(db.TIMESTAMP)
 
     role = db.relationship(u'Role')
+
+    def set_delete_date(self):
+        self.delete_date = datetime.now()

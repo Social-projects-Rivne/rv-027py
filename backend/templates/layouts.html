@@ -1,6 +1,9 @@
 {% extends "bootstrap/base.html" %}
 {% import "bootstrap/wtf.html" as wtf %}
 
+{% block metas %}
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+{% endblock %}
 
 {% block title %}
 	City View - {% block title_suffix %}{% endblock title_suffix %}
@@ -48,5 +51,12 @@
         </div>
     </div>
 
-{% endblock  body %}
 
+{% block scripts %}
+{{super()}}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootbox.js/4.4.0/bootbox.min.js"></script>
+
+    <script type="text/javascript" src="{{url_for('static', filename='js/users.js')}}"></script>
+{% endblock %}
+
+{% endblock  body %}
