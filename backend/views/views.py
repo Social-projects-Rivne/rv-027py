@@ -2,6 +2,7 @@ from datetime import datetime
 from functools import wraps
 
 from flask import flash, redirect, request, render_template, session, url_for
+from sqlalchemy import or_
 
 from app import app, db
 from forms.forms import LoginForm, UserForm
@@ -10,6 +11,7 @@ from models.users import Role, User
 ROLE_ADMIN = 1
 ROLE_MODERATOR = 2
 ROLE_USER = 3
+
 
 def admin_permissions(func):
     """Decorator to check admin rights to access some route."""
@@ -48,22 +50,25 @@ def user_add():
     route_to = url_for('user_add')
     form = UserForm(request.form)
 
-    if request.method == "GET":
-        return render_template('user_modify.html', form=form, route_to=route_to)
-
     if form.validate_on_submit():
-        newuser = User()
-        newuser.name = form.name.data
-        newuser.alias = form.alias.data
-        newuser.role_id = form.role_id.data
-        newuser.email = form.email.data
-        db.session.add(newuser)
-        db.session.commit()
-        flash("user added")
-        return redirect(url_for('user_page'))
-    else:
-        flash("wrong data")
-        return render_template('user_modify.html', form=form, route_to=route_to)
+        user_already_in_base = db.session.query(User).filter(
+            or_(User.email == form.email.data,
+                User.alias == form.alias.data)).first()
+
+        if not user_already_in_base:
+            newuser = User()
+            newuser.name = form.name.data
+            newuser.alias = form.alias.data
+            newuser.role_id = form.role_id.data
+            newuser.email = form.email.data
+            db.session.add(newuser)
+            db.session.commit()
+            flash("user added")
+            return redirect(url_for('user_page'))
+        else:
+            flash("duplicating alias/email")
+
+    return render_template('user_modify.html', form=form, route_to=route_to)
 
 
 @app.route('/usermodify/<int:users_id>', methods=['GET', 'POST'])
@@ -71,19 +76,22 @@ def user_add():
 def user_modify(users_id):
     route_to = url_for('user_modify', users_id=users_id)
     user = db.session.query(User).get(users_id)
-    form = UserForm(obj=user)
-
-    if request.method == "GET":
-        return render_template('user_modify.html', form=form, route_to=route_to)
+    form = UserForm(request.form, obj=user)
 
     if form.validate_on_submit():
-        form.populate_obj(user)
-        db.session.commit()
-        flash("user modified")
-        return redirect(url_for('user_page'))
-    else:
-        flash("wrong data")
-        return render_template('user_modify.html', form=form, route_to=route_to)
+        user_already_in_base = db.session.query(User).filter(
+            User.id != users_id).filter(
+            or_(User.email == form.email.data,
+                User.alias == form.alias.data)).first()
+        if not user_already_in_base:
+            form.populate_obj(user)
+            db.session.commit()
+            flash("user modified")
+            return redirect(url_for('user_page'))
+        else:
+            flash("duplicating alias/email")
+
+    return render_template('user_modify.html', form=form, route_to=route_to)
 
 
 @app.route('/deleteuser/<int:users_id>')
@@ -99,8 +107,6 @@ def delete_user(users_id):
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm(request.form)
-    if request.method == 'GET':
-        return render_template('login_page.html', form=form)
 
     if form.validate_on_submit():
         user = db.session.query(User).filter(
@@ -112,10 +118,8 @@ def login():
             return redirect(url_for('index'))
         else:
             flash('Incorrect login/password data...')
-            return render_template('login_page.html', form=form)
-    else:
-        flash('Incorrect login/password data...')
-        return render_template('login_page.html', form=form)
+
+    return render_template('login_page.html', form=form)
 
 
 @app.route('/logout')
