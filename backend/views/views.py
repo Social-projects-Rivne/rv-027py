@@ -7,6 +7,7 @@ from app import app, db
 from forms.forms import LoginForm, UserForm
 from models.users import Role, User
 
+
 ROLE_ADMIN = 1
 ROLE_MODERATOR = 2
 ROLE_USER = 3
@@ -40,10 +41,11 @@ def admin():
 @app.route('/userpage', methods=['GET', 'POST'])
 @admin_permissions
 def user_page():
+    data = None
     users = None
 
     if request.method == 'GET':
-        
+
         if 'delete_date_checkbox' in request.args and 'role_checkbox' in request.args:
             users = db.session.query(User, Role).filter(User.role_id == Role.id) \
                 .order_by(User.role_id, User.delete_date).all()
