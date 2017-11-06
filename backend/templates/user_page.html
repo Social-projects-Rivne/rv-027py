@@ -9,6 +9,10 @@
 {% endblock navbar_li %}
 
 {% block content %}
+<form action="{{ url_for('user_page')}}" method="GET" name="search">
+		<h5> Search user:  {{form.search(size=40)}} by: {{form.field_by() }}
+			<input type="submit" value="Search"> </h5>
+</form>
 	<div class="table-responsive">
     <form action="{{ url_for('user_page') }}" method="GET">
 		<table class="table table-bordered table-striped">
