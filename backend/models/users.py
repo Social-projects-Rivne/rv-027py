@@ -1,3 +1,4 @@
+from sqlalchemy.sql.functions import func
 from app import db
 
 
@@ -15,6 +16,10 @@ class User(db.Model):
 
     """This class is used for user table in database."""
 
+    ROLE_ADMIN = 1
+    ROLE_MODERATOR = 2
+    ROLE_USER = 3
+
     __tablename__ = 'users'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -27,3 +32,27 @@ class User(db.Model):
     delete_date = db.Column(db.TIMESTAMP)
 
     role = db.relationship(u'Role')
+
+    def is_deleted(self):
+        return bool(self.delete_date)
+
+    def is_last_admin(self):
+        admins = User.query.filter_by(role_id=User.ROLE_ADMIN, delete_date=None)
+        count = admins.count()
+        if count > 1:
+            return False
+        return True
+
+    def delete(self):
+        if self.role_id == User.ROLE_ADMIN:
+            if not self.is_last_admin():
+                self.delete_date = func.current_timestamp()
+                db.session.commit()
+        else:
+            self.delete_date = func.current_timestamp()
+            db.session.commit()
+
+    def restore(self):
+        if self.delete_date:
+            self.delete_date = None
+            db.session.commit()
