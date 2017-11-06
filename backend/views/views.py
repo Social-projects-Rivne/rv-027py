@@ -7,7 +7,6 @@ from app import app, db
 from forms.forms import LoginForm, UserForm
 from models.users import Role, User
 
-
 ROLE_ADMIN = 1
 ROLE_MODERATOR = 2
 ROLE_USER = 3
@@ -15,12 +14,14 @@ ROLE_USER = 3
 
 def admin_permissions(func):
     """Decorator to check admin rights to access some route."""
+
     @wraps(func)
     def wrapper(*args, **kwargs):
         if not 'user_id' in session or session['role_id'] != ROLE_ADMIN:
             flash("Don't have access")
             return redirect(url_for('login'))
         return func(*args, **kwargs)
+
     return wrapper
 
 
@@ -39,26 +40,24 @@ def admin():
 @app.route('/userpage', methods=['GET', 'POST'])
 @admin_permissions
 def user_page():
-    data = None
     users = None
 
     if request.method == 'GET':
-        users = db.session.query(User, Role).filter(User.role_id == Role.id).order_by(User.id).all()
-    if request.method == 'POST':
-        data = request.form.to_dict()
-
-    if data:
-        if 'delete_date_checkbox' in data and 'role_checkbox' in data:
+        
+        if 'delete_date_checkbox' in request.args and 'role_checkbox' in request.args:
             users = db.session.query(User, Role).filter(User.role_id == Role.id) \
                 .order_by(User.role_id, User.delete_date).all()
 
-        elif 'delete_date_checkbox' in data:
+        elif 'delete_date_checkbox' in request.args:
+
             users = db.session.query(User, Role).filter(User.role_id == Role.id) \
                 .order_by(User.delete_date).all()
 
-        elif 'role_checkbox' in data:
+        elif 'role_checkbox' in request.args:
+
             users = db.session.query(User, Role).filter(User.role_id == Role.id) \
                 .order_by(User.role_id).all()
+
         else:
             users = db.session.query(User, Role).filter(User.role_id == Role.id) \
                 .order_by(User.role_id).all()
