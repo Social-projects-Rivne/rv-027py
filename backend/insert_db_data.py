@@ -23,11 +23,11 @@ status2 = Status(status="working")
 status3 = Status(status="closed")
 
 user1 = User(name='Bob', alias='Bobby', email='bob@gmail.com',
-             password='crypto', role_id=1)
+             password='crypto', role_id='1')
 user2 = User(name='Mark', alias='Marky', email='mark@gmail.com',
-             password='123', role_id=2)
+             password='123', role_id='2')
 user3 = User(name='Maria', alias='Mary', email='maria@gmail.com',
-             password='321', role_id=3)
+             password='321', role_id='3')
 
 issue1 = Issue(name='Road accident', user_id='2', category_id='1', location='',
                description='Car crash ...')

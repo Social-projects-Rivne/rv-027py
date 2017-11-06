@@ -21,9 +21,9 @@ def db_create():
         create_database(db_credentials)
         db.create_all()
         db.session.commit()
-        print("Successfully created new database and tables.")
+        print("Successfully created database and tables.")
     else:
-        print("The database's already exists!")
+        print("The database already exists!")
 
 
 if __name__ == '__main__':
