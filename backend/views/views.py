@@ -51,22 +51,17 @@ def user_add():
     form = UserForm(request.form)
 
     if form.validate_on_submit():
-        user_already_in_base = db.session.query(User).filter(
-            or_(User.email == form.email.data,
-                User.alias == form.alias.data)).first()
-
-        if not user_already_in_base:
-            newuser = User()
-            newuser.name = form.name.data
-            newuser.alias = form.alias.data
-            newuser.role_id = form.role_id.data
-            newuser.email = form.email.data
-            db.session.add(newuser)
-            db.session.commit()
-            flash("user added")
-            return redirect(url_for('user_page'))
-        else:
-            flash("duplicating alias/email")
+        newuser = User()
+        newuser.name = form.name.data
+        newuser.alias = form.alias.data
+        newuser.role_id = form.role_id.data
+        newuser.email = form.email.data
+        db.session.add(newuser)
+        db.session.commit()
+        flash("user added")
+        return redirect(url_for('user_page'))
+    else:
+        flash("wrong data")
 
     return render_template('user_modify.html', form=form, route_to=route_to)
 
@@ -79,17 +74,12 @@ def user_modify(users_id):
     form = UserForm(request.form, obj=user)
 
     if form.validate_on_submit():
-        user_already_in_base = db.session.query(User).filter(
-            User.id != users_id).filter(
-            or_(User.email == form.email.data,
-                User.alias == form.alias.data)).first()
-        if not user_already_in_base:
-            form.populate_obj(user)
-            db.session.commit()
-            flash("user modified")
-            return redirect(url_for('user_page'))
-        else:
-            flash("duplicating alias/email")
+        form.populate_obj(user)
+        db.session.commit()
+        flash("user modified")
+        return redirect(url_for('user_page'))
+    else:
+        flash("wrong data")
 
     return render_template('user_modify.html', form=form, route_to=route_to)
 
