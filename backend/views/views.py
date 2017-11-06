@@ -123,5 +123,5 @@ def login():
 def logout():
     session.pop('user_id', None)
     session.pop('role_id', None)
-    flash("successful logout")
+    flash("Successful logout")
     return redirect(url_for('index'))

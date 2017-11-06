@@ -2,11 +2,7 @@ from app import db
 
 
 class Attachment(db.Model):
-<<<<<<< HEAD
     """Attachment table in the database."""
-=======
-    """This class is used for attachment table in database."""
->>>>>>> origin/develop
 
     __tablename__ = 'attachments'
 
@@ -19,11 +15,7 @@ class Attachment(db.Model):
 
 
 class Category(db.Model):
-<<<<<<< HEAD
     """Category table in the database."""
-=======
-    """This class is used for category table in database."""
->>>>>>> origin/develop
 
     __tablename__ = 'category'
 
@@ -33,11 +25,7 @@ class Category(db.Model):
 
 
 class IssueHistory(db.Model):
-<<<<<<< HEAD
     """IssueHistory table in the database."""
-=======
-    """This class is used for issueHistory table in database."""
->>>>>>> origin/develop
 
     __tablename__ = 'issue_History'
 
@@ -54,11 +42,7 @@ class IssueHistory(db.Model):
 
 
 class Issue(db.Model):
-<<<<<<< HEAD
     """Issues table in the database."""
-=======
-    """This class is used for issues table in database."""
->>>>>>> origin/develop
 
     __tablename__ = 'issues'
 
@@ -78,11 +62,7 @@ class Issue(db.Model):
 
 
 class Status(db.Model):
-<<<<<<< HEAD
     """Status table in the database."""
-=======
-    """This class is used for status table in database."""
->>>>>>> origin/develop
 
     __tablename__ = 'statuses'
 
