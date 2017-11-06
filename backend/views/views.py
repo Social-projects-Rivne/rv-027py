@@ -43,10 +43,8 @@ def user_page():
     users = None
 
     if request.method == 'GET':
-        print 'get'
         users = db.session.query(User, Role).filter(User.role_id == Role.id).order_by(User.id).all()
     if request.method == 'POST':
-        print 'post'
         data = request.form.to_dict()
 
     if data:
