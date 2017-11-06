@@ -62,7 +62,7 @@ def user_page():
                 or_(email_search, name_search),
                 or_(name_search, alias_search, email_search)
                 ]
-            condition_list.append(conditions[key-1])
+            condition_list.append(conditions[key])
         condition = or_(condition_list)
         search_users = db.session.query(User, Role).filter(and_(
             User.role_id == Role.id, condition)).order_by(User.id).all()
