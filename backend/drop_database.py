@@ -12,8 +12,8 @@ if 'DATABASE_URL' in os.environ:
 
 
 def db_drop():
-	drop_database(db_credentials)
-	print 'DB dropped'
+    drop_database(db_credentials)
+    print 'DB dropped'
 
 if __name__ == '__main__':
-	db_drop()
+    db_drop()

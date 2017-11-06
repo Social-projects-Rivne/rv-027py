@@ -17,13 +17,14 @@ if 'DATABASE_URL' in os.environ:
 
 
 def db_create():
-    if not database_exists(db_credentials) or True:
-        # create_database(db_credentials)
+    if not database_exists(db_credentials):
+        create_database(db_credentials)
         db.create_all()
         db.session.commit()
         print("Successfully created new database and tables.")
     else:
         print("The database's already exists!")
+
 
 if __name__ == '__main__':
     db_create()
