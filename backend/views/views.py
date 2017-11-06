@@ -37,7 +37,7 @@ def admin():
     return render_template('admin_page.html')
 
 
-@app.route('/userpage', methods=['GET'])
+@app.route('/userpage', methods=['GET', 'POST'])
 @admin_permissions
 def user_page():
     form = SearchForm(request.args, csrf_enabled=False)
