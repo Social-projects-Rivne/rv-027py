@@ -14,6 +14,7 @@ ROLE_USER = 3
 
 MIN_SEARCH_STR = 2
 
+
 def admin_permissions(func):
     """Decorator to check admin rights to access some route."""
     @wraps(func)
@@ -44,12 +45,11 @@ def user_page():
     if  form.validate():
         key = int(request.args.get('field_by'))
         search_string = str(request.args.get('search'))
-        search_parameters = []
         condition_list = []
         for one_string in search_string.split():
-            if len(one_string) >= MIN_SEARCH_STR:
-                search_parameters.append('%{}%'.format(one_string))
-        for search_parameter in search_parameters:
+            if len(one_string) < MIN_SEARCH_STR:
+                continue
+            search_parameter = '%{}%'.format(one_string)
             name_search = User.name.like(search_parameter)
             alias_search = User.alias.like(search_parameter)
             email_search = User.email.like(search_parameter)
@@ -62,8 +62,8 @@ def user_page():
                 or_(email_search, name_search),
                 or_(name_search, alias_search, email_search)
                 ]
-            condition_list.append(conditions[key-1])
-        condition = or_(condition_list)
+            condition_list.append(conditions[key])
+        condition = or_(condition_list[x] for x in range(len(condition_list)))
         search_users = db.session.query(User, Role).filter(and_(
             User.role_id == Role.id, condition)).order_by(User.id).all()
         if search_users:
