@@ -53,13 +53,13 @@ issueHistory5 = IssueHistory(user_id='3', issue_id='3', status_id='3',
 
 
 def db_insert_data():
-    db.session.add_all([role, role1, role2,
-                        category, category1, category2,
-                        status1, status2, status3,
-                        user1, user2, user3,
-                        issue1, issue2, issue3,
-                        issueHistory1, issueHistory2, issueHistory3,
-                        issueHistory4, issueHistory5
+    db.session.add_all([#role, role1, role2,
+                        #category, category1, category2,
+                        #status1, status2, status3,
+                        user1, user2, user3
+                        #issue1, issue2, issue3,
+                        #issueHistory1, issueHistory2, issueHistory3,
+                        #issueHistory4, issueHistory5
                         ])
     db.session.commit()
 

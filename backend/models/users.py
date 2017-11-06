@@ -20,7 +20,7 @@ class User(db.Model):
     name = db.Column(db.Text)
     alias = db.Column(db.Text)
     email = db.Column(db.Text)
-    _password = db.Column(db.Text, nullable=False)
+    hashed_password = db.Column(db.Text, nullable=False)
     role_id = db.Column(db.ForeignKey(u'roles.id'), index=True)
     avatar = db.Column(db.Text)
     delete_date = db.Column(db.TIMESTAMP)
@@ -29,12 +29,12 @@ class User(db.Model):
     # getting the password
     @hybrid_property
     def password(self):
-        return self._password
+        return self.hashed_password
 
     # hashing password before being stored
     @password.setter
     def _set_password(self, plaintext):
-        self._password = bcrypt.generate_password_hash(plaintext)
+        self.hashed_password = bcrypt.generate_password_hash(plaintext)
 
-    def is_correct_password(self, plaintext):
-        return bcrypt.check_password_hash(self._password, plaintext)
+    def check_password(self, plaintext):
+        return bcrypt.check_password_hash(self.hashed_password, plaintext)
