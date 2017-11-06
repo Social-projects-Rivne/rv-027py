@@ -19,6 +19,7 @@ class UniqueValue(object):
     """
 
     def __init__(self, model, property_to_find, message=None):
+
         if not message:
             message = "This field's value is already exists in database."
         self.message = message
@@ -26,12 +27,15 @@ class UniqueValue(object):
         self.property_to_find = property_to_find
 
     def __call__(self, form, field):
+        
         record_id = None
-        if not form.id.data:
-            record_id = None
+        if form.id.data:
+            record_id = form.id.data
+
         query = db.session.query(self.model).filter(
             self.model.id != record_id).filter(
             self.property_to_find == field.data).first()
+
         if query:
             raise ValidationError(self.message)
 
