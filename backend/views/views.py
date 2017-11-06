@@ -109,7 +109,7 @@ def login():
         if user.is_correct_password(form.password.data):
             session['user_id'] = user.id
             session['role_id'] = user.role_id
-            flash('Welcome {}'.format(user.name))
+            flash('Welcome %s' % user.name)
             return redirect(url_for('index'))
         else:
             flash('Incorrect login/password data...')

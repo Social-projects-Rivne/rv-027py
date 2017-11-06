@@ -63,7 +63,7 @@ def db_insert_data():
                         ])
     db.session.commit()
 
-    print("Test data has been inserted into the database.")
+    print "Test data has been inserted into the database."
 
 if __name__ == '__main__':
     db_insert_data()
