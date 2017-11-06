@@ -9,7 +9,7 @@ from app import db
 from models.users import User
 
 
-class Check_users_field(object):
+class UniqueValue(object):
 
     """Custom validator.
 
@@ -26,19 +26,20 @@ class Check_users_field(object):
         self.property_to_find = property_to_find
 
     def __call__(self, form, field):
+        record_id = None
         if not form.id.data:
-            form.id.data = None
-        self.query = db.session.query(self.model).filter(
-            self.model.id != form.id.data).filter(
+            record_id = None
+        query = db.session.query(self.model).filter(
+            self.model.id != record_id).filter(
             self.property_to_find == field.data).first()
-        if self.query:
+        if query:
             raise ValidationError(self.message)
 
-check_email = Check_users_field(
+check_email = UniqueValue(
     User, User.email,
     message="This email is already exists in database.")
 
-check_alias = Check_users_field(
+check_alias = UniqueValue(
     User, User.alias,
     message="This alias is already exists in database.")
 
