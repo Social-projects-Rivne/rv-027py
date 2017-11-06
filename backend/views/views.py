@@ -89,8 +89,9 @@ def user_modify(users_id):
 @admin_permissions
 def delete_user(users_id):
     user = db.session.query(User).get(users_id)
-    user.delete()
-    msg = "user deleted" if user.is_deleted() else "cannot delete user"
+    is_deleted = user.delete()
+    db.session.commit()
+    msg = "user deleted" if is_deleted else "cannot delete user"
     flash(msg)
     return redirect(url_for('user_page'))
 
@@ -100,6 +101,7 @@ def delete_user(users_id):
 def restore_user(users_id):
     user = db.session.query(User).get(users_id)
     user.restore()
+    db.session.commit()
     flash("user restored")
     return redirect(url_for('user_page'))
 

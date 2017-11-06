@@ -33,12 +33,8 @@ class User(db.Model):
 
     role = db.relationship(u'Role')
 
-    def is_deleted(self):
-        return bool(self.delete_date)
-
     def is_last_admin(self):
-        admins = User.query.filter_by(role_id=User.ROLE_ADMIN, delete_date=None)
-        count = admins.count()
+        count = User.query.filter_by(role_id=User.ROLE_ADMIN, delete_date=None).count()
         if count > 1:
             return False
         return True
@@ -47,12 +43,14 @@ class User(db.Model):
         if self.role_id == User.ROLE_ADMIN:
             if not self.is_last_admin():
                 self.delete_date = func.current_timestamp()
-                db.session.commit()
+                return True
         else:
             self.delete_date = func.current_timestamp()
-            db.session.commit()
+            return True
+        return False
 
     def restore(self):
         if self.delete_date:
             self.delete_date = None
-            db.session.commit()
+            return True
+        return False
