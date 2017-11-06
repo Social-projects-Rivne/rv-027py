@@ -34,11 +34,13 @@ class Check_users_field(object):
         if self.query:
             raise ValidationError(self.message)
 
-check_email = Check_users_field(User, User.email,
-                          message="This email is already exists in database.")
+check_email = Check_users_field(
+    User, User.email,
+    message="This email is already exists in database.")
 
-check_alias = Check_users_field(User, User.alias,
-                          message="This alias is already exists in database.")
+check_alias = Check_users_field(
+    User, User.alias,
+    message="This alias is already exists in database.")
 
 
 class UserForm(FlaskForm):
