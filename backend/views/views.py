@@ -1,4 +1,3 @@
-from datetime import datetime
 from functools import wraps
 
 from flask import flash, redirect, request, render_template, session, url_for
@@ -84,13 +83,24 @@ def user_modify(users_id):
     return render_template('user_modify.html', form=form, route_to=route_to)
 
 
-@app.route('/deleteuser/<int:users_id>')
+@app.route('/deleteuser/<int:users_id>', methods=['POST'])
+@admin_permissions
 def delete_user(users_id):
-    current_moment = datetime.now()
     user = db.session.query(User).get(users_id)
-    user.delete_date = current_moment
+    is_deleted = user.delete()
     db.session.commit()
-    flash("user deleted")
+    msg = "user deleted" if is_deleted else "cannot delete user"
+    flash(msg)
+    return redirect(url_for('user_page'))
+
+
+@app.route('/restoreuser/<int:users_id>', methods=['POST'])
+@admin_permissions
+def restore_user(users_id):
+    user = db.session.query(User).get(users_id)
+    user.restore()
+    db.session.commit()
+    flash("user restored")
     return redirect(url_for('user_page'))
 
 
