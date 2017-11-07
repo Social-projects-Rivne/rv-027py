@@ -43,11 +43,10 @@ def admin():
 @app.route('/userpage', methods=['GET', 'POST'])
 @admin_permissions
 def user_page():
-    users = None
-
     form = SearchForm(request.args, csrf_enabled=False)
     if form.validate():
-        key = int(request.args.get('field_by'))
+        search_by = int(request.args.get('search_by'))
+        order_by = int(request.args.get('order_by'))
         search_string = str(request.args.get('search'))
         condition_list = []
         for one_string in search_string.split():
@@ -66,35 +65,19 @@ def user_page():
                 or_(email_search, name_search),
                 or_(name_search, alias_search, email_search)
             ]
-            condition_list.append(conditions[key])
+            condition_list.append(conditions[search_by])
         condition = or_(*condition_list)
+
+        order_list = [User.id, User.role_id, User.delete_date]
+        order = order_list[order_by]
         search_users = db.session.query(User, Role).filter(and_(
-            User.role_id == Role.id, condition)).order_by(User.id).all()
-        if search_users:
-            flash("Search results")
-            return render_template('user_page.html', form=form, users=search_users)
-        else:
-            flash("Search didn`t give result")
-            return render_template('user_page.html', form=form, users=[])
-
-    if 'delete_date_checkbox' in request.args and 'role_checkbox' in request.args:
-        users = db.session.query(User, Role).filter(User.role_id == Role.id) \
-            .order_by(User.role_id, User.delete_date).all()
-
-    elif 'delete_date_checkbox' in request.args:
-
-        users = db.session.query(User, Role).filter(User.role_id == Role.id) \
-            .order_by(User.delete_date).all()
-
-    elif 'role_checkbox' in request.args:
-
-        users = db.session.query(User, Role).filter(User.role_id == Role.id) \
-            .order_by(User.role_id).all()
-
+            User.role_id == Role.id, condition)).order_by(order).all()
+        flash("Results")
+        return render_template('user_page.html', form=form, users=search_users)
     else:
-        users = db.session.query(User, Role).filter(User.role_id == Role.id) \
-            .order_by(User.role_id).all()
-    return render_template('user_page.html', form=form, users=users)
+        users = db.session.query(User, Role).filter(
+            User.role_id == Role.id).order_by(User.id).all()
+        return render_template('user_page.html', form=form, users=users)
 
 
 @app.route('/useradd', methods=['GET', 'POST'])

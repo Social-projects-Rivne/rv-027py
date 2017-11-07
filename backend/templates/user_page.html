@@ -9,9 +9,9 @@
 {% endblock navbar_li %}
 
 {% block content %}
-<form action="{{ url_for('user_page')}}" method="GET" name="search">
-		<h5> Search user:  {{form.search(size=40)}} by: {{form.field_by() }}
-			<input type="submit" value="Search"> </h5>
+    <form>
+        <h5> Search user: {{form.search(size=40)}} search by: {{form.search_by() }}  sort by: {{form.order_by()}}
+            <input type="submit" value="Search or sort"> </h5>
 </form>
 	<div class="table-responsive">
     <form action="{{ url_for('user_page') }}" method="GET">
@@ -21,13 +21,9 @@
 				<th>User</th>
 				<th>Alias</th>
 				<th>E-mail</th>
-				<th>Role
-                 <input type="checkbox" name="role_checkbox" value="role_id"/>
-                </th>
+				<th>Role</th>
 				<th>Avatar</th>
-				<th>Delete date
-                <input type="checkbox" name="delete_date_checkbox" value="delete_date"/>
-                </th>
+				<th>Delete date</th>
 				<th></th>
 				<th></th>
 			</tr>
@@ -45,8 +41,6 @@
 				</tr>
 			{% endfor %}
 		</table>
-    <input type="submit" class="btn btn-success" name="Sort" value="Sort">
-    </form>
 	</div>
 		<a href="{{ url_for('user_add') }}" class="btn btn-success">Add new user</a>
 {% endblock %}
