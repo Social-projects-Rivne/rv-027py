@@ -111,13 +111,17 @@ def login():
     if form.validate_on_submit():
         user = db.session.query(User).filter(
             User.email == form.email.data).first()
-        if user and user.password == form.password.data:
+        if user.check_password(form.password.data):
             session['user_id'] = user.id
             session['role_id'] = user.role_id
-            flash('Wellcome %s' % user.name)
+            flash('Welcome %s' % user.name)
             return redirect(url_for('index'))
         else:
             flash('Incorrect login/password data...')
+            return render_template('login_page.html', form=form)
+    else:
+        flash('Incorrect login/password data')
+        return render_template('login_page.html', form=form)
 
     return render_template('login_page.html', form=form)
 
@@ -126,5 +130,5 @@ def login():
 def logout():
     session.pop('user_id', None)
     session.pop('role_id', None)
-    flash("Logout success")
+    flash("Successful logout")
     return redirect(url_for('index'))
