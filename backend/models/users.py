@@ -1,5 +1,8 @@
 from sqlalchemy.ext.hybrid import hybrid_property
 from app import bcrypt, db
+from sqlalchemy.sql.functions import func
+from app import db
+
 
 
 class Role(db.Model):
@@ -13,6 +16,10 @@ class Role(db.Model):
 
 class User(db.Model):
     """User table in the database"""
+
+    ROLE_ADMIN = 1
+    ROLE_MODERATOR = 2
+    ROLE_USER = 3
 
     __tablename__ = 'users'
 
@@ -38,3 +45,25 @@ class User(db.Model):
 
     def check_password(self, plaintext):
         return bcrypt.check_password_hash(self.hashed_password, plaintext)
+
+    def is_last_admin(self):
+        count = User.query.filter_by(role_id=User.ROLE_ADMIN, delete_date=None).count()
+        if count > 1:
+            return False
+        return True
+
+    def delete(self):
+        if self.role_id == User.ROLE_ADMIN:
+            if not self.is_last_admin():
+                self.delete_date = func.current_timestamp()
+                return True
+        else:
+            self.delete_date = func.current_timestamp()
+            return True
+        return False
+
+    def restore(self):
+        if self.delete_date:
+            self.delete_date = None
+            return True
+        return False

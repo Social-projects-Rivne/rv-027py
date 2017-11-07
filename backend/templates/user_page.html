@@ -4,38 +4,71 @@
 {% block title_suffix %}Users managements{% endblock title_suffix %}
 
 {% block navbar_li %}
-    <li><a href="{{ url_for('index')}}">Main page</a></li>
+    <li><a href="{{ url_for('index') }}">Main page</a></li>
     <li><a href="{{ url_for('logout') }}">Logout</a></li>
 {% endblock navbar_li %}
 
 {% block content %}
-	<div class="table-responsive">
-		<table class="table table-bordered table-striped">
-			<tr>
-				<th>Id</th>
-				<th>User</th>
-				<th>Alias</th>
-				<th>E-mail</th>
-				<th>Role</th>
-				<th>Avatar</th>
-				<th>Delete date</th>
-				<th></th>
-				<th></th>
-			</tr>
-			{% for user, role in users %}
-				<tr>
-					<td>{{ user.id }}</td>
-					<td>{{ user.name }}</td>
-					<td>{{ user.alias }}</td>
-					<td>{{ user.email }}</td>
-					<td>{{ role.role }}</td>
-					<td>{{ user.avatar }}</td>
-					<td>{{ user.delete_date }}</td>
-					<td><a href="{{ url_for('user_modify', users_id=user.id) }}" class="btn btn-primary">Edit</a></td>
-					<td><a href="{{ url_for('delete_user', users_id=user.id) }}" class="btn btn-danger">Delete</a></td>
-				</tr>
-			{% endfor %}
-		</table>
-	</div>
-		<a href="{{ url_for('user_add') }}" class="btn btn-success">Add new user</a>
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <tr>
+                <th>Id</th>
+                <th>User</th>
+                <th>Alias</th>
+                <th>E-mail</th>
+                <th>Role</th>
+                <th>Avatar</th>
+                <th>Delete date</th>
+                <th></th>
+                <th></th>
+            </tr>
+            {% for user, role in users %}
+                <tr>
+                    <td>{{ user.id }}</td>
+                    <td>{{ user.name }}</td>
+                    <td>{{ user.alias }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>{{ role.role }}</td>
+                    <td>{{ user.avatar }}</td>
+                    <td>{{ user.delete_date }}</td>
+                    <td><a href="{{ url_for('user_modify', users_id=user.id) }}" class="btn btn-primary">Edit</a></td>
+                    {% if not user.delete_date %}
+                        <td><a class="btn btn-danger" data-toggle="modal" data-target="#deletion" data-user-id="{{ user.id }}"
+                               data-user-name="{{ user.name }}">Delete</a></td>
+                    {% else %}
+                        <td>
+                            <form id="restore-user" method="post" action="/restoreuser/{{ user.id }}">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                <button type="submit" class="btn btn-success">Restore</button>
+                            </form>
+                        </td>
+                    {% endif %}
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+    <a href="{{ url_for('user_add') }}" class="btn btn-success">Add new user</a>
+
+    <div class="modal fade" id="deletion" role="dialog">
+        <div class="modal-dialog">
+
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title"></h4>
+                </div>
+                <div class="modal-body">
+                    <p>Please click Delete button if you want to delete data.</p>
+                </div>
+                <div class="modal-footer">
+                    <form id="delete-user" method="post" action="#">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+      </div>
 {% endblock %}

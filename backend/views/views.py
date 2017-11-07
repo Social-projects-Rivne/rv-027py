@@ -1,7 +1,7 @@
-from datetime import datetime
 from functools import wraps
 
 from flask import flash, redirect, request, render_template, session, url_for
+from sqlalchemy import or_
 
 from app import app, db
 from forms.forms import LoginForm, UserForm
@@ -49,9 +49,6 @@ def user_add():
     route_to = url_for('user_add')
     form = UserForm(request.form)
 
-    if request.method == "GET":
-        return render_template('user_modify.html', form=form, route_to=route_to)
-
     if form.validate_on_submit():
         newuser = User()
         newuser.name = form.name.data
@@ -64,7 +61,8 @@ def user_add():
         return redirect(url_for('user_page'))
     else:
         flash("wrong data")
-        return render_template('user_modify.html', form=form, route_to=route_to)
+
+    return render_template('user_modify.html', form=form, route_to=route_to)
 
 
 @app.route('/usermodify/<int:users_id>', methods=['GET', 'POST'])
@@ -72,10 +70,7 @@ def user_add():
 def user_modify(users_id):
     route_to = url_for('user_modify', users_id=users_id)
     user = db.session.query(User).get(users_id)
-    form = UserForm(obj=user)
-
-    if request.method == "GET":
-        return render_template('user_modify.html', form=form, route_to=route_to)
+    form = UserForm(request.form, obj=user)
 
     if form.validate_on_submit():
         form.populate_obj(user)
@@ -84,24 +79,34 @@ def user_modify(users_id):
         return redirect(url_for('user_page'))
     else:
         flash("wrong data")
-        return render_template('user_modify.html', form=form, route_to=route_to)
+
+    return render_template('user_modify.html', form=form, route_to=route_to)
 
 
-@app.route('/deleteuser/<int:users_id>')
+@app.route('/deleteuser/<int:users_id>', methods=['POST'])
+@admin_permissions
 def delete_user(users_id):
-    current_moment = datetime.now()
     user = db.session.query(User).get(users_id)
-    user.delete_date = current_moment
+    is_deleted = user.delete()
     db.session.commit()
-    flash("user deleted")
+    msg = "user deleted" if is_deleted else "cannot delete user"
+    flash(msg)
+    return redirect(url_for('user_page'))
+
+
+@app.route('/restoreuser/<int:users_id>', methods=['POST'])
+@admin_permissions
+def restore_user(users_id):
+    user = db.session.query(User).get(users_id)
+    user.restore()
+    db.session.commit()
+    flash("user restored")
     return redirect(url_for('user_page'))
 
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm(request.form)
-    if request.method == 'GET':
-        return render_template('login_page.html', form=form)
 
     if form.validate_on_submit():
         user = db.session.query(User).filter(
@@ -117,6 +122,8 @@ def login():
     else:
         flash('Incorrect login/password data')
         return render_template('login_page.html', form=form)
+
+    return render_template('login_page.html', form=form)
 
 
 @app.route('/logout')
