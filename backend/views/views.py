@@ -22,7 +22,7 @@ def admin_permissions(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
         if not 'user_id' in session or session['role_id'] != ROLE_ADMIN:
-            flash("Don't have access")
+            flash("No access")
             return redirect(url_for('login'))
         return func(*args, **kwargs)
 
@@ -95,10 +95,8 @@ def user_add():
         newuser.email = form.email.data
         db.session.add(newuser)
         db.session.commit()
-        flash("user added")
+        flash("User added")
         return redirect(url_for('user_page'))
-    else:
-        flash("wrong data")
 
     return render_template('user_modify.html', form=form, route_to=route_to)
 
@@ -113,10 +111,8 @@ def user_modify(users_id):
     if form.validate_on_submit():
         form.populate_obj(user)
         db.session.commit()
-        flash("user modified")
+        flash("User modified")
         return redirect(url_for('user_page'))
-    else:
-        flash("wrong data")
 
     return render_template('user_modify.html', form=form, route_to=route_to)
 
@@ -127,7 +123,7 @@ def delete_user(users_id):
     user = db.session.query(User).get(users_id)
     is_deleted = user.delete()
     db.session.commit()
-    msg = "user deleted" if is_deleted else "cannot delete user"
+    msg = "User deleted" if is_deleted else "Impossible to delete user"
     flash(msg)
     return redirect(url_for('user_page'))
 
@@ -138,7 +134,7 @@ def restore_user(users_id):
     user = db.session.query(User).get(users_id)
     user.restore()
     db.session.commit()
-    flash("user restored")
+    flash("User restored")
     return redirect(url_for('user_page'))
 
 
@@ -149,7 +145,7 @@ def login():
     if form.validate_on_submit():
         user = db.session.query(User).filter(
             User.email == form.email.data).first()
-        if user.check_password(form.password.data):
+        if user and not user.delete_date and user.check_password(form.password.data):
             session['user_id'] = user.id
             session['role_id'] = user.role_id
             flash('Welcome %s' % user.name)
@@ -158,7 +154,6 @@ def login():
             flash('Incorrect login/password data...')
             return render_template('login_page.html', form=form)
     else:
-        flash('Incorrect login/password data')
         return render_template('login_page.html', form=form)
 
     return render_template('login_page.html', form=form)
