@@ -98,3 +98,28 @@ class LoginForm(FlaskForm):
     email = StringField('login', validators=[Email()])
     password = PasswordField('password', validators=[DataRequired()])
     submit_button = SubmitField('Login')
+
+
+class SearchForm(FlaskForm):
+
+    """Search form"""
+
+    search = StringField(
+        'search',
+        validators=[
+            DataRequired(),
+            Length(min=2)
+            ]
+        )
+    field_by = SelectField(
+        'by',
+        choices=[
+            ('0', 'name'),
+            ('1', 'alias'),
+            ('2', 'email'),
+            ('3', 'name+alias'),
+            ('4', 'alias+email'),
+            ('5', 'email+name'),
+            ('6', 'email+name+alias')
+            ]
+        )

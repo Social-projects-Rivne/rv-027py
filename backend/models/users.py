@@ -4,7 +4,6 @@ from sqlalchemy.sql.functions import func
 from app import db
 
 
-
 class Role(db.Model):
     """Role table in the database"""
 
