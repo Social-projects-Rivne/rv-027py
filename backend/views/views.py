@@ -18,12 +18,14 @@ MIN_SEARCH_STR = 2
 
 def admin_permissions(func):
     """Decorator to check admin rights to access some route."""
+
     @wraps(func)
     def wrapper(*args, **kwargs):
         if not 'user_id' in session or session['role_id'] != ROLE_ADMIN:
             flash("No access")
             return redirect(url_for('login'))
         return func(*args, **kwargs)
+
     return wrapper
 
 
@@ -43,8 +45,9 @@ def admin():
 @admin_permissions
 def user_page():
     form = SearchForm(request.args, csrf_enabled=False)
-    if  form.validate():
-        key = int(request.args.get('field_by'))
+    if form.validate():
+        search_by = int(request.args.get('search_by'))
+        order_by = int(request.args.get('order_by'))
         search_string = str(request.args.get('search'))
         condition_list = []
         for one_string in search_string.split():
@@ -62,17 +65,16 @@ def user_page():
                 or_(alias_search, email_search),
                 or_(email_search, name_search),
                 or_(name_search, alias_search, email_search)
-                ]
-            condition_list.append(conditions[key])
+            ]
+            condition_list.append(conditions[search_by])
         condition = or_(*condition_list)
+
+        order_list = [User.id, User.role_id, User.delete_date]
+        order = order_list[order_by]
         search_users = db.session.query(User, Role).filter(and_(
-            User.role_id == Role.id, condition)).order_by(User.id).all()
-        if search_users:
-            flash("Search results")
-            return render_template('user_page.html', form=form, users=search_users)
-        else:
-            flash("Search didn`t give result")
-            return render_template('user_page.html', form=form, users=[])
+            User.role_id == Role.id, condition)).order_by(order).all()
+        flash("Results")
+        return render_template('user_page.html', form=form, users=search_users)
     else:
         users = db.session.query(User, Role).filter(
             User.role_id == Role.id).order_by(User.id).all()
