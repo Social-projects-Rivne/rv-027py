@@ -5,18 +5,12 @@
 
 {% block navbar_li %}
 	<li><a href="{{ url_for('index') }}">Main page</a></li>
-<<<<<<< HEAD
 	{% if session['auth'] == True %}
         <li><a href="{{ url_for('admin') }}">Admin page</a></li>
         <li><a href="{{ url_for('logout') }}">Logout</a></li>
 	{% else %}
         <li><a href="{{ url_for('login') }}">Login</a></li>
 	{% endif %}
-=======
-	<li><a href="{{ url_for('admin') }}">Admin page</a></li>
-	<li><a href="{{ url_for('login') }}">Login</a></li>
-	<li><a href="{{ url_for('logout') }}">Logout</a></li>
->>>>>>> remotes/origin/develop
 {% endblock navbar_li %}
 
 {% block content %}
