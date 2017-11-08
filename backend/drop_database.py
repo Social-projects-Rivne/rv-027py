@@ -10,9 +10,10 @@ db_credentials = Config.SQLALCHEMY_DATABASE_URI
 if 'DATABASE_URL' in os.environ:
     db_credentials = os.environ['DATABASE_URL']
 
+
 def db_drop():
-	drop_database(db_credentials)
-	print 'DB dropped'
+    drop_database(db_credentials)
+    print 'DB dropped'
 
 if __name__ == '__main__':
-	db_drop()
+    db_drop()
