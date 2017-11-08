@@ -15,6 +15,9 @@ class Config(object):
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
+    # password hashing rounds
+    BCRYPT_LOG_ROUNDS = 14
+
 
 class ProductionConfig(Config):
     DEBUG = False

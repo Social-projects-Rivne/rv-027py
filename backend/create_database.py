@@ -23,7 +23,8 @@ def db_create():
         db.session.commit()
         print "Successfully created database and tables."
     else:
-        print "Database already exists!"
+        print "The database already exists!"
+
 
 if __name__ == '__main__':
     db_create()
