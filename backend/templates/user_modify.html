@@ -1,0 +1,18 @@
+{% extends 'layouts.html' %}
+
+
+{% block title_suffix %}Users add/edit{% endblock title_suffix %}
+
+{% block navbar_li %}
+    <li><a href="{{ url_for('index')}}">Main page</a></li>
+    <li><a href="{{ url_for('logout') }}">Logout</a></li>
+{% endblock navbar_li %}
+
+{% block content %}
+    <h1>User modifying form</h1>
+    <div class="col-md-5">
+        {{ wtf.quick_form(form, action=route_to,  method="POST", button_map={'submit_button' : 'success'}) }}
+        <br>
+        <a href="{{ url_for('user_page') }}" class="btn btn-primary">Back to users list</a>
+    </div>
+{% endblock %}

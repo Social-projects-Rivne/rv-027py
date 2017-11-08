@@ -1,0 +1,55 @@
+{% extends "bootstrap/base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+
+{% block title %}
+	City View - {% block title_suffix %}{% endblock title_suffix %}
+{% endblock  title %}
+
+{% block body %}
+
+	{% block navbar %}
+		<div class="container">
+			<div class="row">
+				<div class="col-sm-12">
+					<nav class="navbar navbar-default">
+						<ul class="nav navbar-nav">
+							{% block navbar_li %}
+							{% endblock navbar_li %}
+						</ul>
+					</nav>
+				</div>
+			</div>
+		</div>
+	{% endblock  navbar %}
+
+	<div class="container">
+		<div class="row">
+			<div class="col-sm-12">
+				{% with messages = get_flashed_messages() %}
+					{% if messages %}
+						<ul class="list-unstyled">
+							{% for message in messages %}
+								<li class="alert alert-info">{{ message }}</li>
+							{% endfor %}
+						</ul>
+					{% endif %}
+				{% endwith %}
+			</div>
+		</div>
+	</div>
+
+	<div class="container">
+        <div class="row">
+            <div class="col-sm-12">
+            	{% block content %}
+				{% endblock content %}
+            </div>
+        </div>
+    </div>
+{% block scripts %}
+    {{ super() }}
+	<script src="{{url_for('.static', filename='assets/js/app.js')}}"></script>
+{%- endblock %}
+{% endblock  body %}
+
