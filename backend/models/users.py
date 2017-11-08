@@ -27,7 +27,7 @@ class User(db.Model):
     name = db.Column(db.Text)
     alias = db.Column(db.Text)
     email = db.Column(db.Text)
-    hashed_password = db.Column(db.Text, nullable=False)
+    hashed_password = db.Column(db.Text)
     role_id = db.Column(db.ForeignKey(u'roles.id'), index=True)
     avatar = db.Column(db.Text)
     delete_date = db.Column(db.TIMESTAMP)
