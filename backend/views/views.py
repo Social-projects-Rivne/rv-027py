@@ -147,7 +147,6 @@ def login():
             User.email == form.email.data).first()
         if user and not user.delete_date and user.check_password(form.password.data):
             session['user_id'] = user.id
-            session['auth'] = True
             session['role_id'] = user.role_id
             flash('Welcome %s' % user.name)
             return redirect(url_for('index'))
@@ -164,6 +163,5 @@ def login():
 def logout():
     session.pop('user_id', None)
     session.pop('role_id', None)
-    session['auth'] = False
     flash("Successful logout")
     return redirect(url_for('index'))
