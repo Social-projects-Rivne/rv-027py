@@ -1,15 +1,19 @@
 from functools import wraps
 
 from flask import flash, redirect, request, render_template, session, url_for
-from sqlalchemy import or_
+from sqlalchemy import and_, or_
+
 
 from app import app, db
-from forms.forms import LoginForm, UserForm
+from forms.forms import LoginForm, SearchForm, UserForm
 from models.users import Role, User
 
 ROLE_ADMIN = 1
 ROLE_MODERATOR = 2
 ROLE_USER = 3
+
+
+MIN_SEARCH_STR = 2
 
 
 def admin_permissions(func):
@@ -35,12 +39,44 @@ def admin():
     return render_template('admin_page.html')
 
 
-@app.route('/userpage')
+@app.route('/userpage', methods=['GET', 'POST'])
 @admin_permissions
 def user_page():
-    users = db.session.query(User, Role).filter(
-        User.role_id == Role.id).order_by(User.id).all()
-    return render_template('user_page.html', users=users)
+    form = SearchForm(request.args, csrf_enabled=False)
+    if  form.validate():
+        key = int(request.args.get('field_by'))
+        search_string = str(request.args.get('search'))
+        condition_list = []
+        for one_string in search_string.split():
+            if len(one_string) < MIN_SEARCH_STR:
+                continue
+            search_parameter = '%{}%'.format(one_string)
+            name_search = User.name.like(search_parameter)
+            alias_search = User.alias.like(search_parameter)
+            email_search = User.email.like(search_parameter)
+            conditions = [
+                name_search,
+                alias_search,
+                email_search,
+                or_(name_search, alias_search),
+                or_(alias_search, email_search),
+                or_(email_search, name_search),
+                or_(name_search, alias_search, email_search)
+                ]
+            condition_list.append(conditions[key])
+        condition = or_(*condition_list)
+        search_users = db.session.query(User, Role).filter(and_(
+            User.role_id == Role.id, condition)).order_by(User.id).all()
+        if search_users:
+            flash("Search results")
+            return render_template('user_page.html', form=form, users=search_users)
+        else:
+            flash("Search didn`t give result")
+            return render_template('user_page.html', form=form, users=[])
+    else:
+        users = db.session.query(User, Role).filter(
+            User.role_id == Role.id).order_by(User.id).all()
+        return render_template('user_page.html', form=form, users=users)
 
 
 @app.route('/useradd', methods=['GET', 'POST'])
