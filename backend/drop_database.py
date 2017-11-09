@@ -1,8 +1,9 @@
+"""This module drops database"""
 import os
 
 from sqlalchemy_utils.functions.database import drop_database
 
-from config import Config
+from backend.config import Config
 
 
 db_credentials = Config.SQLALCHEMY_DATABASE_URI
@@ -12,8 +13,10 @@ if 'DATABASE_URL' in os.environ:
 
 
 def db_drop():
+    """This function drops database"""
     drop_database(db_credentials)
     print 'DB dropped'
+
 
 if __name__ == '__main__':
     db_drop()

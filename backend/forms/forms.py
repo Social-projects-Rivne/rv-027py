@@ -1,12 +1,12 @@
+"""This module contains forms classes for admin manage."""
 from flask_wtf import FlaskForm
-from wtforms import (StringField, IntegerField, DateField,
-                     HiddenField, PasswordField, SelectField,
-                     SubmitField)
-from wtforms.validators import (DataRequired, Email, Optional,
+from wtforms import (StringField, HiddenField,
+                     PasswordField, SelectField, SubmitField)
+from wtforms.validators import (DataRequired, Email,
                                 Length, Regexp, ValidationError)
 
-from app import db
-from models.users import User
+from backend.app import db
+from backend.models.users import User
 
 
 class UniqueValue(object):
@@ -18,6 +18,8 @@ class UniqueValue(object):
 
     """
 
+    # pylint: disable=too-few-public-methods
+
     def __init__(self, model, property_to_find, message=None):
 
         if not message:
@@ -27,17 +29,18 @@ class UniqueValue(object):
         self.property_to_find = property_to_find
 
     def __call__(self, form, field):
-        
+
         record_id = None
         if form.id.data:
             record_id = form.id.data
 
         query = db.session.query(self.model).filter(
             self.model.id != record_id).filter(
-            self.property_to_find == field.data).first()
+                self.property_to_find == field.data).first()
 
         if query:
             raise ValidationError(self.message)
+
 
 check_email = UniqueValue(
     User, User.email,
@@ -102,28 +105,28 @@ class LoginForm(FlaskForm):
 
 class SearchForm(FlaskForm):
 
-   """Search form"""
+    """Search form"""
 
-   search = StringField(
-       'search'
-       )
-   search_by = SelectField(
-       'search_by',
-       choices=[
-           ('0', 'name'),
-           ('1', 'alias'),
-           ('2', 'email'),
-           ('3', 'name+alias'),
-           ('4', 'alias+email'),
-           ('5', 'email+name'),
-           ('6', 'email+name+alias')
-           ]
-       )
-   order_by = SelectField(
-       'order_by',
-       choices=[
-           ('0', 'id'),
-           ('1', 'role'),
-           ('2', 'delete date')
-           ]
-       )
+    search = StringField(
+        'search'
+    )
+    search_by = SelectField(
+        'search_by',
+        choices=[
+            ('0', 'name'),
+            ('1', 'alias'),
+            ('2', 'email'),
+            ('3', 'name+alias'),
+            ('4', 'alias+email'),
+            ('5', 'email+name'),
+            ('6', 'email+name+alias')
+        ]
+    )
+    order_by = SelectField(
+        'order_by',
+        choices=[
+            ('0', 'id'),
+            ('1', 'role'),
+            ('2', 'delete date')
+        ]
+    )
