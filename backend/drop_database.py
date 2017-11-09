@@ -1,4 +1,5 @@
 """This module drops database"""
+#pylint: disable=no-name-in-module,import-error
 import os
 
 from sqlalchemy_utils.functions.database import drop_database
