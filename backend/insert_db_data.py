@@ -1,5 +1,5 @@
 """This module insert database data"""
-#pylint: disable=no-name-in-module,import-error
+# pylint: disable=no-name-in-module,import-error
 import os
 
 from backend.app import db

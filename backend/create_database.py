@@ -1,5 +1,5 @@
 """This module create database, if it not exists"""
-#pylint: disable=no-name-in-module,import-error
+# pylint: disable=no-name-in-module,import-error
 import os
 
 from sqlalchemy_utils.functions.database import (create_database,
