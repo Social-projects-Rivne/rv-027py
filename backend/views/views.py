@@ -63,17 +63,17 @@ def user_page():
                 if len(one_string) < MIN_SEARCH_STR:
                     continue
                 search_parameter = '%{}%'.format(one_string)
-                name_search = User.name.like(search_parameter)
-                alias_search = User.alias.like(search_parameter)
-                email_search = User.email.like(search_parameter)
+                search_like[0] = User.name.like(search_parameter)
+                search_like[1] = User.alias.like(search_parameter)
+                search_like[2] = User.email.like(search_parameter)
                 conditions = [
-                    name_search,
-                    alias_search,
-                    email_search,
-                    or_(name_search, alias_search),
-                    or_(alias_search, email_search),
-                    or_(email_search, name_search),
-                    or_(name_search, alias_search, email_search)
+                    search_like[0],
+                    search_like[1],
+                    search_like[2],
+                    or_(search_like[0], search_like[1]),
+                    or_(search_like[1], search_like[2]),
+                    or_(search_like[2], search_like[0]),
+                    or_(search_like[0], search_like[1], search_like[2])
                 ]
                 condition_list.append(conditions[search_by])
             condition = or_(*condition_list)
