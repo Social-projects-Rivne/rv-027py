@@ -49,8 +49,6 @@ def admin():
 @admin_permissions
 def user_page():
     """Page with list of users route."""
-    # Needs to fix
-    # pylint: disable=too-many-locals, no-else-return
     form = SearchForm(request.args, meta={'csrf': False})
     msg = False
     if form.validate():
