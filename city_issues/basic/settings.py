@@ -27,12 +27,12 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_jinja',
     'city_issues',
 ]
 
@@ -58,35 +58,6 @@ TEMPLATES = [
             "match_regex": r"^(?!admin/).*",
             "app_dirname": "templates",
 
-            # Can be set to "jinja2.Undefined" or any other subclass.
-            "undefined": None,
-
-            "newstyle_gettext": True,
-            "tests": {
-                "mytest": "path.to.my.test",
-            },
-            "filters": {
-                "myfilter": "path.to.my.filter",
-            },
-            "globals": {
-                "myglobal": "path.to.my.globalfunc",
-            },
-            "constants": {
-                "foo": "bar",
-            },
-            "extensions": [
-                "jinja2.ext.do",
-                "jinja2.ext.loopcontrols",
-                "jinja2.ext.with_",
-                "jinja2.ext.i18n",
-                "jinja2.ext.autoescape",
-                "django_jinja.builtins.extensions.CsrfExtension",
-                "django_jinja.builtins.extensions.CacheExtension",
-                "django_jinja.builtins.extensions.TimezoneExtension",
-                "django_jinja.builtins.extensions.UrlsExtension",
-                "django_jinja.builtins.extensions.StaticFilesExtension",
-                "django_jinja.builtins.extensions.DjangoFiltersExtension",
-            ],
             "bytecode_cache": {
                 "name": "default",
                 "backend": "django_jinja.cache.BytecodeCache",

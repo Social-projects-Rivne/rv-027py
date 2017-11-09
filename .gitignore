@@ -105,11 +105,11 @@ ENV/
 flask
 
 #configuration file
-backend/config.py
+admin/config.py
 
 #JetBrains IDE
 /.idea
 
 #Migrations files
-/backend/migrations
+/admin/migrations
 
