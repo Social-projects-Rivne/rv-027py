@@ -55,6 +55,7 @@ def user_page():
         search_by = int(request.args.get('search_by'))
         order_by = int(request.args.get('order_by'))
         search_string = str(request.args.get('search'))
+        search_like = []       
         if len(search_string) >= MIN_SEARCH_STR:
             condition_list = []
             for one_string in search_string.split():
