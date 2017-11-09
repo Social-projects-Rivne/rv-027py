@@ -7,6 +7,7 @@ from sqlalchemy import and_, or_
 
 from backend.app import app, db
 from backend.forms.forms import LoginForm, SearchForm, UserForm
+from backend.models.issues import Attachment, Category, IssueHistory, Issue, Status
 from backend.models.users import Role, User
 
 ROLE_ADMIN = 1
@@ -185,3 +186,10 @@ def logout():
     session.pop('role_id', None)
     flash("Successful logout")
     return redirect(url_for('index'))
+
+@app.route('/issuespage')
+@admin_permissions
+def issues_page():
+    ssues = db.session.query(Attachment, Category, IssueHistory, Issue, Status, User).filter(and_(
+            Issue.user_id == User.id, Issue.category_id == Category.id)).order_by(Issue.id).all()
+    return render_template('issues_page.html')
