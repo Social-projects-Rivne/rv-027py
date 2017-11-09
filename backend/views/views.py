@@ -49,31 +49,30 @@ def admin():
 @admin_permissions
 def user_page():
     """Page with list of users route."""
-    # Needs to fix
-    # pylint: disable=too-many-locals, no-else-return
     form = SearchForm(request.args, meta={'csrf': False})
     msg = False
     if form.validate():
         search_by = int(request.args.get('search_by'))
         order_by = int(request.args.get('order_by'))
         search_string = str(request.args.get('search'))
+        search_like = []       
         if len(search_string) >= MIN_SEARCH_STR:
             condition_list = []
             for one_string in search_string.split():
                 if len(one_string) < MIN_SEARCH_STR:
                     continue
                 search_parameter = '%{}%'.format(one_string)
-                name_search = User.name.like(search_parameter)
-                alias_search = User.alias.like(search_parameter)
-                email_search = User.email.like(search_parameter)
+                search_like[0] = User.name.like(search_parameter)
+                search_like[1] = User.alias.like(search_parameter)
+                search_like[2] = User.email.like(search_parameter)
                 conditions = [
-                    name_search,
-                    alias_search,
-                    email_search,
-                    or_(name_search, alias_search),
-                    or_(alias_search, email_search),
-                    or_(email_search, name_search),
-                    or_(name_search, alias_search, email_search)
+                    search_like[0],
+                    search_like[1],
+                    search_like[2],
+                    or_(search_like[0], search_like[1]),
+                    or_(search_like[1], search_like[2]),
+                    or_(search_like[2], search_like[0]),
+                    or_(search_like[0], search_like[1], search_like[2])
                 ]
                 condition_list.append(conditions[search_by])
             condition = or_(*condition_list)
