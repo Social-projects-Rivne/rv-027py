@@ -1,7 +1,9 @@
+"""This module creates Users model."""
+# pylint: disable=too-few-public-methods
+
 from sqlalchemy.ext.hybrid import hybrid_property
-from app import bcrypt, db
 from sqlalchemy.sql.functions import func
-from app import db
+from backend.app import bcrypt, db
 
 
 class Role(db.Model):
@@ -32,26 +34,32 @@ class User(db.Model):
     delete_date = db.Column(db.TIMESTAMP)
     role = db.relationship(u'Role')
 
-    # getting the password
     @hybrid_property
     def password(self):
+        """Getting the password."""
         return self.hashed_password
 
-    # hashing password before being stored
     @password.setter
     def _set_password(self, plaintext):
+        """Hashing password before being stored."""
         self.hashed_password = bcrypt.generate_password_hash(plaintext)
 
     def check_password(self, plaintext):
+        """Checking the password form database."""
         return bcrypt.check_password_hash(self.hashed_password, plaintext)
 
+    # pylint: disable=no-self-use
+    # This needs to be checked because no self is used in function
     def is_last_admin(self):
-        count = User.query.filter_by(role_id=User.ROLE_ADMIN, delete_date=None).count()
+        """Checking for only one admin in users"""
+        count = User.query.filter_by(
+            role_id=User.ROLE_ADMIN, delete_date=None).count()
         if count > 1:
             return False
         return True
 
     def delete(self):
+        """Setting deleting date for user"""
         if self.role_id == User.ROLE_ADMIN:
             if not self.is_last_admin():
                 self.delete_date = func.current_timestamp()
@@ -62,6 +70,7 @@ class User(db.Model):
         return False
 
     def restore(self):
+        """Restoring user from deletion"""
         if self.delete_date:
             self.delete_date = None
             return True

@@ -1,12 +1,13 @@
+"""This module generate routes for admin panel"""
 from functools import wraps
 
 from flask import flash, redirect, request, render_template, session, url_for
 from sqlalchemy import and_, or_
 
 
-from app import app, db
-from forms.forms import LoginForm, SearchForm, UserForm
-from models.users import Role, User
+from backend.app import app, db
+from backend.forms.forms import LoginForm, SearchForm, UserForm
+from backend.models.users import Role, User
 
 ROLE_ADMIN = 1
 ROLE_MODERATOR = 2
@@ -21,7 +22,8 @@ def admin_permissions(func):
 
     @wraps(func)
     def wrapper(*args, **kwargs):
-        if not 'user_id' in session or session['role_id'] != ROLE_ADMIN:
+        """Wrapper for routes."""
+        if 'user_id' not in session or session['role_id'] != ROLE_ADMIN:
             flash("No access")
             return redirect(url_for('login'))
         return func(*args, **kwargs)
@@ -32,19 +34,24 @@ def admin_permissions(func):
 @app.route('/')
 @app.route('/index')
 def index():
+    """Main page route."""
     return render_template('index.html')
 
 
 @app.route('/admin')
 @admin_permissions
 def admin():
+    """Admin page route."""
     return render_template('admin_page.html')
 
 
 @app.route('/userpage', methods=['GET', 'POST'])
 @admin_permissions
 def user_page():
-    form = SearchForm(request.args, csrf_enabled=False)
+    """Page with list of users route."""
+    # Needs to fix
+    # pylint: disable=too-many-locals, no-else-return
+    form = SearchForm(request.args, meta={'csrf': False})
     if form.validate():
         search_by = int(request.args.get('search_by'))
         order_by = int(request.args.get('order_by'))
@@ -84,6 +91,7 @@ def user_page():
 @app.route('/useradd', methods=['GET', 'POST'])
 @admin_permissions
 def user_add():
+    """Page with user add route."""
     route_to = url_for('user_add')
     form = UserForm(request.form)
 
@@ -104,6 +112,7 @@ def user_add():
 @app.route('/usermodify/<int:users_id>', methods=['GET', 'POST'])
 @admin_permissions
 def user_modify(users_id):
+    """Page with user edit route."""
     route_to = url_for('user_modify', users_id=users_id)
     user = db.session.query(User).get(users_id)
     form = UserForm(request.form, obj=user)
@@ -120,6 +129,7 @@ def user_modify(users_id):
 @app.route('/deleteuser/<int:users_id>', methods=['POST'])
 @admin_permissions
 def delete_user(users_id):
+    """Route for deleting user."""
     user = db.session.query(User).get(users_id)
     is_deleted = user.delete()
     db.session.commit()
@@ -131,6 +141,7 @@ def delete_user(users_id):
 @app.route('/restoreuser/<int:users_id>', methods=['POST'])
 @admin_permissions
 def restore_user(users_id):
+    """Route for restore user."""
     user = db.session.query(User).get(users_id)
     user.restore()
     db.session.commit()
@@ -140,27 +151,27 @@ def restore_user(users_id):
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    """Login page route."""
     form = LoginForm(request.form)
 
     if form.validate_on_submit():
         user = db.session.query(User).filter(
             User.email == form.email.data).first()
-        if user and not user.delete_date and user.check_password(form.password.data):
+        if (user and not user.delete_date and
+                user.check_password(form.password.data)):
             session['user_id'] = user.id
             session['role_id'] = user.role_id
             flash('Welcome %s' % user.name)
             return redirect(url_for('index'))
         else:
             flash('Incorrect login/password data...')
-            return render_template('login_page.html', form=form)
-    else:
-        return render_template('login_page.html', form=form)
 
     return render_template('login_page.html', form=form)
 
 
 @app.route('/logout')
 def logout():
+    """Logout route."""
     session.pop('user_id', None)
     session.pop('role_id', None)
     flash("Successful logout")
