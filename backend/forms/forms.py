@@ -1,12 +1,12 @@
+"""This module contains forms classes for admin manage."""
 from flask_wtf import FlaskForm
-from wtforms import (StringField, IntegerField, DateField,
-                     HiddenField, PasswordField, SelectField,
-                     SubmitField)
-from wtforms.validators import (DataRequired, Email, Optional,
+from wtforms import (StringField, HiddenField,
+                     PasswordField, SelectField, SubmitField)
+from wtforms.validators import (DataRequired, Email,
                                 Length, Regexp, ValidationError)
 
-from app import db
-from models.users import User
+from backend.app import db
+from backend.models.users import User
 
 
 class UniqueValue(object):
@@ -17,6 +17,8 @@ class UniqueValue(object):
     Skips record in database with current user's id.
 
     """
+
+    # pylint: disable=too-few-public-methods
 
     def __init__(self, model, property_to_find, message=None):
 
@@ -34,10 +36,11 @@ class UniqueValue(object):
 
         query = db.session.query(self.model).filter(
             self.model.id != record_id).filter(
-            self.property_to_find == field.data).first()
+                self.property_to_find == field.data).first()
 
         if query:
             raise ValidationError(self.message)
+
 
 check_email = UniqueValue(
     User, User.email,
@@ -117,7 +120,7 @@ class SearchForm(FlaskForm):
             ('4', 'alias+email'),
             ('5', 'email+name'),
             ('6', 'email+name+alias')
-            ]
+        ]
     )
     order_by = SelectField(
         'order_by',

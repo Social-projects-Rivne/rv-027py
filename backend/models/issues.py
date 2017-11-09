@@ -1,4 +1,6 @@
-from app import db
+"""This module creates Issues model."""
+# pylint: disable=too-few-public-methods
+from backend.app import db
 
 
 class Attachment(db.Model):
