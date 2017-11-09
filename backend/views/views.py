@@ -74,7 +74,7 @@ def user_page():
                     or_(alias_search, email_search),
                     or_(email_search, name_search),
                     or_(name_search, alias_search, email_search)
-                    ]
+                ]
                 condition_list.append(conditions[search_by])
             condition = or_(*condition_list)
         else:
