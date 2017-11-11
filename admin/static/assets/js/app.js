@@ -3,6 +3,6 @@ $( document ).ready(function() {
         var userId = $(e.relatedTarget).data('user-id');
         var userName = $(e.relatedTarget).data('user-name');
         $(".modal-title").text("Confirm deletion of " + userName);
-        $("#delete-user").attr('action', '/deleteuser/' + userId);
+        $("#delete-user").attr('action', '/admin/deleteuser/' + userId);
     });
 });

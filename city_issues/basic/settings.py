@@ -11,15 +11,27 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 
 import os
+import sys
+
 from . import local_settings
+
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+# add visibility for flask admin to django
+sys.path.insert(1, os.path.join(os.path.dirname(BASE_DIR), 'admin'))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
 
+# Path to the custom Django applications.
+# ** It is necessary! If a third-party app is just copied to the apps/ but not
+# installed through the pip.
+sys.path.insert(1, os.path.join(BASE_DIR, 'apps'))
+
+# Add a custom model
+AUTH_USER_MODEL = 'city_issues.User'
 
 ALLOWED_HOSTS = []
 
@@ -35,6 +47,9 @@ INSTALLED_APPS = [
     'django_jinja',
     'city_issues',
 ]
+
+# Add a custom model
+AUTH_USER_MODEL = 'city_issues.User'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -54,8 +69,7 @@ TEMPLATES = [
         "APP_DIRS": True,
         "OPTIONS": {
             # Match the template names ending in .html but not the ones in the admin folder.
-            "match_extension": ".html",
-            "match_regex": r"^(?!admin/).*",
+            "match_extension": None,
             "app_dirname": "templates",
 
             "bytecode_cache": {

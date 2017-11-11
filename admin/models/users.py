@@ -1,7 +1,6 @@
 from sqlalchemy.ext.hybrid import hybrid_property
 from app import bcrypt, db
 from sqlalchemy.sql.functions import func
-from app import db
 
 
 class Role(db.Model):

@@ -4,7 +4,8 @@ from flask import flash, redirect, request, render_template, session, url_for
 from sqlalchemy import and_, or_
 
 
-from app import app, db
+from app import db
+from app import admin_app as app
 from forms.forms import LoginForm, SearchForm, UserForm
 from models.users import Role, User
 
@@ -30,12 +31,6 @@ def admin_permissions(func):
 
 
 @app.route('/')
-@app.route('/index')
-def index():
-    return render_template('index.html')
-
-
-@app.route('/admin')
 @admin_permissions
 def admin():
     return render_template('admin_page.html')
@@ -149,7 +144,7 @@ def login():
             session['user_id'] = user.id
             session['role_id'] = user.role_id
             flash('Welcome %s' % user.name)
-            return redirect(url_for('index'))
+            return redirect(url_for('admin'))
         else:
             flash('Incorrect login/password data...')
             return render_template('login_page.html', form=form)
@@ -164,4 +159,4 @@ def logout():
     session.pop('user_id', None)
     session.pop('role_id', None)
     flash("Successful logout")
-    return redirect(url_for('index'))
+    return redirect(url_for('admin'))

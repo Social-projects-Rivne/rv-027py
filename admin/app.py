@@ -5,12 +5,12 @@ from flask_bootstrap import Bootstrap
 from flask_wtf.csrf import CSRFProtect
 from flask_sqlalchemy import SQLAlchemy
 
-app = Flask(__name__)
-app.config.from_object('config.DevelopmentConfig')
-bcrypt = Bcrypt(app)
-db = SQLAlchemy(app)
-Bootstrap(app)
-CSRFProtect(app)
+admin_app = Flask(__name__)
+admin_app.config.from_object('config.DevelopmentConfig')
+bcrypt = Bcrypt(admin_app)
+db = SQLAlchemy(admin_app)
+Bootstrap(admin_app)
+CSRFProtect(admin_app)
 
 
 from create_database import db_create
@@ -19,16 +19,16 @@ from insert_db_data import db_insert_data
 from views import views
 
 
-@app.cli.command()
+@admin_app.cli.command()
 def initdb():
     db_create()
 
 
-@app.cli.command()
+@admin_app.cli.command()
 def dropdb():
     db_drop()
 
 
-@app.cli.command()
+@admin_app.cli.command()
 def insertdata():
     db_insert_data()
