@@ -6,11 +6,13 @@ from werkzeug.wsgi import DispatcherMiddleware
 from app import admin_app
 
 
-main_app = get_internal_wsgi_application()
+city_issues = get_internal_wsgi_application()
 
 
+# Basically the idea was to connect the 2 apps and run them
+# with Django web server
 class Command(BaseRunserverCommand):
     def get_handler(self, *args, **options):
-        application = DispatcherMiddleware(main_app, {'/admin': admin_app})
+        application = DispatcherMiddleware(city_issues, {'/admin': admin_app})
         return application
 
