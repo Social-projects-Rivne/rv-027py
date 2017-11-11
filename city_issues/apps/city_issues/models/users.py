@@ -6,7 +6,7 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.db import models
 
 
-class UserManager(BaseUserManager):
+class CustomUserManager(BaseUserManager):
     def create_user(self, name, email, role):
         """
         Creates and saves a User with the given name and email.
@@ -50,8 +50,9 @@ class User(AbstractBaseUser):
     """..."""
     name = models.CharField(
         max_length=30,
-        blank=True,
-        null=True)
+        blank=False,
+        null=False,
+        unique=True)
     alias = models.CharField(
         max_length=30,
         blank=True,
@@ -77,11 +78,19 @@ class User(AbstractBaseUser):
         null=True)
 
     # Connects a custom user manager
-    objects = UserManager()
+    objects = CustomUserManager()
 
     USERNAME_FIELD = 'name'
     EMAIL_FIELD = 'email'
     REQUIRED_FIELDS = ['email', 'role']
+
+    # @property
+    # def get_full_name(self):
+    #     return self.name
+    #
+    # @property
+    # def get_short_name(self):
+    #     return self.name
 
     @property
     def is_active(self):

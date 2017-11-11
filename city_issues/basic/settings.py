@@ -30,8 +30,6 @@ sys.path.insert(1, os.path.join(os.path.dirname(BASE_DIR), 'admin'))
 # installed through the pip.
 sys.path.insert(1, os.path.join(BASE_DIR, 'apps'))
 
-# Add a custom model
-AUTH_USER_MODEL = 'city_issues.User'
 
 ALLOWED_HOSTS = []
 
@@ -125,6 +123,10 @@ PASSWORD_HASHERS = [
     'django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher',
     'django.contrib.auth.hashers.Argon2PasswordHasher',
 ]
+
+
+# Add a custom model
+AUTH_USER_MODEL = 'city_issues.User'
 
 
 # Internationalization
