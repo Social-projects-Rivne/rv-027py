@@ -13,14 +13,14 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 import os
 import sys
 
-from . import local_settings
+# from . import local_settings
 
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Add visibility for flask admin to django
-sys.path.insert(1, os.path.join(os.path.dirname(BASE_DIR), 'admin'))
+sys.path.insert(1, os.path.join(os.path.dirname(BASE_DIR), 'backend'))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
@@ -43,7 +43,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'city_issues',
-    'django_jinja',
 ]
 
 MIDDLEWARE = [
@@ -59,24 +58,6 @@ MIDDLEWARE = [
 ROOT_URLCONF = 'basic.urls'
 
 TEMPLATES = [
-    {
-        "BACKEND": "django_jinja.backend.Jinja2",
-        "APP_DIRS": True,
-        "OPTIONS": {
-            # Match the template names ending in .html but not the ones in the admin folder.
-            "match_extension": None,
-            "app_dirname": "templates",
-
-            "bytecode_cache": {
-                "name": "default",
-                "backend": "django_jinja.cache.BytecodeCache",
-                "enabled": False,
-            },
-            "autoescape": True,
-            "auto_reload": local_settings.DEBUG,
-            "translation_engine": "django.utils.translation",
-        }
-    },
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [],

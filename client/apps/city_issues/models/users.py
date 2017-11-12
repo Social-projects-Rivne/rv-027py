@@ -13,15 +13,21 @@ ROLE_USER = 3
 
 
 class Role(models.Model):
+    """
+    Roles table in the database
+    """
     role = models.TextField()
 
     class Meta:
+        """..."""
         managed = False
         db_table = 'roles'
 
 
 class User(AbstractBaseUser):
-    """..."""
+    """
+    Users table in the database
+    """
     name = models.TextField(
         unique=True)
     alias = models.TextField(
@@ -101,5 +107,6 @@ class User(AbstractBaseUser):
         return None
 
     class Meta:
+        """..."""
         managed = False
         db_table = 'users'

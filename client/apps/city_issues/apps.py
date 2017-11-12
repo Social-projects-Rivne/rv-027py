@@ -5,4 +5,5 @@ from django.apps import AppConfig
 
 
 class CityIssuesConfig(AppConfig):
+    """Adds an application"""
     name = 'city_issues'
