@@ -42,7 +42,7 @@ fill it up with your database credentials.
 python manage.py runserver
 ```
 
-
+#
 # For the girls:
 
 ### Installing required libs and frameworks
