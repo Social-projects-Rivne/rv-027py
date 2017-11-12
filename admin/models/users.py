@@ -38,11 +38,11 @@ class User(db.Model):
 
     # hashing password before being stored
     @password.setter
-    def _set_password(self, plaintext):
-        self.hashed_password = bcrypt.generate_password_hash(plaintext)
+    def _set_password(self, raw_password):
+        self.hashed_password = bcrypt.generate_password_hash(raw_password)
 
-    def check_password(self, plaintext):
-        return bcrypt.check_password_hash(self.hashed_password, plaintext)
+    def check_password(self, raw_password):
+        return bcrypt.check_password_hash(self.hashed_password, raw_password)
 
     def is_last_admin(self):
         count = User.query.filter_by(role_id=User.ROLE_ADMIN, delete_date=None).count()

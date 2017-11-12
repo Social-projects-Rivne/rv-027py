@@ -10,7 +10,6 @@ from models.users import User
 
 
 class UniqueValue(object):
-
     """Custom validator.
 
     Validate for unique field value.
@@ -27,7 +26,7 @@ class UniqueValue(object):
         self.property_to_find = property_to_find
 
     def __call__(self, form, field):
-        
+
         record_id = None
         if form.id.data:
             record_id = form.id.data
@@ -39,6 +38,7 @@ class UniqueValue(object):
         if query:
             raise ValidationError(self.message)
 
+
 check_email = UniqueValue(
     User, User.email,
     message="This email is already exists in database.")
@@ -48,8 +48,12 @@ check_alias = UniqueValue(
     message="This alias is already exists in database.")
 
 
-class UserForm(FlaskForm):
+class BaseForm(FlaskForm):
+    class Meta:
+        csrf = True
 
+
+class UserForm(BaseForm):
     """User info modifying form."""
 
     id = HiddenField('id')
@@ -91,8 +95,7 @@ class UserForm(FlaskForm):
     submit_button = SubmitField('Save')
 
 
-class LoginForm(FlaskForm):
-
+class LoginForm(BaseForm):
     """Login form."""
 
     email = StringField('login', validators=[Email()])
@@ -100,30 +103,32 @@ class LoginForm(FlaskForm):
     submit_button = SubmitField('Login')
 
 
-class SearchForm(FlaskForm):
+class SearchForm(BaseForm):
+    """Search form"""
 
-   """Search form"""
+    search = StringField(
+        'search'
+    )
+    search_by = SelectField(
+        'search_by',
+        choices=[
+            ('0', 'name'),
+            ('1', 'alias'),
+            ('2', 'email'),
+            ('3', 'name+alias'),
+            ('4', 'alias+email'),
+            ('5', 'email+name'),
+            ('6', 'email+name+alias')
+        ]
+    )
+    order_by = SelectField(
+        'order_by',
+        choices=[
+            ('0', 'id'),
+            ('1', 'role'),
+            ('2', 'delete date')
+        ]
+    )
 
-   search = StringField(
-       'search'
-       )
-   search_by = SelectField(
-       'search_by',
-       choices=[
-           ('0', 'name'),
-           ('1', 'alias'),
-           ('2', 'email'),
-           ('3', 'name+alias'),
-           ('4', 'alias+email'),
-           ('5', 'email+name'),
-           ('6', 'email+name+alias')
-           ]
-       )
-   order_by = SelectField(
-       'order_by',
-       choices=[
-           ('0', 'id'),
-           ('1', 'role'),
-           ('2', 'delete date')
-           ]
-       )
+    class Meta:
+        csrf = False

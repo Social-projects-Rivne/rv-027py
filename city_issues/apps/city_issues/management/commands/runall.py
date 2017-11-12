@@ -5,7 +5,6 @@ from werkzeug.wsgi import DispatcherMiddleware
 
 from app import admin_app
 
-
 city_issues = get_internal_wsgi_application()
 
 
@@ -15,4 +14,3 @@ class Command(BaseRunserverCommand):
     def get_handler(self, *args, **options):
         application = DispatcherMiddleware(city_issues, {'/admin': admin_app})
         return application
-

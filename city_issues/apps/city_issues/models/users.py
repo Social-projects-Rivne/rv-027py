@@ -2,40 +2,14 @@ from __future__ import unicode_literals
 
 from datetime import time
 
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
+from django.contrib.auth.models import AbstractBaseUser
 from django.db import models
 
+from city_issues.user_managers import UserManager
 
-class CustomUserManager(BaseUserManager):
-    def create_user(self, name, email, role):
-        """
-        Creates and saves a User with the given name and email.
-        """
-        if not email:
-            raise ValueError('Users must have an email address')
-
-        user = self.model(
-            name=self.name,
-            email=self.email,
-            role=self.role,
-        )
-        # user.save(using=self._db)
-        user.save(using=self.city_issues)
-        return user
-
-    def create_superuser(self, name, email, role):
-        """
-        Creates and saves a superuser with the given name and email.
-        """
-        user = self.model(
-            name=self.name,
-            email=self.email,
-            role=self.role,
-        )
-        user.is_admin = True
-        # user.save(using=self._db)
-        user.save(using=self.city_issues)
-        return user
+ROLE_ADMIN = 1
+ROLE_MODERATOR = 2
+ROLE_USER = 3
 
 
 class Role(models.Model):
@@ -48,28 +22,21 @@ class Role(models.Model):
 
 class User(AbstractBaseUser):
     """..."""
-    name = models.CharField(
-        max_length=30,
-        blank=False,
-        null=False,
+    name = models.TextField(
         unique=True)
-    alias = models.CharField(
-        max_length=30,
+    alias = models.TextField(
         blank=True,
         null=True)
     email = models.EmailField(
-        max_length=30,
-        blank=False,
-        null=False,
+        max_length=50,
         unique=True)
-    hashed_password = models.CharField(
-        max_length=30,
+    hashed_password = models.TextField(
+        max_length=256,
         blank=True,
         null=True)
     role = models.ForeignKey(
-        'Roles',
-        blank=False,
-        null=False)
+        'Role',
+        default=ROLE_USER)
     avatar = models.ImageField(
         blank=True,
         null=True)
@@ -78,43 +45,60 @@ class User(AbstractBaseUser):
         null=True)
 
     # Connects a custom user manager
-    objects = CustomUserManager()
+    objects = UserManager()
 
     USERNAME_FIELD = 'name'
     EMAIL_FIELD = 'email'
-    REQUIRED_FIELDS = ['email', 'role']
+    REQUIRED_FIELDS = ['email']
 
-    # @property
-    # def get_full_name(self):
-    #     return self.name
-    #
-    # @property
-    # def get_short_name(self):
-    #     return self.name
+    def get_full_name(self):
+        return self.name
+
+    def get_short_name(self):
+        return self.name
+
+    @property
+    def password(self):
+        return self.hashed_password
+
+    @password.setter
+    def set_hashed_password(self, raw_password):
+        super(User, self).set_password(raw_password)
 
     @property
     def is_active(self):
-        return bool(self.delete_date)
+        return not self.delete_date
 
     @is_active.setter
-    def set_time(self):
-        self.delete_date = time.time.now()
+    def set_active(self, value):
+        self.delete_date = None if value else time.time.now()
 
     @property
     def is_staff(self):
-        return self.role.id == 2
+        return self.role == ROLE_MODERATOR
 
     @is_staff.setter
-    def create_role(self):
-        self.role.id = 2
+    def set_staff(self, value):
+        if value:
+            self.role = ROLE_MODERATOR
+        else:
+            self.role = ROLE_USER
 
     @property
     def is_superuser(self):
-        return self.role.id == 1
+        return self.role == ROLE_ADMIN
 
-    # @is_superuser.setter
-    # def create_super_role(self):
-    #     self.role.id = 1
+    @is_superuser.setter
+    def set_superuser(self, value):
+        if value:
+            self.role = ROLE_ADMIN
+        else:
+            self.role = ROLE_USER
+
+    @property
+    def last_login(self):
+        """Added to meet Django AbstractBaseUser interface requirements"""
+        return None
 
     class Meta:
         managed = False
