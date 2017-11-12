@@ -1,8 +1,8 @@
+"""This module generates routes for admin panel"""
 from functools import wraps
 
 from flask import flash, redirect, request, render_template, session, url_for
 from sqlalchemy import and_, or_
-
 
 from app import db
 from app import admin_app as app
@@ -39,36 +39,48 @@ def admin():
 @app.route('/userpage', methods=['GET', 'POST'])
 @admin_permissions
 def user_page():
-    form = SearchForm(request.args, csrf_enabled=False)
+    """Page with list of users route."""
+    # Needs to fix
+    # pylint: disable=too-many-locals, no-else-return
+    form = SearchForm(request.args, meta={'csrf': False})
+    msg = False
     if form.validate():
         search_by = int(request.args.get('search_by'))
         order_by = int(request.args.get('order_by'))
         search_string = str(request.args.get('search'))
-        condition_list = []
-        for one_string in search_string.split():
-            if len(one_string) < MIN_SEARCH_STR:
-                continue
-            search_parameter = '%{}%'.format(one_string)
-            name_search = User.name.like(search_parameter)
-            alias_search = User.alias.like(search_parameter)
-            email_search = User.email.like(search_parameter)
-            conditions = [
-                name_search,
-                alias_search,
-                email_search,
-                or_(name_search, alias_search),
-                or_(alias_search, email_search),
-                or_(email_search, name_search),
-                or_(name_search, alias_search, email_search)
-            ]
-            condition_list.append(conditions[search_by])
-        condition = or_(*condition_list)
+        if len(search_string) >= MIN_SEARCH_STR:
+            condition_list = []
+            for one_string in search_string.split():
+                if len(one_string) < MIN_SEARCH_STR:
+                    continue
+                search_parameter = '%{}%'.format(one_string)
+                name_search = User.name.like(search_parameter)
+                alias_search = User.alias.like(search_parameter)
+                email_search = User.email.like(search_parameter)
+                conditions = [
+                    name_search,
+                    alias_search,
+                    email_search,
+                    or_(name_search, alias_search),
+                    or_(alias_search, email_search),
+                    or_(email_search, name_search),
+                    or_(name_search, alias_search, email_search)
+                ]
+                condition_list.append(conditions[search_by])
+            condition = or_(*condition_list)
+        else:
+            condition = ""
+            if search_string != "":
+                msg = True
 
         order_list = [User.id, User.role_id, User.delete_date]
         order = order_list[order_by]
+
         search_users = db.session.query(User, Role).filter(and_(
             User.role_id == Role.id, condition)).order_by(order).all()
-        flash("Results")
+
+        if msg:
+            flash("Search string is too small")
         return render_template('user_page.html', form=form, users=search_users)
     else:
         users = db.session.query(User, Role).filter(

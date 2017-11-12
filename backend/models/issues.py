@@ -1,3 +1,5 @@
+"""This module creates Issues model."""
+# pylint: disable=too-few-public-methods
 from app import db
 
 

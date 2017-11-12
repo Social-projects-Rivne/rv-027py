@@ -1,3 +1,4 @@
+"""This module contains forms classes for admin manage."""
 from flask_wtf import FlaskForm
 from wtforms import (StringField, IntegerField, DateField,
                      HiddenField, PasswordField, SelectField,
@@ -16,6 +17,8 @@ class UniqueValue(object):
     Skips record in database with current user's id.
 
     """
+
+    # pylint: disable=too-few-public-methods
 
     def __init__(self, model, property_to_find, message=None):
 

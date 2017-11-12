@@ -12,7 +12,7 @@ fill config.py with your database credentials.
 ### Prepare Command Line Interface
 On Windows use **set** instead of **export**
 ```
-export  FLASK_APP=app.py
+export  FLASK_APP=backend/app.py
 export  FLASK_DEBUG=1
 ```
 ### Create database and test records  

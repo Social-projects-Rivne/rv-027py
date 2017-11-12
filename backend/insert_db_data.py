@@ -1,9 +1,12 @@
+"""This module insert database data"""
+# pylint: disable=no-name-in-module,import-error
 import os
 
 from app import db
 from config import Config
 from models.users import Role, User
-from models.issues import Attachment, Category, Issue, IssueHistory, Status
+from models.issues import (Attachment, Category,
+                                   Issue, IssueHistory, Status)
 
 db_credentials = Config.SQLALCHEMY_DATABASE_URI
 
@@ -53,17 +56,18 @@ issueHistory5 = IssueHistory(user_id='3', issue_id='3', status_id='3',
 
 
 def db_insert_data():
+    """This function insert database data"""
     db.session.add_all([role, role1, role2,
                         category, category1, category2,
                         status1, status2, status3,
                         user1, user2, user3,
                         issue1, issue2, issue3,
                         issueHistory1, issueHistory2, issueHistory3,
-                        issueHistory4, issueHistory5
-                        ])
+                        issueHistory4, issueHistory5])
     db.session.commit()
 
     print "Test data has been inserted into the database"
+
 
 if __name__ == '__main__':
     db_insert_data()

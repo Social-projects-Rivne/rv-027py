@@ -1,3 +1,5 @@
+"""This module create database, if it not exists"""
+# pylint: disable=no-name-in-module,import-error
 import os
 
 from sqlalchemy_utils.functions.database import (create_database,
@@ -5,8 +7,7 @@ from sqlalchemy_utils.functions.database import (create_database,
 
 from app import db
 from config import Config
-from models.users import Role, User
-from models.issues import Attachment, Category, Issue, IssueHistory, Status
+
 
 # Checking if database exists, and if not -> create it with all tables.
 
@@ -17,6 +18,7 @@ if 'DATABASE_URL' in os.environ:
 
 
 def db_create():
+    """Creating database, if it not exists"""
     if not database_exists(db_credentials):
         create_database(db_credentials)
         db.create_all()
