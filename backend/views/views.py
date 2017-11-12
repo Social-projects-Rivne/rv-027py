@@ -2,7 +2,7 @@
 from functools import wraps
 
 from flask import flash, redirect, request, render_template, session, url_for
-from sqlalchemy import and_, or_
+from sqlalchemy import and_, func, or_
 
 
 from backend.app import app, db
@@ -190,6 +190,17 @@ def logout():
 @app.route('/issuespage')
 @admin_permissions
 def issues_page():
-    ssues = db.session.query(Attachment, Category, IssueHistory, Issue, Status, User).filter(and_(
-            Issue.user_id == User.id, Issue.category_id == Category.id)).order_by(Issue.id).all()
-    return render_template('issues_page.html')
+    """Issues page route."""
+    count_att = db.session.query(Issue.id, func.count(Attachment.id).label(
+        'count')).filter(Issue.id == Attachment.issue_id).group_by(Issue.id).subquery('count_att')
+    last_date = db.session.query(Issue.id, func.max(IssueHistory.transaction_date).label(
+        'date')).filter(IssueHistory.issue_id == Issue.id).group_by(Issue.id).subquery('last_date')
+    status = db.session.query(Issue.id, Status.status).filter(and_(
+        IssueHistory.issue_id == Issue.id, IssueHistory.status_id == Status.id,
+        Issue.id == last_date.c.id, IssueHistory.transaction_date == last_date.c.date
+        )).subquery('status')
+    issues = db.session.query(Category.category, Issue, User.alias, count_att.c.count, status.c.status
+        ).filter(and_(Issue.user_id == User.id, Issue.category_id == Category.id,
+        Issue.id == count_att.c.id, Issue.id == status.c.id)).order_by(Issue.id).all()
+
+    return render_template('issues_page.html', issues=issues)

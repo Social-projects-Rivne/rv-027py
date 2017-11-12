@@ -1,0 +1,52 @@
+{% extends 'layouts.html' %}
+
+
+{% block title_suffix %}Issues managements{% endblock title_suffix %}
+
+{% block navbar_li %}
+    <li><a href="{{ url_for('index') }}">Main page</a></li>
+    <li><a href="{{ url_for('admin') }}">Admin page</a></li>
+    <li><a href="{{ url_for('logout') }}">Logout</a></li>
+{% endblock navbar_li %}
+
+{% block content %}
+<div class="table-responsive">
+    <table class="table table-striped">
+           <tr>
+               <th>Id</th>
+               <th>Name</th>
+               <th>Description</th>
+               <th>User</th>
+               <th>Category</th>
+               <th>Status</th>
+               <th>Location</th>
+               <th>Attachment</th>               
+               <th>Open date</th>
+               <th>Close date</th>
+               <th>Delete date</th>
+               <th></th>
+               <th></th>
+           </tr>
+           {% for category, issue, user, attach, status in issues %}
+                <tr>
+                    <td>{{ issue.id }}</td>
+                    <td>{{ issue.name }}</td>
+                    <td>{{ issue.description }}</td>
+                    <td>{{ user }}</td>
+                    <td>{{ category}}</td>
+                    <td><a href="{{url_for('index')}}"> {{ status }} </a> </td>
+                    <td>{{ issue.location }}</td>
+                    <td><a href="{{url_for('index')}}"> {{ attach }} </a> </td>
+                    <td>{{ issue.open_date }}</td>
+                    <td>{{ issue.close_date }}</td>
+                    <td>{{ issue.delete_date }}</td>
+                    <td><a href="{{url_for('index')}}" class="btn btn-primary">Edit</a> </td>
+                    <td><a class="btn btn-danger" data-toggle="modal" data-target="#deletion" data-user-id="{{ issue.id }}"
+                               data-user-name="{{ issues.name }}">Delete</a></td>
+                </tr>
+            {% endfor %}
+    </table>
+</div>
+
+
+{% endblock %}
