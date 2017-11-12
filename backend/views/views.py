@@ -2,7 +2,7 @@
 from functools import wraps
 
 from flask import flash, redirect, request, render_template, session, url_for
-from sqlalchemy import and_, or_
+from sqlalchemy import and_, func, or_
 
 
 from backend.app import app, db
@@ -18,16 +18,16 @@ ROLE_USER = 3
 MIN_SEARCH_STR = 2
 
 
-def admin_permissions(func):
+def admin_permissions(function):
     """Decorator to check admin rights to access some route."""
 
-    @wraps(func)
+    @wraps(function)
     def wrapper(*args, **kwargs):
         """Wrapper for routes."""
         if 'user_id' not in session or session['role_id'] != ROLE_ADMIN:
             flash("No access")
             return redirect(url_for('login'))
-        return func(*args, **kwargs)
+        return function(*args, **kwargs)
 
     return wrapper
 
@@ -190,6 +190,36 @@ def logout():
 @app.route('/issuespage')
 @admin_permissions
 def issues_page():
-    ssues = db.session.query(Attachment, Category, IssueHistory, Issue, Status, User).filter(and_(
-            Issue.user_id == User.id, Issue.category_id == Category.id)).order_by(Issue.id).all()
-    return render_template('issues_page.html')
+    """Issues page route."""
+    count_att = db.session.query(Issue.id, func.count(Attachment.id).label(
+        'count')).filter(Issue.id == Attachment.issue_id).group_by(Issue.id).subquery('count_att')
+    last_date = db.session.query(Issue.id, func.max(IssueHistory.transaction_date).label(
+        'date')).filter(IssueHistory.issue_id == Issue.id).group_by(Issue.id).subquery('last_date')
+    status = db.session.query(Issue.id, Status.status).filter(and_(
+        IssueHistory.issue_id == Issue.id, IssueHistory.status_id == Status.id,
+        Issue.id == last_date.c.id, IssueHistory.transaction_date == last_date.c.date
+        )).subquery('status')
+    issues = db.session.query(
+        Category.category, Issue, User.alias, count_att.c.count,
+        status.c.status).filter(and_(
+            Issue.user_id == User.id, Issue.category_id == Category.id,
+            Issue.id == count_att.c.id, Issue.id == status.c.id)).order_by(
+                Issue.id).all()
+    return render_template('issues_page.html', issues=issues)
+
+@app.route('/issuehistory/<int:issue_id>')
+@admin_permissions
+def issue_history(issue_id):
+    """Issue history page route."""
+    history = db.session.query(IssueHistory, Status.status, User.alias, Issue.name).filter(and_(
+        IssueHistory.user_id == User.id, IssueHistory.status_id == Status.id,
+        IssueHistory.issue_id == issue_id, IssueHistory.user_id == Issue.id)).all()
+    return render_template('issue_history.html', issue_history=history)
+
+@app.route('/attachments/<int:issue_id>')
+@admin_permissions
+def attachments(issue_id):
+    """Attachments page route."""
+    attach = db.session.query(Attachment, Issue.name).filter(and_(
+        Attachment.issue_id == issue_id, Issue.id == Attachment.issue_id)).all()
+    return render_template('attachments.html', attachments=attach)
