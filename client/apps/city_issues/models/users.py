@@ -1,3 +1,6 @@
+"""
+Django models
+"""
 from __future__ import unicode_literals
 
 from datetime import time
@@ -65,6 +68,7 @@ class User(AbstractBaseUser):
 
     @property
     def password(self):
+        """..."""
         return self.hashed_password
 
     @password.setter
@@ -73,6 +77,7 @@ class User(AbstractBaseUser):
 
     @property
     def is_active(self):
+        """..."""
         return not self.delete_date
 
     @is_active.setter
@@ -81,6 +86,7 @@ class User(AbstractBaseUser):
 
     @property
     def is_staff(self):
+        """..."""
         return self.role == ROLE_MODERATOR
 
     @is_staff.setter
@@ -92,6 +98,7 @@ class User(AbstractBaseUser):
 
     @property
     def is_superuser(self):
+        """..."""
         return self.role == ROLE_ADMIN
 
     @is_superuser.setter
