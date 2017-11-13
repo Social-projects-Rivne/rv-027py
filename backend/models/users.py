@@ -49,7 +49,6 @@ class User(db.Model):
         """Checking the password form database."""
         return bcrypt.check_password_hash(self.hashed_password, raw_password)
 
-
     # pylint: disable=no-self-use
     # This needs to be checked because no self is used in function
     def is_last_admin(self):

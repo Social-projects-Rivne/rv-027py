@@ -14,7 +14,7 @@ city_issues = get_internal_wsgi_application()
 
 class Command(BaseRunserverCommand):
     """
-    Runs the 2 apps with Django web server
+    Runs the apps with Django web server
     """
     def get_handler(self, *args, **options):
         application = DispatcherMiddleware(city_issues, {'/admin': admin_app})
