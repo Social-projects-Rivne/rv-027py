@@ -4,8 +4,7 @@ from functools import wraps
 from flask import flash, redirect, request, render_template, session, url_for
 from sqlalchemy import and_, or_
 
-from app import db
-from app import admin_app as app
+from app import app, db
 from forms.forms import LoginForm, SearchForm, UserForm
 from models.users import Role, User
 
