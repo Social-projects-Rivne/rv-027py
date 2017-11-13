@@ -12,7 +12,8 @@ jobs:
       script: pycodestyle --ignore=E402 backend
 
     - stage: Pylint
-      script: python kind_pylint.py --targers backend --score 7
+      provider: script
+      script: python scripts/kind_pylint.py --targers backend --score 7
 
 notifications:
   slack: rv-027py:bKX55idBpm5OTbuPu9gphYF8
