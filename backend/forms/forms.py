@@ -1,9 +1,8 @@
 """This module contains forms classes for admin manage."""
 from flask_wtf import FlaskForm
-from wtforms import (StringField, IntegerField, DateField,
-                     HiddenField, PasswordField, SelectField,
-                     SubmitField)
-from wtforms.validators import (DataRequired, Email, Optional,
+from wtforms import (StringField, HiddenField,
+                     PasswordField, SelectField, SubmitField)
+from wtforms.validators import (DataRequired, Email,
                                 Length, Regexp, ValidationError)
 
 from app import db
