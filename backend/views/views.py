@@ -21,7 +21,7 @@ def admin_permissions(func):
 
     @wraps(func)
     def wrapper(*args, **kwargs):
-        """..."""
+        """Wrapper for routes."""
         if 'user_id' not in session or session['role_id'] != ROLE_ADMIN:
             flash("No access")
             return redirect(url_for('login'))
@@ -33,7 +33,7 @@ def admin_permissions(func):
 @app.route('/')
 @admin_permissions
 def admin():
-    """..."""
+    """Admin page route."""
     return render_template('admin_page.html')
 
 
@@ -92,7 +92,7 @@ def user_page():
 @app.route('/useradd', methods=['GET', 'POST'])
 @admin_permissions
 def user_add():
-    """..."""
+    """Page with user add route."""
     route_to = url_for('user_add')
     form = UserForm(request.form)
 
@@ -113,7 +113,7 @@ def user_add():
 @app.route('/usermodify/<int:users_id>', methods=['GET', 'POST'])
 @admin_permissions
 def user_modify(users_id):
-    """..."""
+    """Page with user edit route."""
     route_to = url_for('user_modify', users_id=users_id)
     user = db.session.query(User).get(users_id)
     form = UserForm(request.form, obj=user)
@@ -130,7 +130,7 @@ def user_modify(users_id):
 @app.route('/deleteuser/<int:users_id>', methods=['POST'])
 @admin_permissions
 def delete_user(users_id):
-    """..."""
+    """Route for deleting user."""
     user = db.session.query(User).get(users_id)
     is_deleted = user.delete()
     db.session.commit()
@@ -142,7 +142,7 @@ def delete_user(users_id):
 @app.route('/restoreuser/<int:users_id>', methods=['POST'])
 @admin_permissions
 def restore_user(users_id):
-    """..."""
+    """Route for restore user."""
     user = db.session.query(User).get(users_id)
     user.restore()
     db.session.commit()
@@ -152,7 +152,7 @@ def restore_user(users_id):
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    """..."""
+    """Login page route."""
     form = LoginForm(request.form)
 
     if form.validate_on_submit():
@@ -175,7 +175,7 @@ def login():
 
 @app.route('/logout')
 def logout():
-    """..."""
+    """Logout route."""
     session.pop('user_id', None)
     session.pop('role_id', None)
     flash("Successful logout")
