@@ -9,10 +9,10 @@ install:
 jobs:
   include:
     - stage: PEP8
-      script: pycodestyle --ignore=E402 backend
+      script: pycodestyle --ignore=E402,E501 backend
 
     - stage: Pylint
-      script: pylint backend
+      script: python scripts/kind_lint.py --targets backend client --score 7
 
 notifications:
   slack: rv-027py:bKX55idBpm5OTbuPu9gphYF8
