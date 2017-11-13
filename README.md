@@ -71,3 +71,8 @@ fill it up with your database credentials.
 ```
 python manage.py runall
 ```
+
+### To enter admin panel
+```
+add /admin to the url
+```
