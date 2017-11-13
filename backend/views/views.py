@@ -192,13 +192,16 @@ def logout():
 def issues_page():
     """Issues page route."""
     count_att = db.session.query(Issue.id, func.count(Attachment.id).label(
-        'count')).filter(Issue.id == Attachment.issue_id).group_by(Issue.id).subquery('count_att')
-    last_date = db.session.query(Issue.id, func.max(IssueHistory.transaction_date).label(
-        'date')).filter(IssueHistory.issue_id == Issue.id).group_by(Issue.id).subquery('last_date')
+        'count')).filter(Issue.id == Attachment.issue_id).group_by(
+            Issue.id).subquery('count_att')
+    last_date = db.session.query(Issue.id, func.max(
+        IssueHistory.transaction_date).label('date')).filter(
+            IssueHistory.issue_id == Issue.id).group_by(
+                Issue.id).subquery('last_date')
     status = db.session.query(Issue.id, Status.status).filter(and_(
-        IssueHistory.issue_id == Issue.id, IssueHistory.status_id == Status.id,
-        Issue.id == last_date.c.id, IssueHistory.transaction_date == last_date.c.date
-        )).subquery('status')
+        IssueHistory.issue_id == Issue.id,
+        IssueHistory.status_id == Status.id, Issue.id == last_date.c.id,
+        IssueHistory.transaction_date == last_date.c.date)).subquery('status')
     issues = db.session.query(
         Category.category, Issue, User.alias, count_att.c.count,
         status.c.status).filter(and_(
@@ -211,9 +214,12 @@ def issues_page():
 @admin_permissions
 def issue_history(issue_id):
     """Issue history page route."""
-    history = db.session.query(IssueHistory, Status.status, User.alias, Issue.name).filter(and_(
-        IssueHistory.user_id == User.id, IssueHistory.status_id == Status.id,
-        IssueHistory.issue_id == issue_id, IssueHistory.user_id == Issue.id)).all()
+    history = db.session.query(
+        IssueHistory, Status.status, User.alias, Issue.name).filter(and_(
+            IssueHistory.user_id == User.id,
+            IssueHistory.status_id == Status.id,
+            IssueHistory.issue_id == issue_id,
+            IssueHistory.user_id == Issue.id)).all()
     return render_template('issue_history.html', issue_history=history)
 
 @app.route('/attachments/<int:issue_id>')
@@ -221,5 +227,6 @@ def issue_history(issue_id):
 def attachments(issue_id):
     """Attachments page route."""
     attach = db.session.query(Attachment, Issue.name).filter(and_(
-        Attachment.issue_id == issue_id, Issue.id == Attachment.issue_id)).all()
+        Attachment.issue_id == issue_id,
+        Issue.id == Attachment.issue_id)).all()
     return render_template('attachments.html', attachments=attach)
