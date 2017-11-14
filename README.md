@@ -9,7 +9,6 @@ pip install -r requirements.txt
 Rename file config.py.example into config.py and 
 fill config.py with your database credentials.
 ```
-```
 ### Create database and test records (from the root)
 ```
 python backend/create_database.py
@@ -21,7 +20,7 @@ python backend/insert_db_data.py
 python backend/run.py run
 ```
 
-To drop database (from the root)
+### To drop database (from the root)
 ```
 python backend/drop_database.py
 ```
