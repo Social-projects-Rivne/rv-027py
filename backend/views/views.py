@@ -158,7 +158,8 @@ def login():
     if form.validate_on_submit():
         user = db.session.query(User).filter(
             User.email == form.email.data).first()
-        if user and not user.delete_date and user.check_password(form.password.data):
+        if user and not user.delete_date and \
+                user.check_password(form.password.data):
             session['user_id'] = user.id
             session['role_id'] = user.role_id
             flash('Welcome %s' % user.name)
