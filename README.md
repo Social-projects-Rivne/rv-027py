@@ -9,26 +9,21 @@ pip install -r requirements.txt
 Rename file config.py.example into config.py and 
 fill config.py with your database credentials.
 ```
-### Prepare Command Line Interface
-On Windows use **set** instead of **export**
 ```
-export  FLASK_APP=app.py
-export  FLASK_DEBUG=1
+### Create database and test records (from the root)
 ```
-### Create database and test records  
-```
-flask initdb
-flask insertdata 
+python backend/create_database.py
+python backend/insert_db_data.py
 ```
 
-### Run Flask application
+### Run Flask application (from the root)
 ```
-flask run 
+python backend/run.py run
 ```
 
-To drop database (must do: Prepare Command Line Interface step)
+To drop database (from the root)
 ```
-flask dropdb 
+python backend/drop_database.py
 ```
 
 ### Django Settings
@@ -37,9 +32,9 @@ Rename file local_settings.py.example into local_settings.py and
 fill it up with your database credentials.
 ```
 
-### Run Django application
+### Run Django application (from the root)
 ```
-python manage.py runserver
+python client/manage.py runserver
 ```
 
 #
@@ -55,10 +50,10 @@ Rename file config.py.example into config.py and
 fill config.py with your database credentials.
 ```
 
-### Create database and test records
+### Create database and test records (from the root)
 ```
-flask initdb
-flask insertdata
+python backend/create_database.py
+python backend/insert_db_data.py
 ```
 
 ### Django Settings
@@ -67,12 +62,12 @@ Rename file local_settings.py.example into local_settings.py and
 fill it up with your database credentials.
 ```
 
-### Run Django application
+### Run Django application (from the root)
 ```
-python manage.py runall
+python client/manage.py runall
 ```
 
 ### To enter admin panel
 ```
-add /admin to the url
+add '/admin' to the url
 ```
