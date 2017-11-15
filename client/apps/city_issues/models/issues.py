@@ -17,6 +17,7 @@ class Attachments(models.Model):
 
     class Meta:
         """..."""
+        app_label = 'city_issues'
         managed = False
         db_table = 'attachments'
 
@@ -30,6 +31,7 @@ class Category(models.Model):
 
     class Meta:
         """..."""
+        app_label = 'city_issues'
         managed = False
         db_table = 'category'
 
@@ -38,7 +40,7 @@ class IssueHistory(models.Model):
     """
     IssueHistory table in the database.
     """
-    user = models.ForeignKey('Users', models.DO_NOTHING,
+    user = models.ForeignKey('User', models.DO_NOTHING,
                              blank=True, null=True)
     issue = models.ForeignKey('Issues', models.DO_NOTHING,
                               blank=True, null=True)
@@ -50,6 +52,7 @@ class IssueHistory(models.Model):
 
     class Meta:
         """..."""
+        app_label = 'city_issues'
         managed = False
         db_table = 'issue_History'
 
@@ -59,10 +62,11 @@ class Issues(models.Model):
     Issues table in the database.
     """
     name = models.TextField(blank=True, null=True)
-    user = models.ForeignKey('Users', models.DO_NOTHING,
+    user = models.ForeignKey('User', models.DO_NOTHING,
                              blank=True, null=True)
     category = models.ForeignKey(Category, models.DO_NOTHING)
-    location = models.TextField(blank=True, null=True)
+    locationX = models.FloatField(blank=True, null=True)
+    locationY = models.FloatField(blank=True, null=True)
     description = models.TextField(blank=True, null=True)
     open_date = models.DateTimeField(blank=True, null=True)
     close_date = models.DateTimeField(blank=True, null=True)
@@ -70,6 +74,7 @@ class Issues(models.Model):
 
     class Meta:
         """..."""
+        app_label = 'city_issues'
         managed = False
         db_table = 'issues'
 
@@ -82,5 +87,6 @@ class Statuses(models.Model):
 
     class Meta:
         """..."""
+        app_label = 'city_issues'
         managed = False
         db_table = 'statuses'

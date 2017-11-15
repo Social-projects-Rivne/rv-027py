@@ -32,12 +32,12 @@ user2 = User(name='Mark', alias='Marky', email='mark@gmail.com',
 user3 = User(name='Maria', alias='Mary', email='maria@gmail.com',
              password='321', role_id='3')
 
-issue1 = Issue(name='Road accident', user_id='2', category_id='1', location='',
-               description='Car crash ...')
-issue2 = Issue(name='Road accident', user_id='3', category_id='1', location='',
-               description='Bus crash ...')
-issue3 = Issue(name='Dog lost', user_id='3', category_id='3', location='',
-               description='Poor puppy is lost')
+issue1 = Issue(name='Road accident', user_id='2', category_id='1', locationX='50.621945',
+               locationY='26.249314', description='Car crash ...')
+issue2 = Issue(name='Road accident', user_id='3', category_id='2', locationX='50.621999',
+               locationY='26.2493', description='Bus crash ...')
+issue3 = Issue(name='Dog lost', user_id='3', category_id='3', locationX='50.622584',
+               locationY='26.252468', description='Poor puppy is lost')
 
 attachment1 = Attachment(issue_id='1', image_url='some url1')
 attachment2 = Attachment(issue_id='2', image_url='some url2')

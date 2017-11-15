@@ -53,7 +53,8 @@ class Issue(db.Model):
     user_id = db.Column(db.ForeignKey(u'users.id'), index=True)
     category_id = db.Column(db.ForeignKey(
         u'category.id'), nullable=False, index=True)
-    location = db.Column(db.Text)
+    locationX = db.Column(db.Float)
+    locationY = db.Column(db.Float)
     description = db.Column(db.Text)
     open_date = db.Column(db.TIMESTAMP)
     close_date = db.Column(db.TIMESTAMP)
