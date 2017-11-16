@@ -35,7 +35,7 @@ class UniqueValue(object):
 
         query = db.session.query(self.model).filter(
             self.model.id != record_id).filter(
-            self.property_to_find == field.data).first()
+                self.property_to_find == field.data).first()
 
         if query:
             raise ValidationError(self.message)

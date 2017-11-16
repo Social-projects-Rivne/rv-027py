@@ -12,7 +12,7 @@ jobs:
       script: pycodestyle --ignore=E402 backend
 
     - stage: Pylint
-      script: python scripts/kind_lint.py --targets backend client --score 7
+      script: python pylint_check.py --targets backend client --score 7
 
 notifications:
   slack: rv-027py:bKX55idBpm5OTbuPu9gphYF8

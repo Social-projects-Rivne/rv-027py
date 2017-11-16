@@ -38,7 +38,7 @@ class IssueHistory(models.Model):
     """
     IssueHistory table in the database.
     """
-    user = models.ForeignKey('Users', models.DO_NOTHING,
+    user = models.ForeignKey('User', models.DO_NOTHING,
                              blank=True, null=True)
     issue = models.ForeignKey('Issues', models.DO_NOTHING,
                               blank=True, null=True)
@@ -59,7 +59,7 @@ class Issues(models.Model):
     Issues table in the database.
     """
     name = models.TextField(blank=True, null=True)
-    user = models.ForeignKey('Users', models.DO_NOTHING,
+    user = models.ForeignKey('User', models.DO_NOTHING,
                              blank=True, null=True)
     category = models.ForeignKey(Category, models.DO_NOTHING)
     location = models.TextField(blank=True, null=True)
