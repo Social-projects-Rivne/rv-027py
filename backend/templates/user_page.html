@@ -4,7 +4,7 @@
 {% block title_suffix %}Users managements{% endblock title_suffix %}
 
 {% block navbar_li %}
-    <li><a href="{{ url_for('index') }}">Main page</a></li>
+    <li><a href="{{ url_for('admin') }}">Admin</a></li>
     <li><a href="{{ url_for('logout') }}">Logout</a></li>
 {% endblock navbar_li %}
 
@@ -45,7 +45,7 @@
                                data-user-name="{{ user.name }}">Delete</a></td>
                     {% else %}
                         <td>
-                            <form id="restore-user" method="post" action="/restoreuser/{{ user.id }}">
+                            <form id="restore-user" method="post" action="/admin/restoreuser/{{ user.id }}">
                                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                                 <button type="submit" class="btn btn-success">Restore</button>
                             </form>

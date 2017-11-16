@@ -1,9 +1,8 @@
-"""This module generate routes for admin panel"""
+"""This module generates routes for admin panel"""
 from functools import wraps
 
 from flask import flash, redirect, request, render_template, session, url_for
 from sqlalchemy import and_, or_
-
 
 from backend.app import app, db
 from backend.forms.forms import LoginForm, SearchForm, UserForm
@@ -32,13 +31,6 @@ def admin_permissions(func):
 
 
 @app.route('/')
-@app.route('/index')
-def index():
-    """Main page route."""
-    return render_template('index.html')
-
-
-@app.route('/admin')
 @admin_permissions
 def admin():
     """Admin page route."""
@@ -166,14 +158,17 @@ def login():
     if form.validate_on_submit():
         user = db.session.query(User).filter(
             User.email == form.email.data).first()
-        if (user and not user.delete_date and
-                user.check_password(form.password.data)):
+        if user and not user.delete_date and \
+                user.check_password(form.password.data):
             session['user_id'] = user.id
             session['role_id'] = user.role_id
             flash('Welcome %s' % user.name)
-            return redirect(url_for('index'))
+            return redirect(url_for('admin'))
         else:
             flash('Incorrect login/password data...')
+            return render_template('login_page.html', form=form)
+    else:
+        return render_template('login_page.html', form=form)
 
     return render_template('login_page.html', form=form)
 
@@ -184,4 +179,4 @@ def logout():
     session.pop('user_id', None)
     session.pop('role_id', None)
     flash("Successful logout")
-    return redirect(url_for('index'))
+    return redirect(url_for('admin'))
