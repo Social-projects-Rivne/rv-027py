@@ -4,10 +4,9 @@ from functools import wraps
 from flask import flash, redirect, request, render_template, session, url_for
 from sqlalchemy import and_, or_
 
-
-from app import app, db
-from forms.forms import LoginForm, SearchForm, UserForm
-from models.users import Role, User
+from backend.app import app, db
+from backend.forms.forms import LoginForm, SearchForm, UserForm
+from backend.models.users import Role, User
 
 ROLE_ADMIN = 1
 ROLE_MODERATOR = 2

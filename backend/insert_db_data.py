@@ -2,11 +2,11 @@
 # pylint: disable=no-name-in-module,import-error
 import os
 
-from app import db
-from config import Config
-from models.users import Role, User
-from models.issues import (Attachment, Category,
-                           Issue, IssueHistory, Status)
+from backend.app import db
+from backend.config import Config
+from backend.models.users import Role, User
+from backend.models.issues import (Attachment, Category,
+                                   Issue, IssueHistory, Status)
 
 db_credentials = Config.SQLALCHEMY_DATABASE_URI
 

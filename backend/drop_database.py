@@ -4,7 +4,7 @@ import os
 
 from sqlalchemy_utils.functions.database import drop_database
 
-from config import Config
+from backend.config import Config
 
 
 db_credentials = Config.SQLALCHEMY_DATABASE_URI

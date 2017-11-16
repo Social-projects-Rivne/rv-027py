@@ -3,7 +3,7 @@ Django models
 """
 from __future__ import unicode_literals
 
-from datetime import time
+import datetime
 
 from django.contrib.auth.models import AbstractBaseUser
 from django.db import models
@@ -82,7 +82,7 @@ class User(AbstractBaseUser):
 
     @is_active.setter
     def set_active(self, value):
-        self.delete_date = None if value else time.time.now()
+        self.delete_date = None if value else datetime.datetime.now()
 
     @property
     def is_staff(self):
