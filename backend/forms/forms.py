@@ -5,8 +5,8 @@ from wtforms import (StringField, HiddenField,
 from wtforms.validators import (DataRequired, Email,
                                 Length, Regexp, ValidationError)
 
-from app import db
-from models.users import User
+from backend.app import db
+from backend.models.users import User
 
 
 class UniqueValue(object):

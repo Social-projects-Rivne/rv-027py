@@ -4,7 +4,8 @@
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.sql.functions import func
 
-from app import bcrypt, db
+from backend.app import db
+from passlib.hash import django_bcrypt
 
 
 class Role(db.Model):
@@ -41,13 +42,13 @@ class User(db.Model):
         return self.hashed_password
 
     @password.setter
-    def _set_password(self, raw_password):
+    def password(self, raw_password):
         """Hashing password before being stored."""
-        self.hashed_password = bcrypt.generate_password_hash(raw_password)
+        self.hashed_password = django_bcrypt.hash(raw_password)
 
     def check_password(self, raw_password):
         """Checking the password form database."""
-        return bcrypt.check_password_hash(self.hashed_password, raw_password)
+        return django_bcrypt.verify(raw_password, self.hashed_password)
 
     # pylint: disable=no-self-use
     # This needs to be checked because no self is used in function
