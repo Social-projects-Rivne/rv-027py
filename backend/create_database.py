@@ -5,8 +5,8 @@ import os
 from sqlalchemy_utils.functions.database import (create_database,
                                                  database_exists)
 
-from app import db
-from config import Config
+from backend.app import db
+from backend.config import Config
 
 
 # Checking if database exists, and if not -> create it with all tables.

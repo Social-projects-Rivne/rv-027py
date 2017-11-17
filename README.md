@@ -9,20 +9,24 @@ pip install -r requirements.txt
 Rename file config.py.example into config.py and 
 fill config.py with your database credentials.
 ```
+### Prepare Command Line Interface (use set on Windows)
+'''
+export FLASK_APP=backend/app.py
+'''
 ### Create database and test records (from the root)
 ```
-python backend/create_database.py
-python backend/insert_db_data.py
+flask initdb
+flask insertdata
 ```
 
 ### Run Flask application (from the root)
 ```
-python backend/run.py run
+flask run
 ```
 
 ### To drop database (from the root)
 ```
-python backend/drop_database.py
+flask dropdb
 ```
 
 ### Django Settings
@@ -51,8 +55,12 @@ fill config.py with your database credentials.
 
 ### Create database and test records (from the root)
 ```
-python backend/create_database.py
-python backend/insert_db_data.py
+flask initdb
+flask insertdata
+```
+### To drop database (from the root)
+```
+flask dropdb
 ```
 
 ### Django Settings

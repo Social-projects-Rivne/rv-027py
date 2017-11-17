@@ -17,8 +17,8 @@ import sys
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-# Add visibility for flask admin to django
-sys.path.insert(1, os.path.join(os.path.dirname(BASE_DIR), 'backend'))
+# Add visibility for base directory to django
+sys.path.insert(1, os.path.dirname(BASE_DIR))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/

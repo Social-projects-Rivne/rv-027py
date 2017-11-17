@@ -4,7 +4,7 @@
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.sql.functions import func
 
-from app import bcrypt, db
+from backend.app import bcrypt, db
 
 
 class Role(db.Model):

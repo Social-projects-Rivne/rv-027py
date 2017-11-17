@@ -8,18 +8,18 @@ from flask_sqlalchemy import SQLAlchemy
 
 
 app = Flask(__name__)
-app.config.from_object('config.DevelopmentConfig')
+app.config.from_object('backend.config.DevelopmentConfig')
 bcrypt = Bcrypt(app)
 db = SQLAlchemy(app)
 Bootstrap(app)
 CSRFProtect(app)
 
 
-from create_database import db_create
-from drop_database import db_drop
-from insert_db_data import db_insert_data
+from backend.create_database import db_create
+from backend.drop_database import db_drop
+from backend.insert_db_data import db_insert_data
 # pylint: disable=unused-import
-from views import views
+from backend.views import views
 
 
 @app.cli.command()

@@ -7,7 +7,7 @@ from django.core.servers.basehttp import get_internal_wsgi_application
 
 from werkzeug.wsgi import DispatcherMiddleware
 
-from app import app as admin_app
+from backend.app import app as admin_app
 
 city_issues = get_internal_wsgi_application()
 
