@@ -3,6 +3,7 @@
 
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.sql.functions import func
+
 from backend.app import bcrypt, db
 
 
@@ -40,18 +41,18 @@ class User(db.Model):
         return self.hashed_password
 
     @password.setter
-    def _set_password(self, plaintext):
+    def _set_password(self, raw_password):
         """Hashing password before being stored."""
-        self.hashed_password = bcrypt.generate_password_hash(plaintext)
+        self.hashed_password = bcrypt.generate_password_hash(raw_password)
 
-    def check_password(self, plaintext):
+    def check_password(self, raw_password):
         """Checking the password form database."""
-        return bcrypt.check_password_hash(self.hashed_password, plaintext)
+        return bcrypt.check_password_hash(self.hashed_password, raw_password)
 
     # pylint: disable=no-self-use
     # This needs to be checked because no self is used in function
     def is_last_admin(self):
-        """Checking for only one admin in users"""
+        """Looking for the last admin"""
         count = User.query.filter_by(
             role_id=User.ROLE_ADMIN, delete_date=None).count()
         if count > 1:

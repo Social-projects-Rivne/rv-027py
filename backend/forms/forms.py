@@ -10,7 +10,6 @@ from backend.models.users import User
 
 
 class UniqueValue(object):
-
     """Custom validator.
 
     Validate for unique field value.
@@ -51,8 +50,14 @@ check_alias = UniqueValue(
     message="This alias is already exists in database.")
 
 
-class UserForm(FlaskForm):
+class BaseForm(FlaskForm):
+    """Adds csrf"""
+    class Meta:
+        """..."""
+        csrf = True
 
+
+class UserForm(BaseForm):
     """User info modifying form."""
 
     id = HiddenField('id')
@@ -94,8 +99,7 @@ class UserForm(FlaskForm):
     submit_button = SubmitField('Save')
 
 
-class LoginForm(FlaskForm):
-
+class LoginForm(BaseForm):
     """Login form."""
 
     email = StringField('login', validators=[Email()])
@@ -103,8 +107,7 @@ class LoginForm(FlaskForm):
     submit_button = SubmitField('Login')
 
 
-class SearchForm(FlaskForm):
-
+class SearchForm(BaseForm):
     """Search form"""
 
     search = StringField(
@@ -130,3 +133,7 @@ class SearchForm(FlaskForm):
             ('2', 'delete date')
         ]
     )
+
+    class Meta:
+        """..."""
+        csrf = False
