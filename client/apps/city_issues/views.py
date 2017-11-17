@@ -28,6 +28,6 @@ def map_page_view(request):
     return HttpResponse(template.render(context, request))
 
 
-def get_issue_data(request,issue_id):
+def get_issue_data(request, issue_id):
     data = serializers.serialize("json", Issues.objects.filter(pk=issue_id))
     return JsonResponse(data, safe=False)
