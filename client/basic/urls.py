@@ -15,10 +15,11 @@ Including another URLconf
 """
 from django.conf.urls import url
 
-from city_issues.views import HomePageView, map_page_view
+from city_issues.views import HomePageView, get_issue_data, map_page_view
 
 
 urlpatterns = [
     url(r'^$', HomePageView.as_view(), name='home'),
     url(r'^map/$', map_page_view, name='map'),
+    url(r'^map/getissuebyid/(?P<issue_id>[0-9]+)$', get_issue_data, name='issue_data')
 ]
