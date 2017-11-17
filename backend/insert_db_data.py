@@ -53,6 +53,8 @@ issueHistory4 = IssueHistory(user_id='3', issue_id='3', status_id='2',
                              transaction_date='2017/09/25')
 issueHistory5 = IssueHistory(user_id='3', issue_id='3', status_id='3',
                              transaction_date='2017/09/26')
+issueHistory6 = IssueHistory(user_id='2', issue_id='2', status_id='1',
+                             transaction_date='2017/11/11')
 
 
 def db_insert_data():
@@ -63,7 +65,8 @@ def db_insert_data():
                         user1, user2, user3,
                         issue1, issue2, issue3,
                         issueHistory1, issueHistory2, issueHistory3,
-                        issueHistory4, issueHistory5])
+                        issueHistory4, issueHistory5, issueHistory6,
+                        attachment1, attachment2, attachment3])
     db.session.commit()
 
     print "Test data has been inserted into the database"
