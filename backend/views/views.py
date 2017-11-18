@@ -5,7 +5,8 @@ from flask import flash, redirect, request, render_template, session, url_for
 from sqlalchemy import and_, func, or_
 
 from backend.app import app, db
-from backend.forms.forms import LoginForm, SearchForm, UserForm
+from backend.forms.forms import (LoginForm, SearchForm,
+                                 UserForm, SearchIssuesForm)
 from backend.models.issues import (Attachment, Category, IssueHistory,
                                    Issue, Status)
 from backend.models.users import Role, User
@@ -13,7 +14,6 @@ from backend.models.users import Role, User
 ROLE_ADMIN = 1
 ROLE_MODERATOR = 2
 ROLE_USER = 3
-
 
 MIN_SEARCH_STR = 2
 
@@ -51,12 +51,14 @@ def user_page():
         search_by = int(request.args.get('search_by'))
         order_by = int(request.args.get('order_by'))
         search_string = str(request.args.get('search'))
+        print 'search_string', search_string
         if len(search_string) >= MIN_SEARCH_STR:
             condition_list = []
             for one_string in search_string.split():
                 if len(one_string) < MIN_SEARCH_STR:
                     continue
                 search_parameter = '%{}%'.format(one_string)
+                print 'search_parameter', search_parameter
                 name_search = User.name.like(search_parameter)
                 alias_search = User.alias.like(search_parameter)
                 email_search = User.email.like(search_parameter)
@@ -71,6 +73,7 @@ def user_page():
                 ]
                 condition_list.append(conditions[search_by])
             condition = or_(*condition_list)
+            print 'condition_list', condition_list
         else:
             condition = ""
             if search_string != "":
@@ -184,28 +187,83 @@ def logout():
     return redirect(url_for('admin'))
 
 
-@app.route('/issuespage')
+@app.route('/issuespage', methods=['GET', 'POST'])
 @admin_permissions
 def issues_page():
     """Issues page route."""
+    form = SearchIssuesForm(request.args, meta={'csrf': False})
     count_att = db.session.query(Issue.id, func.count(Attachment.id).label(
         'count')).filter(Issue.id == Attachment.issue_id).group_by(
-            Issue.id).subquery('count_att')
+        Issue.id).subquery('count_att')
     last_date = db.session.query(Issue.id, func.max(
         IssueHistory.transaction_date).label('date')).filter(
-            IssueHistory.issue_id == Issue.id).group_by(
-                Issue.id).subquery('last_date')
+        IssueHistory.issue_id == Issue.id).group_by(
+        Issue.id).subquery('last_date')
     status = db.session.query(Issue.id, Status.status).filter(and_(
         IssueHistory.issue_id == Issue.id,
         IssueHistory.status_id == Status.id, Issue.id == last_date.c.id,
         IssueHistory.transaction_date == last_date.c.date)).subquery('status')
     issues = db.session.query(
         Category.category, Issue, User.alias, count_att.c.count,
+        status.c.status).filter(and_(Issue.user_id == User.id, Issue.category_id == Category.id,
+                                     Issue.id == count_att.c.id, Issue.id == status.c.id)).order_by\
+        (Issue.id).all()
+    return render_template('issues_page.html', issues=issues, form=form)
+
+
+@app.route('/issuespage_filter', methods=['GET', 'POST'])
+@admin_permissions
+def issues_page_filter():
+    """Issues page route."""
+
+    form = SearchIssuesForm(request.args, meta={'csrf': False})
+    msg = False
+    condition = None
+    order = None
+
+    if form.validate():
+        search_by = request.args.get('search_by')
+        order_by = int(request.args.get('order_by'))
+        search_string = str(request.args.get('search'))
+
+        if len(search_string) >= MIN_SEARCH_STR:
+            search_parameter = '%{}%'.format(search_string)
+
+            if 'name' == search_by:
+                condition = Issue.name.like(search_parameter)
+
+            else:
+                condition = Category.category.like(search_parameter)
+
+        else:
+            condition = ""
+            if search_string != "":
+                msg = True
+
+        order_list = [Issue.name, Category.category]
+        order = order_list[order_by]
+
+    count_att = db.session.query(Issue.id, func.count(Attachment.id).label(
+        'count')).filter(Issue.id == Attachment.issue_id).group_by(
+        Issue.id).subquery('count_att')
+
+    last_date = db.session.query(Issue.id, func.max(
+        IssueHistory.transaction_date).label('date')).filter(
+        IssueHistory.issue_id == Issue.id).group_by(
+        Issue.id).subquery('last_date')
+
+    status = db.session.query(Issue.id, Status.status).filter(and_(
+        IssueHistory.issue_id == Issue.id,
+        IssueHistory.status_id == Status.id, Issue.id == last_date.c.id,
+        IssueHistory.transaction_date == last_date.c.date)).subquery('status')
+
+    issues = db.session.query(
+        Category.category, Issue, User.alias, count_att.c.count,
         status.c.status).filter(and_(
-            Issue.user_id == User.id, Issue.category_id == Category.id,
-            Issue.id == count_att.c.id, Issue.id == status.c.id)).order_by(
-                Issue.id).all()
-    return render_template('issues_page.html', issues=issues)
+        Issue.user_id == User.id, Issue.category_id == Category.id,
+        Issue.id == count_att.c.id, Issue.id == status.c.id, condition)).order_by(order).all()
+
+    return render_template('issues_page.html', issues=issues, form=form)
 
 
 @app.route('/issuehistory/<int:issue_id>')
@@ -214,10 +272,10 @@ def issue_history(issue_id):
     """Issue history page route."""
     history = db.session.query(
         IssueHistory, Status.status, User.alias, Issue.name).filter(and_(
-            IssueHistory.user_id == User.id,
-            IssueHistory.status_id == Status.id,
-            IssueHistory.issue_id == Issue.id,
-            IssueHistory.issue_id == issue_id)).all()
+        IssueHistory.user_id == User.id,
+        IssueHistory.status_id == Status.id,
+        IssueHistory.issue_id == Issue.id,
+        IssueHistory.issue_id == issue_id)).all()
     return render_template('issue_history.html', issue_history=history)
 
 
