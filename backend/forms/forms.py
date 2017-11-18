@@ -137,3 +137,29 @@ class SearchForm(BaseForm):
     class Meta:
         """..."""
         csrf = False
+
+
+class SearchIssuesForm(BaseForm):
+    """Search form"""
+
+    search = StringField(
+        'search'
+    )
+    search_by = SelectField(
+        'search_by',
+        choices=[
+            ('name', 'name'),
+            ('category', 'category'),
+        ]
+    )
+    order_by = SelectField(
+        'order_by',
+        choices=[
+            ('0', 'name'),
+            ('1', 'category'),
+        ]
+    )
+
+    class Meta:
+        """..."""
+        csrf = False
