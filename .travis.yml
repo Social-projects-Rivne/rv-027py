@@ -9,7 +9,7 @@ install:
 jobs:
   include:
     - stage: PEP8
-      script: pycodestyle --ignore=E402,E501 backend
+      script: pycodestyle --ignore=E402 backend
 
     - stage: Pylint
       script: python pylint_check.py --targets backend client --score 7

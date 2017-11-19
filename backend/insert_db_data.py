@@ -68,7 +68,8 @@ def db_insert_data():
                         user1, user2, user3,
                         issue1, issue2, issue3,
                         issueHistory1, issueHistory2, issueHistory3,
-                        issueHistory4, issueHistory5, issueHistory6, issueHistory7,
+                        issueHistory4, issueHistory5, issueHistory6,
+                        issueHistory7,
                         attachment1, attachment2, attachment3])
     db.session.commit()
 
