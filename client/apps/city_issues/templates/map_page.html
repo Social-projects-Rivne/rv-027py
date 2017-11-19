@@ -9,20 +9,32 @@
    integrity="sha512-M2wvCLH6DSRazYeZRIm1JnYyh22purTM+FDB5CsyxtQJYeKq83arPe5wgbNmcFXGqiSH2XR8dT/fJISVA1r/zQ=="
    crossorigin=""/>
    <link rel="stylesheet" type="text/css" href="https://unpkg.com/leaflet.markercluster@1.2.0/dist/MarkerCluster.css">
+   {% load static %}
+   <link rel="stylesheet" type="text/css" href="{% static "city_issues/css/style.css" %}">
 {% endblock extra_css %}
 
 {% block content %}
-<div id="mapid" style="height: 900px"></div>
-<div id="issue_description" style="position: fixed; width:400px; height:100%; top: 0; right: 0; background-color: #fff; z-index: 999; display: none"></div>
+	<div id="mapid" class="map_container"></div>
+	<div id="issue_container"  class="issue_container">
+		<div class="issue_box">
+			<h3 class="issue_name"></h3>
+			<p class="issue_category"></p>
+			<div class="issue_img-box">
+				<img class="issue_img" src="#"></img>
+			</div>
+			<h4>Issue description</h4>
+			<p class="issue_description"></p>
+		</div>
+		<div class="btn btn-danger" id="issue_close">Close</div>
+	</div>
 {% endblock content %}
 
 {% block extra_js %}
-<script src="https://unpkg.com/leaflet@1.2.0/dist/leaflet.js"
-   integrity="sha512-lInM/apFSqyy1o6s89K4iQUKg6ppXEgsVxT35HbzUupEVRh2Eu9Wdl4tHj7dZO0s1uvplcYGmt3498TtHq+log=="
-   crossorigin=""></script>
-<script type="text/javascript" src="https://unpkg.com/leaflet.markercluster@1.2.0/dist/leaflet.markercluster.js"></script>
+	<script src="https://unpkg.com/leaflet@1.2.0/dist/leaflet.js"
+	   integrity="sha512-lInM/apFSqyy1o6s89K4iQUKg6ppXEgsVxT35HbzUupEVRh2Eu9Wdl4tHj7dZO0s1uvplcYGmt3498TtHq+log=="
+	   crossorigin=""></script>
+	<script type="text/javascript" src="https://unpkg.com/leaflet.markercluster@1.2.0/dist/leaflet.markercluster.js"></script>
 
-<script type="text/javascript">var jsonData = {{ data|safe }};</script>
 {% load static %}
-<script type="text/javascript" src="{% static "city_issues/main.js" %}"></script>
+	<script type="text/javascript" src="{% static "city_issues/js/main.js" %}"></script>
 {% endblock extra_js %}
