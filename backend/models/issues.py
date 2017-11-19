@@ -53,6 +53,7 @@ class Issue(db.Model):
     user_id = db.Column(db.ForeignKey(u'users.id'), index=True)
     category_id = db.Column(db.ForeignKey(
         u'category.id'), nullable=False, index=True)
+    status = db.Column(db.Text)
     location = db.Column(db.Text)
     description = db.Column(db.Text)
     open_date = db.Column(db.TIMESTAMP)
