@@ -127,6 +127,8 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+MEDIA_URL = '/media/'
+
 
 # Expand the default settings.
 # Loading extension parameters of standard configurations

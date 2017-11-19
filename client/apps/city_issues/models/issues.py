@@ -28,6 +28,9 @@ class Category(models.Model):
     category = models.TextField(blank=True, null=True)
     favicon = models.TextField(blank=True, null=True)
 
+    def __unicode__(self):
+        return u'{0}'.format(self.category)
+
     class Meta:
         """..."""
         managed = False
@@ -61,10 +64,11 @@ class Issues(models.Model):
     name = models.TextField(blank=True, null=True)
     user = models.ForeignKey('User', models.DO_NOTHING,
                              blank=True, null=True)
-    category = models.ForeignKey(Category, models.DO_NOTHING)
-    location = models.TextField(blank=True, null=True)
+    category = models.ForeignKey('Category', models.DO_NOTHING)
+    longitude = models.FloatField(blank=True, null=True)
+    latitude = models.FloatField(blank=True, null=True)
     description = models.TextField(blank=True, null=True)
-    open_date = models.DateTimeField(blank=True, null=True)
+    open_date = models.DateTimeField(blank=True, null=True, auto_now_add=True)
     close_date = models.DateTimeField(blank=True, null=True)
     delete_date = models.DateTimeField(blank=True, null=True)
 
