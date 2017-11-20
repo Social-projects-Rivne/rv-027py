@@ -7,7 +7,6 @@ from sqlalchemy.sql.functions import func
 from backend.app import db
 
 
-
 class Attachment(db.Model):
     """Attachment table in the database."""
 
