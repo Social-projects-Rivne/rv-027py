@@ -273,10 +273,10 @@ def issue_history(issue_id):
     """Issue history page route."""
     history = db.session.query(
         IssueHistory, Status.status, User.alias, Issue.name).filter(and_(
-        IssueHistory.user_id == User.id,
-        IssueHistory.status_id == Status.id,
-        IssueHistory.issue_id == Issue.id,
-        IssueHistory.issue_id == issue_id)).all()
+            IssueHistory.user_id == User.id,
+            IssueHistory.status_id == Status.id,
+            IssueHistory.issue_id == Issue.id,
+            IssueHistory.issue_id == issue_id)).all()
     return render_template('issue_history.html', issue_history=history)
 
 
