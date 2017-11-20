@@ -2,10 +2,12 @@
 from functools import wraps
 
 from flask import flash, redirect, request, render_template, session, url_for
-from sqlalchemy import and_, or_
+from sqlalchemy import and_, func, or_
 
 from backend.app import app, db
 from backend.forms.forms import LoginForm, SearchForm, UserForm
+from backend.models.issues import (Attachment, Category, IssueHistory,
+                                   Issue, Status)
 from backend.models.users import Role, User
 
 ROLE_ADMIN = 1
@@ -16,16 +18,16 @@ ROLE_USER = 3
 MIN_SEARCH_STR = 2
 
 
-def admin_permissions(func):
+def admin_permissions(function):
     """Decorator to check admin rights to access some route."""
 
-    @wraps(func)
+    @wraps(function)
     def wrapper(*args, **kwargs):
         """Wrapper for routes."""
         if 'user_id' not in session or session['role_id'] != ROLE_ADMIN:
             flash("No access")
             return redirect(url_for('login'))
-        return func(*args, **kwargs)
+        return function(*args, **kwargs)
 
     return wrapper
 
@@ -180,3 +182,41 @@ def logout():
     session.pop('role_id', None)
     flash("Successful logout")
     return redirect(url_for('admin'))
+
+
+@app.route('/issuespage')
+@admin_permissions
+def issues_page():
+    """Issues page route."""
+    count_att = db.session.query(Issue.id, func.count(Attachment.id).label(
+        'count')).filter(Issue.id == Attachment.issue_id).group_by(
+            Issue.id).subquery('count_att')
+    issues = db.session.query(
+        Category.category, Issue, User.alias, count_att.c.count).filter(and_(
+            Issue.user_id == User.id, Issue.category_id == Category.id,
+            Issue.id == count_att.c.id)).order_by(
+                Issue.id).all()
+    return render_template('issues_page.html', issues=issues)
+
+
+@app.route('/issuehistory/<int:issue_id>')
+@admin_permissions
+def issue_history(issue_id):
+    """Issue history page route."""
+    history = db.session.query(
+        IssueHistory, Status.status, User.alias, Issue.name).filter(and_(
+            IssueHistory.user_id == User.id,
+            IssueHistory.status_id == Status.id,
+            IssueHistory.issue_id == Issue.id,
+            IssueHistory.issue_id == issue_id)).all()
+    return render_template('issue_history.html', issue_history=history)
+
+
+@app.route('/attachments/<int:issue_id>')
+@admin_permissions
+def attachments(issue_id):
+    """Attachments page route."""
+    attach = db.session.query(Attachment, Issue.name).filter(and_(
+        Attachment.issue_id == issue_id,
+        Issue.id == Attachment.issue_id)).all()
+    return render_template('attachments.html', attachments=attach)
