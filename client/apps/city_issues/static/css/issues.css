@@ -76,3 +76,17 @@
   width: 100%;
   opacity: 0;
 }
+
+li.success, li.error {
+  float: right;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+li.success{
+  color: green;
+}
+
+li.error{
+  color: red;
+}

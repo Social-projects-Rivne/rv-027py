@@ -1,6 +1,6 @@
 function IssueMap()
 {
-    this.map = L.map('map').locate({setView: true, maxZoom: 25});
+    this.map = L.map('map').locate({setView: true, maxZoom: 50});
     this.layer = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png').addTo(this.map);
 
     this.map.on('click',($.proxy(this.getLocation, this)));
@@ -17,10 +17,20 @@ IssueMap.prototype.getLocation = function (e)
 
      $("input[name=latitude]").val(location.lat);
      $("input[name=longitude]").val(location.lng);
-    console.log(location);
 };
 
 $(function ()
 {
     new IssueMap();
+
+    setTimeout(function()
+    {
+        $('.message').fadeOut('slow');
+    }, 10000);
+
+    $('.del-msg').on('click',function(e)
+    {
+        e.preventDefault();
+        $('.del-msg').parent().hide();
+    })
 });
