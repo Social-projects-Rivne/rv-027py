@@ -107,7 +107,7 @@ class LoginForm(BaseForm):
     submit_button = SubmitField('Login')
 
 
-class SearchForm(BaseForm):
+class SearchUserForm(BaseForm):
     """Search form"""
 
     search = StringField(
