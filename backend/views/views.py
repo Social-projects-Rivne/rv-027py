@@ -194,8 +194,7 @@ def issues_page():
     issues = db.session.query(
         Category.category, Issue, User.alias, count_att.c.count).filter(and_(
             Issue.user_id == User.id, Issue.category_id == Category.id,
-            Issue.id == count_att.c.id)).order_by(
-                Issue.id).all()
+            Issue.id == count_att.c.id)).order_by(Issue.id).all()
     return render_template('issues_page.html', issues=issues)
 
 
@@ -220,3 +219,23 @@ def attachments(issue_id):
         Attachment.issue_id == issue_id,
         Issue.id == Attachment.issue_id)).all()
     return render_template('attachments.html', attachments=attach)
+
+
+@app.route('/deleteissue/<int:issue_id>', methods=['POST'])
+@admin_permissions
+def delete_issue(issue_id):
+    """Route for deleting issue."""
+    issue = db.session.query(Issue).get(issue_id)
+    issue.delete()
+    db.session.commit()
+    return redirect(url_for('issues_page'))
+
+
+@app.route('/restoreissue/<int:issue_id>', methods=['POST'])
+@admin_permissions
+def restore_issue(issue_id):
+    """Route for restore issue."""
+    issue = db.session.query(Issue).get(issue_id)
+    issue.restore()
+    db.session.commit()
+    return redirect(url_for('issues_page'))
