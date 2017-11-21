@@ -5,7 +5,7 @@ from flask import flash, redirect, request, render_template, session, url_for
 from sqlalchemy import and_, func, or_
 
 from backend.app import app, db
-from backend.forms.forms import LoginForm, SearchForm, UserForm
+from backend.forms.forms import LoginForm, SearchUserForm, UserForm
 from backend.models.issues import (Attachment, Category, IssueHistory,
                                    Issue, Status)
 from backend.models.users import Role, User
@@ -43,9 +43,7 @@ def admin():
 @admin_permissions
 def user_page():
     """Page with list of users route."""
-    # Needs to fix
-    # pylint: disable=too-many-locals, no-else-return
-    form = SearchForm(request.args, meta={'csrf': False})
+    form = SearchUserForm(request.args, meta={'csrf': False})
     msg = False
     if form.validate():
         search_by = int(request.args.get('search_by'))
@@ -57,9 +55,9 @@ def user_page():
                 if len(one_string) < MIN_SEARCH_STR:
                     continue
                 search_parameter = '%{}%'.format(one_string)
-                name_search = User.name.like(search_parameter)
-                alias_search = User.alias.like(search_parameter)
-                email_search = User.email.like(search_parameter)
+                name_search = User.name.ilike(search_parameter)
+                alias_search = User.alias.ilike(search_parameter)
+                email_search = User.email.ilike(search_parameter)
                 conditions = [
                     name_search,
                     alias_search,
