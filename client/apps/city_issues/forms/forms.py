@@ -4,7 +4,6 @@ from city_issues.models.issues import Attachments, Issues, Category
 
 
 class IssueForm(forms.ModelForm):
-
     class Meta:
         model = Issues
         fields = ['description', 'category', 'latitude', 'longitude', 'name']
@@ -34,13 +33,6 @@ class IssueForm(forms.ModelForm):
         widget=forms.Select(attrs={'class': 'form-control'}),
         empty_label=None
     )
-
-
-class AttachmentForm(forms.ModelForm):
-
-    class Meta:
-        model = Attachments
-        fields = ['issue', 'image_url']
 
     file = forms.FileField(
         required=False,

@@ -6,8 +6,8 @@ from django.views.generic import CreateView
 from django.views.generic.base import TemplateView
 from django.contrib import messages
 
-from forms.forms import AttachmentForm, IssueForm
-from models.issues import Issues
+from forms.forms import IssueForm
+from models.issues import Attachments, Issues
 
 
 class HomePageView(TemplateView):
@@ -18,15 +18,20 @@ class HomePageView(TemplateView):
 class IssueCreate(CreateView):
     model = Issues
     form_class = IssueForm
-    second_form_class = AttachmentForm
     template_name = 'issues/issues.html'
     success_url = 'add-issue'
 
     def form_valid(self, form):
-        form.save(commit=True)
+        issue = form.save(commit=True)
+        attachment = Attachments()
+        print form.cleaned_data['file']
+        attachment.issue = issue
+        attachment.image_url = form.cleaned_data['file']
+        attachment.save()
         messages.success(self.request, 'Issue was successfully saved')
-        return super(CreateView, self).form_valid(form)
+        return super(IssueCreate, self).form_valid(form)
 
     def form_invalid(self, form):
         messages.error(self.request, 'Failed to save')
-        return super(CreateView, self).form_valid(form)
+        return super(IssueCreate, self).form_invalid(form)
+

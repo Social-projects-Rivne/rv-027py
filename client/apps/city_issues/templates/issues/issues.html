@@ -42,34 +42,34 @@
                         {% csrf_token %}
                         <div class="row">
                             <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="id_latitude">Latitude</label>
-                                    {{ form.form.latitude }}
+                                <div class="form-group required">
+                                    <label for="id_latitude" class="control-label">Latitude </label>
+                                    {{ form.latitude }}
                                 </div>
                             </div>
                             <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="id_name">Longitude</label>
+                                <div class="form-group required">
+                                    <label for="id_name" class="control-label">Longitude </label>
                                     {{ form.longitude }}
                                 </div>
                             </div>
                         </div>
-                        <div class="form-group">
-                            <label for="issue-description">Issue name</label>
+                        <div class="form-group required">
+                            <label for="issue-description" class="control-label">Issue name </label>
                             {{ form.name }}
                         </div>
-                        <div class="form-group">
-                            <label for="issue-description">Short description</label>
+                        <div class="form-group required">
+                            <label for="issue-description" class="control-label">Short description </label>
                             {{ form.description }}
                         </div>
-                        <div class="form-group">
-                            <label for="issue-category">Select a category</label>
+                        <div class="form-group required">
+                            <label for="issue-category" class="control-label">Select a category </label>
                             {{ form.category }}
                         </div>
 
                         <div class="file-upload form-group" data-text="Select image">
                             <label for="">Select image</label>
-                            {{ second_form.file }}
+                            {{ form.file }}
                         </div>
 
                         <button type="submit" class="btn btn-primary">Submit</button>

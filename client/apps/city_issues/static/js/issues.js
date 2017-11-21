@@ -25,7 +25,7 @@ $(function ()
 
     setTimeout(function()
     {
-        $('.message').fadeOut('slow');
+        $('.messages').fadeOut('slow');
     }, 10000);
 
     $('.del-msg').on('click',function(e)

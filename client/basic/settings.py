@@ -128,8 +128,7 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 MEDIA_URL = '/media/'
-
-
+MEDIA_ROOT = os.path.join(BASE_DIR, 'apps', 'city_issues', 'media')
 # Expand the default settings.
 # Loading extension parameters of standard configurations
 try:
