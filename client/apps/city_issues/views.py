@@ -2,10 +2,11 @@
 Django views
 """
 # -*- coding: utf-8 -*-
-from django.views.generic.base import TemplateView
-from django.shortcuts import render
-from django.http import JsonResponse
 from django.core import serializers
+from django.http import JsonResponse
+from django.shortcuts import render
+from django.views.generic.base import TemplateView
+
 from city_issues.models import Issues
 
 

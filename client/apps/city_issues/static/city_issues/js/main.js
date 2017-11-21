@@ -17,7 +17,7 @@ function IssueMap(elementId) {
     L.tileLayer(mapLink, {maxZoom: mapZoom, attribution: mapAttribute}).addTo(this.map);
   };
 
-  IssueMap.prototype.chooseMaker = function(color) {
+  IssueMap.prototype.chooseMarker = function(color) {
     var markerUrl;
 
     switch(color) {
@@ -54,20 +54,20 @@ function IssueMap(elementId) {
 
       switch(issue.fields.category) {
         case 1: 
-          markerColor = issueMap.chooseMaker("red");
+          markerColor = issueMap.chooseMarker("red");
           break;
         case 2: 
-          markerColor = issueMap.chooseMaker("green");
+          markerColor = issueMap.chooseMarker("green");
           break;
         case 3: 
-          markerColor = issueMap.chooseMaker("blue");
+          markerColor = issueMap.chooseMarker("blue");
           break;
         default:
-          markerColor = issueMap.chooseMaker();
+          markerColor = issueMap.chooseMarker();
       }
 
-    markersId[issue.pk] = L.marker([issue.fields.locationX,
-        issue.fields.locationY],{icon: markerColor}).addTo(current.getMap());
+    markersId[issue.pk] = L.marker([issue.fields.location_lat,
+        issue.fields.location_lon],{icon: markerColor}).addTo(current.getMap());
 
     markersId[issue.pk]._icon.id = "issue_primary-id" + issue.pk;
     markers.addLayer(markersId[issue.pk]);
@@ -142,7 +142,7 @@ function IssueDescription(mapId, issueContainerId, issueCloseId) {
 }
 
 issueMap = new IssueMap("mapid");
-issueMap.setViewPoint(50.621945, 26.249314, 15);
+issueMap.setViewPoint(50.621945, 26.249314, 16);
 issueMap.addMapLayer(
   'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', 
   19, 
