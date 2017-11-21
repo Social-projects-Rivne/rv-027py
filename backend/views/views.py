@@ -192,78 +192,55 @@ def logout():
 def issues_page():
     """Issues page route."""
     form = SearchIssuesForm(request.args, meta={'csrf': False})
-    count_att = db.session.query(Issue.id, func.count(Attachment.id).label(
-        'count')).filter(Issue.id == Attachment.issue_id).group_by(
-            Issue.id).subquery('count_att')
-    last_date = db.session.query(Issue.id, func.max(
-        IssueHistory.transaction_date).label('date')).filter(
-            IssueHistory.issue_id == Issue.id).group_by(
-                Issue.id).subquery('last_date')
-    status = db.session.query(Issue.id, Status.status).filter(and_(
-        IssueHistory.issue_id == Issue.id,
-        IssueHistory.status_id == Status.id, Issue.id == last_date.c.id,
-        IssueHistory.transaction_date == last_date.c.date)).subquery('status')
-    issues = db.session.query(
-        Category.category, Issue, User.alias, count_att.c.count,
-        status.c.status).filter(and_(
-            Issue.user_id == User.id, Issue.category_id == Category.id,
-            Issue.id == count_att.c.id, Issue.id == status.c.id)).order_by(
-                Issue.id).all()
-    return render_template('issues_page.html', issues=issues, form=form)
-
-
-@app.route('/issuespage_filter', methods=['GET', 'POST'])
-@admin_permissions
-def issues_page_filter():
-    """Issues page route."""
-
-    form = SearchIssuesForm(request.args, meta={'csrf': False})
-    msg = False
     condition = None
     order = None
 
     if form.validate():
-        search_by = request.args.get('search_by')
+        search_by = int(request.args.get('search_by'))
         order_by = int(request.args.get('order_by'))
         search_string = str(request.args.get('search'))
 
+        search_list = ['name', 'category']
+
         if len(search_string) >= MIN_SEARCH_STR:
             search_parameter = '%{}%'.format(search_string)
-
-            if 'name' == search_by:
+            
+            if 'name' == search_list[search_by]:
                 condition = Issue.name.like(search_parameter)
 
             else:
                 condition = Category.category.like(search_parameter)
 
-        else:
-            condition = ""
-            if search_string != "":
-                msg = True
-
         order_list = [Issue.name, Category.category]
         order = order_list[order_by]
 
+    form = SearchIssuesForm(request.args, meta={'csrf': False})
     count_att = db.session.query(Issue.id, func.count(Attachment.id).label(
         'count')).filter(Issue.id == Attachment.issue_id).group_by(
-            Issue.id).subquery('count_att')
-
+        Issue.id).subquery('count_att')
     last_date = db.session.query(Issue.id, func.max(
         IssueHistory.transaction_date).label('date')).filter(
-            IssueHistory.issue_id == Issue.id).group_by(
-                Issue.id).subquery('last_date')
-
+        IssueHistory.issue_id == Issue.id).group_by(
+        Issue.id).subquery('last_date')
     status = db.session.query(Issue.id, Status.status).filter(and_(
         IssueHistory.issue_id == Issue.id,
         IssueHistory.status_id == Status.id, Issue.id == last_date.c.id,
         IssueHistory.transaction_date == last_date.c.date)).subquery('status')
 
-    issues = db.session.query(
-        Category.category, Issue, User.alias, count_att.c.count,
-        status.c.status).filter(and_(
-            Issue.user_id == User.id, Issue.category_id == Category.id,
-            Issue.id == count_att.c.id, Issue.id == status.c.id, condition)).order_by(order).all()
-
+    if order and condition is not None:
+        issues = db.session.query(
+            Category.category, Issue, User.alias, count_att.c.count,
+            status.c.status).filter(and_(
+                Issue.user_id == User.id, Issue.category_id == Category.id,
+                Issue.id == count_att.c.id, Issue.id == status.c.id, condition)).order_by(
+                order).all()
+    else:
+        issues = db.session.query(
+            Category.category, Issue, User.alias, count_att.c.count,
+            status.c.status).filter(and_(
+                Issue.user_id == User.id, Issue.category_id == Category.id,
+                Issue.id == count_att.c.id, Issue.id == status.c.id)).order_by(Issue.id
+                                                                           ).all()
     return render_template('issues_page.html', issues=issues, form=form)
 
 
@@ -273,10 +250,10 @@ def issue_history(issue_id):
     """Issue history page route."""
     history = db.session.query(
         IssueHistory, Status.status, User.alias, Issue.name).filter(and_(
-            IssueHistory.user_id == User.id,
-            IssueHistory.status_id == Status.id,
-            IssueHistory.issue_id == Issue.id,
-            IssueHistory.issue_id == issue_id)).all()
+        IssueHistory.user_id == User.id,
+        IssueHistory.status_id == Status.id,
+        IssueHistory.issue_id == Issue.id,
+        IssueHistory.issue_id == issue_id)).all()
     return render_template('issue_history.html', issue_history=history)
 
 

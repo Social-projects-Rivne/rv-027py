@@ -9,7 +9,7 @@
 {% endblock navbar_li %}
 
 {% block content %}
-    <form action="/admin/issuespage_filter" method="GET">
+    <form action="{{ url_for('issues_page') }}" method="GET">
         <h5> Search user: {{form.search(size=40)}} search by: {{form.search_by() }}  sort by: {{form.order_by()}}
             <input type="submit" value="Search"> </h5>
 </form>

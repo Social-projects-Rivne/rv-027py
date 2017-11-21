@@ -148,8 +148,8 @@ class SearchIssuesForm(BaseForm):
     search_by = SelectField(
         'search_by',
         choices=[
-            ('name', 'name'),
-            ('category', 'category'),
+            ('0', 'name'),
+            ('1', 'category'),
         ]
     )
     order_by = SelectField(
