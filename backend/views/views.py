@@ -204,7 +204,6 @@ def issues_page():
 
         if len(search_string) >= MIN_SEARCH_STR:
             search_parameter = '%{}%'.format(search_string)
-            
             if 'name' == search_list[search_by]:
                 condition = Issue.name.like(search_parameter)
 
@@ -239,8 +238,7 @@ def issues_page():
             Category.category, Issue, User.alias, count_att.c.count,
             status.c.status).filter(and_(
                 Issue.user_id == User.id, Issue.category_id == Category.id,
-                Issue.id == count_att.c.id, Issue.id == status.c.id)).order_by(Issue.id
-                                                                           ).all()
+                Issue.id == count_att.c.id, Issue.id == status.c.id)).order_by(Issue.id).all()
     return render_template('issues_page.html', issues=issues, form=form)
 
 
@@ -250,10 +248,10 @@ def issue_history(issue_id):
     """Issue history page route."""
     history = db.session.query(
         IssueHistory, Status.status, User.alias, Issue.name).filter(and_(
-        IssueHistory.user_id == User.id,
-        IssueHistory.status_id == Status.id,
-        IssueHistory.issue_id == Issue.id,
-        IssueHistory.issue_id == issue_id)).all()
+            IssueHistory.user_id == User.id,
+            IssueHistory.status_id == Status.id,
+            IssueHistory.issue_id == Issue.id,
+            IssueHistory.issue_id == issue_id)).all()
     return render_template('issue_history.html', issue_history=history)
 
 
