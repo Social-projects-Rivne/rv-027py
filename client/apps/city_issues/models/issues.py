@@ -67,6 +67,7 @@ class Issues(models.Model):
     category = models.ForeignKey(Category, models.DO_NOTHING)
     locationX = models.FloatField(blank=True, null=True)
     locationY = models.FloatField(blank=True, null=True)
+    status = models.TextField(blank=True, null=True)
     description = models.TextField(blank=True, null=True)
     open_date = models.DateTimeField(blank=True, null=True)
     close_date = models.DateTimeField(blank=True, null=True)

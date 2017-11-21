@@ -55,6 +55,7 @@ class Issue(db.Model):
         u'category.id'), nullable=False, index=True)
     locationX = db.Column(db.Float)
     locationY = db.Column(db.Float)
+    status = db.Column(db.Text)
     description = db.Column(db.Text)
     open_date = db.Column(db.TIMESTAMP)
     close_date = db.Column(db.TIMESTAMP)
