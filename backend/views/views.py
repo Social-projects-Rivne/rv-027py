@@ -5,9 +5,9 @@ from flask import flash, redirect, request, render_template, session, url_for
 from sqlalchemy import and_, func, or_
 
 from backend.app import app, db
-from backend.forms.forms import (LoginForm, SearchForm,
-                                 UserForm, SearchIssuesForm)
-from backend.forms.forms import LoginForm, SearchUserForm, UserForm
+from backend.forms.forms import (SearchIssuesForm, LoginForm,
+                                 SearchUserForm, UserForm)
+
 from backend.models.issues import (Attachment, Category, IssueHistory,
                                    Issue, Status)
 from backend.models.users import Role, User
@@ -204,20 +204,28 @@ def issues_page():
                 condition = Issue.name.like(search_parameter)
 
             else:
-                condition = Category.category.like(search_parameter)
+                condition = Category.category.ilike(search_parameter)
 
         order_list = [Issue.name, Category.category]
         order = order_list[order_by]
 
-    form = SearchIssuesForm(request.args, meta={'csrf': False})
     count_att = db.session.query(Issue.id, func.count(Attachment.id).label(
         'count')).filter(Issue.id == Attachment.issue_id).group_by(
             Issue.id).subquery('count_att')
-    issues = db.session.query(
-        Category.category, Issue, User.alias, count_att.c.count).filter(and_(
-            Issue.user_id == User.id, Issue.category_id == Category.id,
-            Issue.id == count_att.c.id)).order_by(Issue.id).all()
-    return render_template('issues_page.html', issues=issues)
+
+    if order and condition is not None:
+        issues = db.session.query(
+            Category.category, Issue, User.alias, count_att.c.count).filter(and_(
+                Issue.user_id == User.id, Issue.category_id == Category.id,
+                Issue.id == count_att.c.id, condition)).order_by(order).all()
+
+    else:
+        issues = db.session.query(
+            Category.category, Issue, User.alias, count_att.c.count).filter(and_(
+                Issue.user_id == User.id, Issue.category_id == Category.id,
+                Issue.id == count_att.c.id)).order_by(Issue.id).all()
+
+    return render_template('issues_page.html', issues=issues, form=form)
 
 
 @app.route('/issuehistory/<int:issue_id>')
