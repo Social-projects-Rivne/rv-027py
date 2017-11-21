@@ -7,6 +7,7 @@ from sqlalchemy import and_, func, or_
 from backend.app import app, db
 from backend.forms.forms import (LoginForm, SearchForm,
                                  UserForm, SearchIssuesForm)
+from backend.forms.forms import LoginForm, SearchUserForm, UserForm
 from backend.models.issues import (Attachment, Category, IssueHistory,
                                    Issue, Status)
 from backend.models.users import Role, User
@@ -43,25 +44,21 @@ def admin():
 @admin_permissions
 def user_page():
     """Page with list of users route."""
-    # Needs to fix
-    # pylint: disable=too-many-locals, no-else-return
-    form = SearchForm(request.args, meta={'csrf': False})
+    form = SearchUserForm(request.args, meta={'csrf': False})
     msg = False
     if form.validate():
         search_by = int(request.args.get('search_by'))
         order_by = int(request.args.get('order_by'))
         search_string = str(request.args.get('search'))
-        print 'search_string', search_string
         if len(search_string) >= MIN_SEARCH_STR:
             condition_list = []
             for one_string in search_string.split():
                 if len(one_string) < MIN_SEARCH_STR:
                     continue
                 search_parameter = '%{}%'.format(one_string)
-                print 'search_parameter', search_parameter
-                name_search = User.name.like(search_parameter)
-                alias_search = User.alias.like(search_parameter)
-                email_search = User.email.like(search_parameter)
+                name_search = User.name.ilike(search_parameter)
+                alias_search = User.alias.ilike(search_parameter)
+                email_search = User.email.ilike(search_parameter)
                 conditions = [
                     name_search,
                     alias_search,
@@ -73,7 +70,6 @@ def user_page():
                 ]
                 condition_list.append(conditions[search_by])
             condition = or_(*condition_list)
-            print 'condition_list', condition_list
         else:
             condition = ""
             if search_string != "":
@@ -216,30 +212,12 @@ def issues_page():
     form = SearchIssuesForm(request.args, meta={'csrf': False})
     count_att = db.session.query(Issue.id, func.count(Attachment.id).label(
         'count')).filter(Issue.id == Attachment.issue_id).group_by(
-        Issue.id).subquery('count_att')
-    last_date = db.session.query(Issue.id, func.max(
-        IssueHistory.transaction_date).label('date')).filter(
-        IssueHistory.issue_id == Issue.id).group_by(
-        Issue.id).subquery('last_date')
-    status = db.session.query(Issue.id, Status.status).filter(and_(
-        IssueHistory.issue_id == Issue.id,
-        IssueHistory.status_id == Status.id, Issue.id == last_date.c.id,
-        IssueHistory.transaction_date == last_date.c.date)).subquery('status')
-
-    if order and condition is not None:
-        issues = db.session.query(
-            Category.category, Issue, User.alias, count_att.c.count,
-            status.c.status).filter(and_(
-                Issue.user_id == User.id, Issue.category_id == Category.id,
-                Issue.id == count_att.c.id, Issue.id == status.c.id, condition)).order_by(
-                order).all()
-    else:
-        issues = db.session.query(
-            Category.category, Issue, User.alias, count_att.c.count,
-            status.c.status).filter(and_(
-                Issue.user_id == User.id, Issue.category_id == Category.id,
-                Issue.id == count_att.c.id, Issue.id == status.c.id)).order_by(Issue.id).all()
-    return render_template('issues_page.html', issues=issues, form=form)
+            Issue.id).subquery('count_att')
+    issues = db.session.query(
+        Category.category, Issue, User.alias, count_att.c.count).filter(and_(
+            Issue.user_id == User.id, Issue.category_id == Category.id,
+            Issue.id == count_att.c.id)).order_by(Issue.id).all()
+    return render_template('issues_page.html', issues=issues)
 
 
 @app.route('/issuehistory/<int:issue_id>')
@@ -263,3 +241,23 @@ def attachments(issue_id):
         Attachment.issue_id == issue_id,
         Issue.id == Attachment.issue_id)).all()
     return render_template('attachments.html', attachments=attach)
+
+
+@app.route('/deleteissue/<int:issue_id>', methods=['POST'])
+@admin_permissions
+def delete_issue(issue_id):
+    """Route for deleting issue."""
+    issue = db.session.query(Issue).get(issue_id)
+    issue.delete()
+    db.session.commit()
+    return redirect(url_for('issues_page'))
+
+
+@app.route('/restoreissue/<int:issue_id>', methods=['POST'])
+@admin_permissions
+def restore_issue(issue_id):
+    """Route for restore issue."""
+    issue = db.session.query(Issue).get(issue_id)
+    issue.restore()
+    db.session.commit()
+    return redirect(url_for('issues_page'))
