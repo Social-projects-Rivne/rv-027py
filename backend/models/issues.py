@@ -1,5 +1,9 @@
 """This module creates Issues model."""
 # pylint: disable=too-few-public-methods
+
+from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy.sql.functions import func
+
 from backend.app import db
 
 
@@ -11,7 +15,6 @@ class Attachment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     issue_id = db.Column(db.ForeignKey(u'issues.id'), index=True)
     image_url = db.Column(db.Text)
-    delete_date = db.Column(db.TIMESTAMP)
 
     issue = db.relationship(u'Issue')
 
@@ -36,7 +39,6 @@ class IssueHistory(db.Model):
     issue_id = db.Column(db.ForeignKey(u'issues.id'), index=True)
     status_id = db.Column(db.ForeignKey(u'statuses.id'), index=True)
     transaction_date = db.Column(db.TIMESTAMP)
-    delete_date = db.Column(db.TIMESTAMP)
 
     issue = db.relationship(u'Issue')
     status = db.relationship(u'Status')
@@ -63,6 +65,20 @@ class Issue(db.Model):
 
     category = db.relationship(u'Category')
     user = db.relationship(u'User')
+
+    def delete(self):
+        """Setting deleting date for issue"""
+        if not self.delete_date:
+            self.delete_date = func.current_timestamp()
+            return True
+        return False
+
+    def restore(self):
+        """Restoring issue from deletion"""
+        if self.delete_date:
+            self.delete_date = None
+            return True
+        return False
 
 
 class Status(db.Model):
