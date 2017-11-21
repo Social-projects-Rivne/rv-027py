@@ -1,0 +1,26 @@
+.map_container {
+	height: 900px;
+}
+
+
+.issue_container {
+	position: fixed;
+	top: 0;
+	right: 0;
+
+	display: none;
+	box-sizing: border-box;
+	width: 400px;
+	height: 100%;
+	padding: 20px;
+
+	background-color: #fff;
+
+	z-index: 999;
+}
+
+.issue_img-box {
+	height: 200px;
+
+	border: 1px solid #000;
+}
