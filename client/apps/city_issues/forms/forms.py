@@ -9,7 +9,7 @@ class IssueForm(forms.ModelForm):
         fields = ['description', 'category', 'location_lat', 'location_lon', 'name']
 
     name = forms.CharField(
-        max_length=350,
+        max_length=20,
         min_length=3,
         widget=forms.TextInput(attrs={'class': 'form-control'}),
     )
@@ -35,5 +35,5 @@ class IssueForm(forms.ModelForm):
     )
 
     file = forms.FileField(
-        widget=forms.FileInput(attrs={'accept': 'image/*'})
+        widget=forms.FileInput(attrs={'accept': 'image/*', 'multiple': True})
     )
