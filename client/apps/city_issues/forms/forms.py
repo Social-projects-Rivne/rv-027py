@@ -35,5 +35,5 @@ class IssueForm(forms.ModelForm):
     )
 
     file = forms.FileField(
-        widget=forms.FileInput()
+        widget=forms.FileInput(attrs={'accept': 'image/*'})
     )

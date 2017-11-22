@@ -23,15 +23,25 @@ class IssueCreate(CreateView):
 
     def form_valid(self, form):
         issue = form.save(commit=True)
-        attachment = Attachments()
-        print form.cleaned_data['file']
-        attachment.issue = issue
-        attachment.image_url = form.cleaned_data['file']
-        attachment.save()
-        messages.success(self.request, 'Issue was successfully saved')
+        file = form.cleaned_data['file']
+
+        if self.validate_file(file):
+            attachment = Attachments()
+            attachment.issue = issue
+            attachment.image_url = file
+            attachment.save()
+            messages.success(self.request, 'Issue was successfully saved')
+
         return super(IssueCreate, self).form_valid(form)
 
     def form_invalid(self, form):
         messages.error(self.request, 'Failed to save')
         return super(IssueCreate, self).form_invalid(form)
+
+    def validate_file(self, file):
+        if file._size > 5242880:
+            messages.error(self.request, 'Max file size : 5MB')
+        else:
+            return True
+
 
