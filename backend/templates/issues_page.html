@@ -10,7 +10,7 @@
 
 {% block content %}
     <form action="{{ url_for('issues_page') }}" method="GET">
-        <h5> Search user: {{form.search(size=40)}} search by: {{form.search_by() }}  sort by: {{form.order_by()}}
+        <h5> Search issue: {{form.search(size=40)}} search by: {{form.search_by() }}  sort by: {{form.order_by()}}
             <input type="submit" value="Search"> </h5>
 </form>
 <div class="table-responsive">
