@@ -6,8 +6,9 @@ from sqlalchemy import and_, func, or_
 
 from backend.app import app, db
 
-from backend.forms.forms import (IssueForm, LoginForm, SearchUserForm, 
+from backend.forms.forms import (IssueForm, LoginForm, SearchUserForm,
                                  SearchIssuesForm, UserForm, UserAddForm)
+
 from backend.models.issues import (Attachment, Category, IssueHistory,
                                    Issue, Status)
 from backend.models.users import Role, User
