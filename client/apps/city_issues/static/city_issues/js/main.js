@@ -17,26 +17,11 @@ function IssueMap(elementId) {
     L.tileLayer(mapLink, {maxZoom: mapZoom, attribution: mapAttribute}).addTo(this.map);
   };
 
-  IssueMap.prototype.chooseMarker = function(color) {
-    var markerUrl;
 
-    switch(color) {
-      case "green": 
-        markerUrl = 'https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png';
-        break;
-      case "blue": 
-        markerUrl = 'https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png';
-        break;
-      case "red": 
-        markerUrl = 'https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png';
-        break;
-      default:
-        markerUrl = 'https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png';
-      }
-
+  IssueMap.prototype.iconCreate = function(category) {
     return new L.Icon({
-      iconUrl: markerUrl,
-      shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+      iconUrl: '/static/city_issues/img/category_' + category + '_marker-icon.png',
+      shadowUrl: '/static/city_issues/img/marker-shadow.png',
       iconSize: [25, 41],
       iconAnchor: [12, 41],
       popupAnchor: [1, -34],
@@ -52,22 +37,8 @@ function IssueMap(elementId) {
     jsonData.forEach(function(key) {
       var issue = JSON.parse(key);
 
-      switch(issue.fields.category) {
-        case 1: 
-          markerColor = issueMap.chooseMarker("red");
-          break;
-        case 2: 
-          markerColor = issueMap.chooseMarker("green");
-          break;
-        case 3: 
-          markerColor = issueMap.chooseMarker("blue");
-          break;
-        default:
-          markerColor = issueMap.chooseMarker();
-      }
-
     markersId[issue.pk] = L.marker([issue.fields.location_lat,
-        issue.fields.location_lon],{icon: markerColor}).addTo(current.getMap());
+        issue.fields.location_lon],{icon: current.iconCreate(issue.fields.category)}).addTo(current.getMap());
 
     markersId[issue.pk]._icon.id = "issue_primary-id" + issue.pk;
     markers.addLayer(markersId[issue.pk]);
@@ -97,7 +68,6 @@ function IssueDescription(mapId, issueContainerId, issueCloseId) {
   this.issue_box = document.getElementById(issueContainerId);
 
   IssueDescription.prototype.markerHandler = function(event) {
-    event.preventDefault();
     if (event.target.id.slice(0,16) == "issue_primary-id") {
     current.getIssueById(event.target.id.slice(16));
     current.issue_box.style.display = 'block';
@@ -110,7 +80,6 @@ function IssueDescription(mapId, issueContainerId, issueCloseId) {
   };
 
   IssueDescription.prototype.closeHandler = function(event) {
-    event.preventDefault();
     if (event.target.id == current.issueCloseId) {
       current.issue_box.style.display = "none";
     }
@@ -126,6 +95,9 @@ function IssueDescription(mapId, issueContainerId, issueCloseId) {
     current.issue_box.style.display = 'block';
     document.querySelector(".issue_name").innerHTML = jsonData.fields.name;
     document.querySelector(".issue_description").innerHTML = jsonData.fields.description;
+    var dataUrl =  document.getElementById("issue_edit").getAttribute("data-url").slice(0,-1);
+    document.getElementById("issue_edit").setAttribute("href", dataUrl + jsonData.pk);
+
   };
 
 
@@ -150,6 +122,5 @@ issueMap.addMapLayer(
 issueMap.getMarkers("getissuesall/");
 issueDescription = new IssueDescription("mapid", "issue_container", "issue_close");
 issueDescription.addHandler();
-
 })();
 
