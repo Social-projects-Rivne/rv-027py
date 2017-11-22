@@ -19,7 +19,6 @@ class Attachments(models.Model):
     issue = models.ForeignKey('Issues', models.DO_NOTHING,
                               blank=True, null=True)
     image_url = models.ImageField(blank=True, null=True, upload_to=get_file_path)
-    delete_date = models.DateTimeField(blank=True, null=True)
 
     class Meta:
         """..."""
@@ -57,7 +56,6 @@ class IssueHistory(models.Model):
                                blank=True, null=True)
     transaction_date = models.DateTimeField(blank=True,
                                             null=True)
-    delete_date = models.DateTimeField(blank=True, null=True)
 
     class Meta:
         """..."""
