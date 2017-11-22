@@ -4,7 +4,7 @@
 {% block title_suffix %}Users managements{% endblock title_suffix %}
 
 {% block navbar_li %}
-    <li><a href="{{ url_for('admin') }}">Admin</a></li>
+    <li><a href="{{ url_for('admin') }}">Admin page</a></li>
     <li><a href="{{ url_for('logout') }}">Logout</a></li>
 {% endblock navbar_li %}
 
@@ -41,11 +41,11 @@
                     </td>
                     <td><a href="{{ url_for('user_modify', users_id=user.id) }}" class="btn btn-primary">Edit</a></td>
                     {% if not user.delete_date %}
-                        <td><a class="btn btn-danger" data-toggle="modal" data-target="#deletion" data-user-id="{{ user.id }}"
-                               data-user-name="{{ user.name }}">Delete</a></td>
+                        <td><a class="btn btn-danger" data-toggle="modal" data-target="#deletion" data-elem-id="{{ user.id }}"
+                               data-elem-name="{{ user.name }}" data-func-name="deleteuser">Delete</a></td>
                     {% else %}
                         <td>
-                            <form id="restore-user" method="post" action="/admin/restoreuser/{{ user.id }}">
+                            <form id="restore-user" method="post" action="{{url_for('restore_user', users_id=user.id) }}">
                                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                                 <button type="submit" class="btn btn-success">Restore</button>
                             </form>

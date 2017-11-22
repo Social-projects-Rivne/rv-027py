@@ -14,10 +14,17 @@ Including another URLconf
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
 from django.conf.urls import url
+from city_issues.views import (
+    HomePageView, get_issue_data,
+    map_page_view, get_all_issues_data,
+    IssueCreate)
 
-from city_issues.views import HomePageView, IssueCreate
 
 urlpatterns = [
     url(r'^$', HomePageView.as_view(), name='home'),
+    url(r'^map/$', map_page_view, name='map'),
+    url(r'^map/getissuebyid/(?P<issue_id>[0-9]+)$',
+        get_issue_data, name='issue_data'),
+    url(r'^map/getissuesall/$', get_all_issues_data, name='all_issues_data'),
     url(r'^add-issue', IssueCreate.as_view(), name='create_issue'),
 ]
