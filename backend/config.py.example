@@ -5,8 +5,9 @@
 class Config(object):
 
     DEBUG = False
-
-    SECRET_KEY = 'SECRET_OR_NOT_KEY'
+    
+    # Enter yours secret key(it must be some string)
+    SECRET_KEY = ''
 
     WTF_CSRF_ENABLED = True
 
