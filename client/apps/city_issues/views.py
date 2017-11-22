@@ -27,26 +27,27 @@ class IssueCreate(CreateView):
 
     def form_valid(self, form):
         issue = form.save(commit=True)
+
         file = form.cleaned_data['file']
+        if file:
+            self.save_file(form, file, issue)
 
-        if self.validate_file(file):
-            attachment = Attachments()
-            attachment.issue = issue
-            attachment.image_url = file
-            attachment.save()
-            messages.success(self.request, 'Issue was successfully saved')
-
+        messages.success(self.request, 'Issue was successfully saved')
         return super(IssueCreate, self).form_valid(form)
 
     def form_invalid(self, form):
         messages.error(self.request, 'Failed to save')
         return super(IssueCreate, self).form_invalid(form)
 
-    def validate_file(self, file):
+    def save_file(self, form, file, issue):
         if file._size > 5242880:
             messages.error(self.request, 'Max file size : 5MB')
+            return super(IssueCreate, self).form_valid(form)
         else:
-            return True
+            attachment = Attachments()
+            attachment.issue = issue
+            attachment.image_url = file
+            attachment.save()
 
 
 def map_page_view(request):
