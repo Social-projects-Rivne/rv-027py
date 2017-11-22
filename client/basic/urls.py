@@ -15,9 +15,17 @@ Including another URLconf
 """
 from django.conf.urls import url
 
-from city_issues.views import HomePageView
+from city_issues.views import HomePageView, RegistrationView, \
+                              LoginView, LogoutView
 
 
 urlpatterns = [
     url(r'^$', HomePageView.as_view(), name='home'),
+
+    # registration and authorization views
+    url(r'^register/$', RegistrationView.as_view(),
+        name='registration'),
+    url(r'^login/$', LoginView.as_view(), name='login'),
+    url(r'^logout/$', LogoutView.as_view(), {'next_page': 'home'},
+        name='logout'),
 ]

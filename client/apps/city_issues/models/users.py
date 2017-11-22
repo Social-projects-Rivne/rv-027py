@@ -8,6 +8,7 @@ import datetime
 from django.contrib.auth.models import AbstractBaseUser
 from django.contrib.auth.hashers import make_password
 from django.db import models
+from django.utils import timezone
 
 from city_issues.user_managers import UserManager
 
@@ -117,6 +118,10 @@ class User(AbstractBaseUser):
     @property
     def last_login(self):
         """Added to meet Django AbstractBaseUser interface requirements"""
+        return None
+
+    @last_login.setter
+    def last_login(self, value):
         return None
 
     class Meta:

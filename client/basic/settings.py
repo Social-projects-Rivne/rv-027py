@@ -28,19 +28,18 @@ sys.path.insert(1, os.path.dirname(BASE_DIR))
 # installed through the pip.
 sys.path.insert(1, os.path.join(BASE_DIR, 'apps'))
 
-
 ALLOWED_HOSTS = []
 
 
 # Application definition
 
 INSTALLED_APPS = [
+    'city_issues',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'city_issues',
 ]
 
 MIDDLEWARE = [
@@ -126,6 +125,11 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
 STATIC_URL = '/static/'
+
+
+# Registration settings
+REGISTRATION_OPEN = True
+LOGIN_REDIRECT_URL = '/'
 
 
 # Expand the default settings.

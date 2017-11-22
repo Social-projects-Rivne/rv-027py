@@ -1,3 +1,4 @@
+{% load i18n %}
 {% load static %}
 
 <!DOCTYPE html>
@@ -24,10 +25,18 @@
               <a class="navbar-brand" href="{% url "home" %}">CITY ISSUES</a>
             </div>
             <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                {% if user.is_authenticated %}
+                    <a href="#" class="navbar-text navbar-left">Log out</a>
+                {% else %}
+                    <a href="{% url "login" %}" class="navbar-text navbar-right">Log in</a>
+                    <a href="{% url "registration" %}" class="navbar-text navbar-right">Sign in</a>
+                {% endif %}
             </div><!-- /.navbar-collapse -->
           </div><!-- /.container-fluid -->
         </nav>
         <!--end navigation-->
+
+        {% block content %}{% endblock content %}
 
         <!--scripts-->
         <script   src="https://code.jquery.com/jquery-3.1.1.js"
