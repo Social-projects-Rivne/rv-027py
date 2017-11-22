@@ -97,7 +97,6 @@ function IssueDescription(mapId, issueContainerId, issueCloseId) {
   this.issue_box = document.getElementById(issueContainerId);
 
   IssueDescription.prototype.markerHandler = function(event) {
-    event.preventDefault();
     if (event.target.id.slice(0,16) == "issue_primary-id") {
     current.getIssueById(event.target.id.slice(16));
     current.issue_box.style.display = 'block';
@@ -110,7 +109,6 @@ function IssueDescription(mapId, issueContainerId, issueCloseId) {
   };
 
   IssueDescription.prototype.closeHandler = function(event) {
-    event.preventDefault();
     if (event.target.id == current.issueCloseId) {
       current.issue_box.style.display = "none";
     }
@@ -126,6 +124,9 @@ function IssueDescription(mapId, issueContainerId, issueCloseId) {
     current.issue_box.style.display = 'block';
     document.querySelector(".issue_name").innerHTML = jsonData.fields.name;
     document.querySelector(".issue_description").innerHTML = jsonData.fields.description;
+    var dataUrl =  document.getElementById("issue_edit").getAttribute("data-url").slice(0,-1);
+    document.getElementById("issue_edit").setAttribute("href", dataUrl + jsonData.pk);
+
   };
 
 
@@ -150,6 +151,5 @@ issueMap.addMapLayer(
 issueMap.getMarkers("getissuesall/");
 issueDescription = new IssueDescription("mapid", "issue_container", "issue_close");
 issueDescription.addHandler();
-
 })();
 

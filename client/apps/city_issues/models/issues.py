@@ -29,6 +29,9 @@ class Category(models.Model):
     category = models.TextField(blank=True, null=True)
     favicon = models.TextField(blank=True, null=True)
 
+    def __unicode__(self):
+        return u'{0}'.format(self.category)
+
     class Meta:
         """..."""
         app_label = 'city_issues'
@@ -64,7 +67,7 @@ class Issues(models.Model):
     name = models.TextField(blank=True, null=True)
     user = models.ForeignKey('User', models.DO_NOTHING,
                              blank=True, null=True)
-    category = models.ForeignKey(Category, models.DO_NOTHING)
+    category = models.ForeignKey('Category', models.DO_NOTHING)
     location_lat = models.FloatField(blank=True, null=True)
     location_lon = models.FloatField(blank=True, null=True)
     status = models.TextField(blank=True, null=True)
