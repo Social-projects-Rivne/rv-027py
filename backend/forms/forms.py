@@ -188,7 +188,6 @@ class IssueForm(BaseForm):
         ]
     )
 
-
     location_lat = FloatField(
         'location lat',
         validators=[
