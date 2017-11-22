@@ -5,8 +5,9 @@ from flask import flash, redirect, request, render_template, session, url_for
 from sqlalchemy import and_, func, or_
 
 from backend.app import app, db
-from backend.forms.forms import (LoginForm, SearchUserForm, UserForm,
-                                 UserAddForm, IssueForm)
+
+from backend.forms.forms import (IssueForm, LoginForm, SearchUserForm, 
+                                 SearchIssuesForm, UserForm, UserAddForm)
 from backend.models.issues import (Attachment, Category, IssueHistory,
                                    Issue, Status)
 from backend.models.users import Role, User
@@ -15,7 +16,6 @@ from backend.models.users import Role, User
 ROLE_ADMIN = 1
 ROLE_MODERATOR = 2
 ROLE_USER = 3
-
 
 MIN_SEARCH_STR = 2
 
@@ -187,18 +187,49 @@ def logout():
     return redirect(url_for('admin'))
 
 
-@app.route('/issuespage')
+@app.route('/issuespage', methods=['GET', 'POST'])
 @admin_permissions
 def issues_page():
     """Issues page route."""
+    form = SearchIssuesForm(request.args, meta={'csrf': False})
+    condition = None
+    order = None
+
+    if form.validate():
+        search_by = int(request.args.get('search_by'))
+        order_by = int(request.args.get('order_by'))
+        search_string = str(request.args.get('search'))
+
+        search_list = ['name', 'category']
+
+        if len(search_string) >= MIN_SEARCH_STR:
+            search_parameter = '%{}%'.format(search_string)
+            if 'name' == search_list[search_by]:
+                condition = Issue.name.ilike(search_parameter)
+
+            else:
+                condition = Category.category.ilike(search_parameter)
+
+        order_list = [Issue.name, Category.category]
+        order = order_list[order_by]
+
     count_att = db.session.query(Issue.id, func.count(Attachment.id).label(
         'count')).filter(Issue.id == Attachment.issue_id).group_by(
             Issue.id).subquery('count_att')
-    issues = db.session.query(
-        Category.category, Issue, User.alias, count_att.c.count).filter(and_(
-            Issue.user_id == User.id, Issue.category_id == Category.id,
-            Issue.id == count_att.c.id)).order_by(Issue.id).all()
-    return render_template('issues_page.html', issues=issues)
+
+    if order and condition is not None:
+        issues = db.session.query(
+            Category.category, Issue, User.alias, count_att.c.count).filter(and_(
+                Issue.user_id == User.id, Issue.category_id == Category.id,
+                Issue.id == count_att.c.id, condition)).order_by(order).all()
+
+    else:
+        issues = db.session.query(
+            Category.category, Issue, User.alias, count_att.c.count).filter(and_(
+                Issue.user_id == User.id, Issue.category_id == Category.id,
+                Issue.id == count_att.c.id)).order_by(Issue.name).all()
+
+    return render_template('issues_page.html', issues=issues, form=form)
 
 
 @app.route('/issuemodify/<int:issue_id>', methods=['GET', 'POST'])
