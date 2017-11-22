@@ -1,31 +1,31 @@
 from django import forms
 
-from city_issues.models.issues import Attachments, Issues, Category
+from city_issues.models.issues import Issues, Category
 
 
 class IssueForm(forms.ModelForm):
     class Meta:
         model = Issues
-        fields = ['description', 'category', 'latitude', 'longitude', 'name']
+        fields = ['description', 'category', 'location_lat', 'location_lon', 'name']
 
     name = forms.CharField(
         max_length=350,
         min_length=3,
-        widget=forms.TextInput(attrs={'class': "form-control"}),
+        widget=forms.TextInput(attrs={'class': 'form-control'}),
     )
 
     description = forms.CharField(
         max_length=350,
         min_length=5,
-        widget=forms.Textarea(attrs={'class': "form-control", "rows": "5"}),
+        widget=forms.Textarea(attrs={'class': 'form-control', 'rows': '5'}),
     )
 
-    latitude = forms.FloatField(
-        widget=forms.TextInput(attrs={'class': "form-control"}),
+    location_lat = forms.FloatField(
+        widget=forms.TextInput(attrs={'class': 'form-control', 'readonly':'readonly'}),
     )
 
-    longitude = forms.FloatField(
-        widget=forms.TextInput(attrs={'class': "form-control"}),
+    location_lon = forms.FloatField(
+        widget=forms.TextInput(attrs={'class': 'form-control', 'readonly':'readonly'}),
     )
 
     category = forms.ModelChoiceField(
@@ -35,6 +35,5 @@ class IssueForm(forms.ModelForm):
     )
 
     file = forms.FileField(
-        required=False,
-        widget=forms.ClearableFileInput(attrs={'multiple': True})
+        widget=forms.FileInput()
     )

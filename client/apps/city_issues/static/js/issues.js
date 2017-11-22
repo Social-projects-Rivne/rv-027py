@@ -15,8 +15,8 @@ IssueMap.prototype.getLocation = function (e)
     var location = e.latlng;
     this.marker = L.marker(location, { draggable: true}).addTo(this.map);
 
-     $("input[name=latitude]").val(location.lat);
-     $("input[name=longitude]").val(location.lng);
+     $("input[name=location_lat]").val(location.lat);
+     $("input[name=location_lon]").val(location.lng);
 };
 
 $(function ()

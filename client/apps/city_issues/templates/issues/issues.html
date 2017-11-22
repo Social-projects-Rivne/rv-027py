@@ -41,16 +41,21 @@
                     <form action="{% url 'create_issue' %}" method="post" enctype="multipart/form-data">
                         {% csrf_token %}
                         <div class="row">
+                            <div class="col-md-12">
+                                <p>Click on map and add issue marker</p>
+                            </div>
+                        </div>
+                        <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group required">
-                                    <label for="id_latitude" class="control-label">Latitude </label>
-                                    {{ form.latitude }}
+                                    <label for="id_location_lon" class="control-label">Latitude </label>
+                                    {{ form.location_lat }}
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group required">
-                                    <label for="id_name" class="control-label">Longitude </label>
-                                    {{ form.longitude }}
+                                    <label for="id_location_lon" class="control-label">Longitude </label>
+                                    {{ form.location_lon }}
                                 </div>
                             </div>
                         </div>
