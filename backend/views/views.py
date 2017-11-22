@@ -201,7 +201,7 @@ def issues_page():
         if len(search_string) >= MIN_SEARCH_STR:
             search_parameter = '%{}%'.format(search_string)
             if 'name' == search_list[search_by]:
-                condition = Issue.name.like(search_parameter)
+                condition = Issue.name.ilike(search_parameter)
 
             else:
                 condition = Category.category.ilike(search_parameter)
