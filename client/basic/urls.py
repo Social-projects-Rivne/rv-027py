@@ -16,9 +16,8 @@ Including another URLconf
 from django.conf.urls import url
 
 from city_issues.views import (
-    HomePageView, get_issue_data,
-    map_page_view, get_all_issues_data,
-    edit_issue_view)
+    edit_issue_view, get_all_issues_data, get_issue_data,
+    HomePageView, map_page_view)
 
 
 urlpatterns = [

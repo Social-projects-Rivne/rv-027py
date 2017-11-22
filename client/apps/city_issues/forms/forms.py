@@ -17,7 +17,7 @@ class EditIssue(ModelForm):
 
     description = CharField(
         min_length=5,
-        max_length=50,
+        max_length=350,
         widget=Textarea(attrs={'rows': 5, 'class': 'issue_description'}))
 
     category = ModelChoiceField(
