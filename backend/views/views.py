@@ -123,8 +123,6 @@ def user_modify(users_id):
 
     if user.delete_date:
         flash("You can't edit the user who was deleted.")
-    # elif user.user_count:
-    #     flash("You can't edit the last admin.")
     elif form.validate_on_submit():
         form.populate_obj(user)
         db.session.commit()
