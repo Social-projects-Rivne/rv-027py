@@ -223,7 +223,7 @@ def issues_page():
         issues = db.session.query(
             Category.category, Issue, User.alias, count_att.c.count).filter(and_(
                 Issue.user_id == User.id, Issue.category_id == Category.id,
-                Issue.id == count_att.c.id)).order_by(Issue.id).all()
+                Issue.id == count_att.c.id)).order_by(Issue.name).all()
 
     return render_template('issues_page.html', issues=issues, form=form)
 
