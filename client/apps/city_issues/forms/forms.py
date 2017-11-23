@@ -27,11 +27,11 @@ class IssueForm(forms.ModelForm):
     )
 
     location_lat = forms.FloatField(
-        widget=forms.TextInput(attrs={'class': 'form-control', 'readonly':'readonly'}),
+        widget=forms.TextInput(attrs={'class': 'form-control', 'readonly': 'readonly'}),
     )
 
     location_lon = forms.FloatField(
-        widget=forms.TextInput(attrs={'class': 'form-control', 'readonly':'readonly'}),
+        widget=forms.TextInput(attrs={'class': 'form-control', 'readonly': 'readonly'}),
     )
 
     category = forms.ModelChoiceField(
