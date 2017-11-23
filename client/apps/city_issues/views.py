@@ -4,8 +4,8 @@ Django views
 # -*- coding: utf-8 -*-
 from django.views.generic import CreateView
 from django.views.generic.base import TemplateView
-from django.core import serializers
 from django.contrib import messages
+from django.core import serializers
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse

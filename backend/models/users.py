@@ -3,9 +3,9 @@
 
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.sql.functions import func
+from passlib.hash import django_bcrypt
 
 from backend.app import db
-from passlib.hash import django_bcrypt
 
 
 class Role(db.Model):
