@@ -21,19 +21,20 @@
 
         <div class="form-group">
             <label for="id_email" class="col-sm-3 control-label">Email</label>
-            <input type="email" class="form-control" autofocus required id="id_email" value=""
+            <input type="email" class="form-control" autofocus required id="id_email" value="{{ request.POST.email }}"
                    name="email" />
             <span class="help-block">{{ form.errors.email.as_text }}</span>
         </div>
 
         <div class="form-group">
             <label for="id_password1" class="col-sm-3 control-label">Password</label>
-            <input type="password" name="password1" class="form-control" id="id_password1" value=""/>
+            <input type="password" name="password1" class="form-control" id="id_password1" value="{{ request.POST.password1 }}"/>
             <span class="help-block">{{ form.errors.password1.as_text }}</span>
         </div>
+
         <div class="form-group">
             <label for="id_password2" class="col-sm-3 control-label">Password</label>
-            <input type="password" name="password2" class="form-control" id="id_password2" value=""/>
+            <input type="password" name="password2" class="form-control" id="id_password2" value="{{ request.POST.password2 }}"/>
             <span class="help-block">{{ form.errors.password2.as_text }}</span>
         </div>
 

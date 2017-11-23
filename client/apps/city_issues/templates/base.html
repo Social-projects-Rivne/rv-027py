@@ -26,6 +26,7 @@
             </div>
             <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                 {% if user.is_authenticated %}
+                    <a href="#" class="navbar-text navbar-left">{{ user.email }}</a>
                     <a href="{% url "accounts:auth_logout" %}" class="navbar-text navbar-right">Log out</a>
                 {% else %}
                     <a href="{% url "accounts:auth_login" %}" class="navbar-text navbar-right">Log in</a>
