@@ -5,12 +5,14 @@ from flask import flash, redirect, request, render_template, session, url_for
 from sqlalchemy import and_, func, or_
 
 from backend.app import app, db
-from backend.forms.forms import (SearchIssuesForm, LoginForm,
-                                 SearchUserForm, UserForm)
+
+from backend.forms.forms import (IssueForm, LoginForm, SearchUserForm,
+                                 SearchIssuesForm, UserForm, UserAddForm)
 
 from backend.models.issues import (Attachment, Category, IssueHistory,
                                    Issue, Status)
 from backend.models.users import Role, User
+
 
 ROLE_ADMIN = 1
 ROLE_MODERATOR = 2
@@ -95,7 +97,7 @@ def user_page():
 def user_add():
     """Page with user add route."""
     route_to = url_for('user_add')
-    form = UserForm(request.form)
+    form = UserAddForm(request.form)
 
     if form.validate_on_submit():
         newuser = User()
@@ -103,6 +105,7 @@ def user_add():
         newuser.alias = form.alias.data
         newuser.role_id = form.role_id.data
         newuser.email = form.email.data
+        newuser.password = form.password.data
         db.session.add(newuser)
         db.session.commit()
         flash("User added")
@@ -119,7 +122,9 @@ def user_modify(users_id):
     user = db.session.query(User).get(users_id)
     form = UserForm(request.form, obj=user)
 
-    if form.validate_on_submit():
+    if user.delete_date:
+        flash("You can't edit the user who was deleted.")
+    elif form.validate_on_submit():
         form.populate_obj(user)
         db.session.commit()
         flash("User modified")
@@ -226,6 +231,25 @@ def issues_page():
                 Issue.id == count_att.c.id)).order_by(Issue.name).all()
 
     return render_template('issues_page.html', issues=issues, form=form)
+
+
+@app.route('/issuemodify/<int:issue_id>', methods=['GET', 'POST'])
+@admin_permissions
+def issue_modify(issue_id):
+    """Page with issue edit route."""
+    route_to = url_for('issue_modify', issue_id=issue_id)
+    issue = db.session.query(Issue).get(issue_id)
+    form = IssueForm(request.form, obj=issue)
+
+    if issue.delete_date:
+        flash("You can't edit the issue who was deleted.")
+    elif form.validate_on_submit():
+        form.populate_obj(issue)
+        db.session.commit()
+        flash("Issue modified")
+        return redirect(url_for('issues_page'))
+
+    return render_template('issue_modify.html', form=form, route_to=route_to)
 
 
 @app.route('/issuehistory/<int:issue_id>')
