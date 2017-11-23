@@ -3,6 +3,8 @@ Django models
 """
 from __future__ import unicode_literals
 
+import os
+import time
 from django.db import models
 
 
@@ -10,10 +12,14 @@ class Attachments(models.Model):
     """
     Attachment table in the database.
     """
+
+    def get_file_path(self, filename):
+        folder = "%s.%s" % (self.issue.name, time.time())
+        return os.path.join('uploads', folder, filename)
+
     issue = models.ForeignKey('Issues', models.DO_NOTHING,
                               blank=True, null=True)
-    image_url = models.TextField(blank=True, null=True)
-    delete_date = models.DateTimeField(blank=True, null=True)
+    image_url = models.ImageField(blank=True, null=True, upload_to=get_file_path)
 
     class Meta:
         """..."""
@@ -51,7 +57,6 @@ class IssueHistory(models.Model):
                                blank=True, null=True)
     transaction_date = models.DateTimeField(blank=True,
                                             null=True)
-    delete_date = models.DateTimeField(blank=True, null=True)
 
     class Meta:
         """..."""
@@ -72,7 +77,7 @@ class Issues(models.Model):
     location_lon = models.FloatField(blank=True, null=True)
     status = models.TextField(blank=True, null=True)
     description = models.TextField(blank=True, null=True)
-    open_date = models.DateTimeField(blank=True, null=True)
+    open_date = models.DateTimeField(blank=True, null=True, auto_now_add=True)
     close_date = models.DateTimeField(blank=True, null=True)
     delete_date = models.DateTimeField(blank=True, null=True)
 

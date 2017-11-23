@@ -2,19 +2,52 @@
 Django views
 """
 # -*- coding: utf-8 -*-
+from django.views.generic import CreateView
 from django.core import serializers
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
 from django.views.generic.base import TemplateView
-from django.urls import reverse
+from django.contrib import messages
 
-from city_issues.models import Issues, Category
-from forms.forms import EditIssue
+from django.urls import reverse
+from city_issues.models import Attachments, Issues, Category
+from city_issues.forms.forms import EditIssue, IssueForm
 
 
 class HomePageView(TemplateView):
     """Home page"""
     template_name = "home_page.html"
+
+
+class IssueCreate(CreateView):
+    model = Issues
+    form_class = IssueForm
+    template_name = 'issues/issues.html'
+    success_url = 'add-issue'
+
+    def form_valid(self, form):
+        issue = form.save(commit=True)
+
+        file = form.cleaned_data['file']
+        if file:
+            self.save_file(form, file, issue)
+
+        messages.success(self.request, 'Issue was successfully saved')
+        return super(IssueCreate, self).form_valid(form)
+
+    def form_invalid(self, form):
+        messages.error(self.request, 'Failed to save')
+        return super(IssueCreate, self).form_invalid(form)
+
+    def save_file(self, form, file, issue):
+        if file._size > 5242880:
+            messages.error(self.request, 'Max file size : 5MB')
+            return super(IssueCreate, self).form_valid(form)
+        else:
+            attachment = Attachments()
+            attachment.issue = issue
+            attachment.image_url = file
+            attachment.save()
 
 
 def map_page_view(request):
