@@ -2,30 +2,35 @@
 from functools import wraps
 
 from flask import flash, redirect, request, render_template, session, url_for
-from sqlalchemy import and_, or_
+from sqlalchemy import and_, func, or_
 
 from backend.app import app, db
-from backend.forms.forms import LoginForm, SearchForm, UserForm
+
+from backend.forms.forms import (IssueForm, LoginForm, SearchUserForm,
+                                 SearchIssuesForm, UserForm, UserAddForm)
+
+from backend.models.issues import (Attachment, Category, IssueHistory,
+                                   Issue, Status)
 from backend.models.users import Role, User
+
 
 ROLE_ADMIN = 1
 ROLE_MODERATOR = 2
 ROLE_USER = 3
 
-
 MIN_SEARCH_STR = 2
 
 
-def admin_permissions(func):
+def admin_permissions(function):
     """Decorator to check admin rights to access some route."""
 
-    @wraps(func)
+    @wraps(function)
     def wrapper(*args, **kwargs):
         """Wrapper for routes."""
         if 'user_id' not in session or session['role_id'] != ROLE_ADMIN:
             flash("No access")
             return redirect(url_for('login'))
-        return func(*args, **kwargs)
+        return function(*args, **kwargs)
 
     return wrapper
 
@@ -41,9 +46,7 @@ def admin():
 @admin_permissions
 def user_page():
     """Page with list of users route."""
-    # Needs to fix
-    # pylint: disable=too-many-locals, no-else-return
-    form = SearchForm(request.args, meta={'csrf': False})
+    form = SearchUserForm(request.args, meta={'csrf': False})
     msg = False
     if form.validate():
         search_by = int(request.args.get('search_by'))
@@ -55,9 +58,9 @@ def user_page():
                 if len(one_string) < MIN_SEARCH_STR:
                     continue
                 search_parameter = '%{}%'.format(one_string)
-                name_search = User.name.like(search_parameter)
-                alias_search = User.alias.like(search_parameter)
-                email_search = User.email.like(search_parameter)
+                name_search = User.name.ilike(search_parameter)
+                alias_search = User.alias.ilike(search_parameter)
+                email_search = User.email.ilike(search_parameter)
                 conditions = [
                     name_search,
                     alias_search,
@@ -94,7 +97,7 @@ def user_page():
 def user_add():
     """Page with user add route."""
     route_to = url_for('user_add')
-    form = UserForm(request.form)
+    form = UserAddForm(request.form)
 
     if form.validate_on_submit():
         newuser = User()
@@ -102,6 +105,7 @@ def user_add():
         newuser.alias = form.alias.data
         newuser.role_id = form.role_id.data
         newuser.email = form.email.data
+        newuser.password = form.password.data
         db.session.add(newuser)
         db.session.commit()
         flash("User added")
@@ -118,7 +122,9 @@ def user_modify(users_id):
     user = db.session.query(User).get(users_id)
     form = UserForm(request.form, obj=user)
 
-    if form.validate_on_submit():
+    if user.delete_date:
+        flash("You can't edit the user who was deleted.")
+    elif form.validate_on_submit():
         form.populate_obj(user)
         db.session.commit()
         flash("User modified")
@@ -180,3 +186,110 @@ def logout():
     session.pop('role_id', None)
     flash("Successful logout")
     return redirect(url_for('admin'))
+
+
+@app.route('/issuespage', methods=['GET', 'POST'])
+@admin_permissions
+def issues_page():
+    """Issues page route."""
+    form = SearchIssuesForm(request.args, meta={'csrf': False})
+    condition = None
+    order = None
+
+    if form.validate():
+        search_by = int(request.args.get('search_by'))
+        order_by = int(request.args.get('order_by'))
+        search_string = str(request.args.get('search'))
+
+        search_list = ['name', 'category']
+
+        if len(search_string) >= MIN_SEARCH_STR:
+            search_parameter = '%{}%'.format(search_string)
+            if 'name' == search_list[search_by]:
+                condition = Issue.name.ilike(search_parameter)
+
+            else:
+                condition = Category.category.ilike(search_parameter)
+
+        order_list = [Issue.name, Category.category]
+        order = order_list[order_by]
+
+    count_att = db.session.query(Issue.id, func.count(Attachment.id).label(
+        'count')).filter(Issue.id == Attachment.issue_id).group_by(
+            Issue.id).subquery('count_att')
+
+    if order and condition is not None:
+        issues = db.session.query(
+            Category.category, Issue, User.alias, count_att.c.count).filter(and_(
+                Issue.user_id == User.id, Issue.category_id == Category.id,
+                Issue.id == count_att.c.id, condition)).order_by(order).all()
+
+    else:
+        issues = db.session.query(
+            Category.category, Issue, User.alias, count_att.c.count).filter(and_(
+                Issue.user_id == User.id, Issue.category_id == Category.id,
+                Issue.id == count_att.c.id)).order_by(Issue.name).all()
+
+    return render_template('issues_page.html', issues=issues, form=form)
+
+
+@app.route('/issuemodify/<int:issue_id>', methods=['GET', 'POST'])
+@admin_permissions
+def issue_modify(issue_id):
+    """Page with issue edit route."""
+    route_to = url_for('issue_modify', issue_id=issue_id)
+    issue = db.session.query(Issue).get(issue_id)
+    form = IssueForm(request.form, obj=issue)
+
+    if issue.delete_date:
+        flash("You can't edit the issue who was deleted.")
+    elif form.validate_on_submit():
+        form.populate_obj(issue)
+        db.session.commit()
+        flash("Issue modified")
+        return redirect(url_for('issues_page'))
+
+    return render_template('issue_modify.html', form=form, route_to=route_to)
+
+
+@app.route('/issuehistory/<int:issue_id>')
+@admin_permissions
+def issue_history(issue_id):
+    """Issue history page route."""
+    history = db.session.query(
+        IssueHistory, Status.status, User.alias, Issue.name).filter(and_(
+            IssueHistory.user_id == User.id,
+            IssueHistory.status_id == Status.id,
+            IssueHistory.issue_id == Issue.id,
+            IssueHistory.issue_id == issue_id)).all()
+    return render_template('issue_history.html', issue_history=history)
+
+
+@app.route('/attachments/<int:issue_id>')
+@admin_permissions
+def attachments(issue_id):
+    """Attachments page route."""
+    attach = db.session.query(Attachment, Issue.name).filter(and_(
+        Attachment.issue_id == issue_id,
+        Issue.id == Attachment.issue_id)).all()
+    return render_template('attachments.html', attachments=attach)
+
+
+@app.route('/deleteissue/<int:issue_id>', methods=['POST'])
+@admin_permissions
+def delete_issue(issue_id):
+    """Route for deleting issue."""
+    issue = db.session.query(Issue).get(issue_id)
+    issue.delete()
+    db.session.commit()
+    return redirect(url_for('issues_page'))
+
+
+@app.route('/restoreissue/<int:issue_id>', methods=['POST'])
+@admin_permissions
+def restore_issue(issue_id):
+    """Route for restore issue."""
+    issue = db.session.query(Issue).get(issue_id)
+    issue.restore()
+    db.session.commit()
+    return redirect(url_for('issues_page'))

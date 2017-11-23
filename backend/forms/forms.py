@@ -1,12 +1,14 @@
 """This module contains forms classes for admin manage."""
 from flask_wtf import FlaskForm
-from wtforms import (StringField, HiddenField,
-                     PasswordField, SelectField, SubmitField)
+from wtforms import (StringField, HiddenField, TextAreaField,
+                     PasswordField, SelectField, SubmitField,
+                     FloatField)
 from wtforms.validators import (DataRequired, Email,
                                 Length, Regexp, ValidationError)
 
 from backend.app import db
 from backend.models.users import User
+from backend.models.issues import Issue
 
 
 class UniqueValue(object):
@@ -63,10 +65,10 @@ class UserForm(BaseForm):
     id = HiddenField('id')
     name = StringField(
         'name',
-        description=u'Length between 3 and 32 chars.',
+        description=u'Length between 3 and 15 chars.',
         validators=[
             DataRequired(),
-            Length(min=3, max=32),
+            Length(min=3, max=15),
             Regexp(
                 r"^[\w]+$",
                 message='Only letters, numbers and "_" may be used.')
@@ -74,11 +76,11 @@ class UserForm(BaseForm):
     )
     alias = StringField(
         'alias',
-        description=u'Length between 3 and 32 chars.',
+        description=u'Length between 3 and 15 chars.',
         validators=[
             DataRequired(),
             check_alias,
-            Length(min=3, max=32),
+            Length(min=3, max=15),
             Regexp(
                 r"^[\w]+$",
                 message='Only letters, numbers and "_" may be used.')
@@ -99,6 +101,120 @@ class UserForm(BaseForm):
     submit_button = SubmitField('Save')
 
 
+class UserAddForm(BaseForm):
+    """User add form."""
+
+    id = HiddenField('id')
+    name = StringField(
+        'name',
+        description=u'Length between 3 and 15 chars.',
+        validators=[
+            DataRequired(),
+            Length(min=3, max=15),
+            Regexp(
+                r"^[\w]+$",
+                message='Only letters, numbers and "_" may be used.')
+        ]
+    )
+    alias = StringField(
+        'alias',
+        description=u'Length between 3 and 15 chars.',
+        validators=[
+            DataRequired(),
+            check_alias,
+            Length(min=3, max=15),
+            Regexp(
+                r"^[\w]+$",
+                message='Only letters, numbers and "_" may be used.')
+        ]
+    )
+    email = StringField('email', validators=[Email(), check_email])
+
+    password = PasswordField(
+        'password',
+        description=u'Length between 3 and 20 chars.',
+        validators=[
+            DataRequired(),
+            Length(min=3, max=20),
+            Regexp(
+                r"^[\w]+$",
+                message='Only letters, numbers and "_" may be used.')
+        ]
+    )
+
+    role_id = SelectField(
+        'role_id',
+        choices=[
+            ('1', 'admin'),
+            ('2', 'moderator'),
+            ('3', 'user')
+        ],
+        validators=[DataRequired()]
+    )
+
+    submit_button = SubmitField('Save')
+
+
+class IssueForm(BaseForm):
+    """Issue edit form"""
+
+    id = HiddenField('id')
+    name = StringField(
+        'name',
+        description=u'Length between 3 and 15 chars.',
+        validators=[
+            DataRequired(),
+            Length(min=3, max=15)
+        ]
+    )
+
+    status = SelectField(
+        'status',
+        choices=[
+            ('new', 'new'),
+            ('on moderation', 'on moderation'),
+            ('open', 'open'),
+            ('closed', 'closed')
+        ],
+        validators=[DataRequired()]
+    )
+
+    description = TextAreaField(
+        'description',
+        description=u'Length between 10 and 144 chars.',
+        validators=[
+            DataRequired(),
+            Length(min=10, max=144)
+        ]
+    )
+
+    location_lat = FloatField(
+        'location lat',
+        validators=[
+            DataRequired(),
+        ]
+    )
+
+    location_lon = FloatField(
+        'location lot',
+        validators=[
+            DataRequired(),
+        ]
+    )
+
+    category_id = SelectField(
+        'category',
+        choices=[
+            ('1', 'road accident'),
+            ('2', 'infrastructure accident'),
+            ('3', 'another accident')
+        ],
+        validators=[DataRequired()]
+    )
+
+    submit_button = SubmitField('Save')
+
+
 class LoginForm(BaseForm):
     """Login form."""
 
@@ -107,7 +223,7 @@ class LoginForm(BaseForm):
     submit_button = SubmitField('Login')
 
 
-class SearchForm(BaseForm):
+class SearchUserForm(BaseForm):
     """Search form"""
 
     search = StringField(
@@ -131,6 +247,32 @@ class SearchForm(BaseForm):
             ('0', 'id'),
             ('1', 'role'),
             ('2', 'delete date')
+        ]
+    )
+
+    class Meta:
+        """..."""
+        csrf = False
+
+
+class SearchIssuesForm(BaseForm):
+    """Search form"""
+
+    search = StringField(
+        'search'
+    )
+    search_by = SelectField(
+        'search_by',
+        choices=[
+            ('0', 'name'),
+            ('1', 'category'),
+        ]
+    )
+    order_by = SelectField(
+        'order_by',
+        choices=[
+            ('0', 'name'),
+            ('1', 'category'),
         ]
     )
 

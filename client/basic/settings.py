@@ -35,6 +35,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'bootstrap3',
     'city_issues',
     'django.contrib.sites',
     'registration',
@@ -133,6 +134,10 @@ STATIC_URL = '/static/'
 # Registration settings
 REGISTRATION_OPEN = True
 SITE_ID = 1
+
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'apps', 'city_issues', 'media')
 
 
 # Expand the default settings.

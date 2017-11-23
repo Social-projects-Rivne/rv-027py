@@ -17,6 +17,7 @@ class Role(models.Model):
     Roles table in the database
     """
     role = models.TextField()
+    app_label = 'city_issues'
 
     class Meta:
         """..."""

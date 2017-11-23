@@ -1,0 +1,27 @@
+{% extends 'layouts.html' %}
+
+
+{% block title_suffix %} Attachments {% endblock title_suffix %}
+
+{% block navbar_li %}
+    <li><a href="{{ url_for('issues_page') }}">Issues page</a></li>
+{% endblock navbar_li %}
+
+{% block content %}
+<div class="table-responsive">
+    <table class="table table-striped">
+           <tr>
+               <th>Id</th>
+               <th>Issue</th>
+               <th>Image</th>
+           </tr>
+           {% for attachment, issue  in attachments %}
+                <tr>
+                    <td>{{ attachment.id }}</td>
+                    <td>{{ issue }}</td>
+                    <td>{{ attachment.image_url}}</td>
+                </tr>
+            {% endfor %}
+    </table>
+</div>
+{% endblock %}
