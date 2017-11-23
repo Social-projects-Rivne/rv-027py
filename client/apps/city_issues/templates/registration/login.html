@@ -1,43 +1,48 @@
-{% extends "../base.html" %}
+{% extends "registration/registration_base.html" %}
 {% load i18n %}
 
 {% block title %}Log in{% endblock %}
 
-{% block content %}
-<form method="post" action="{% url "login" %}">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <input type="submit" value="Log in" />
-    <input type="hidden" name="next" value="{{ next }}" />
-</form>
 
+{% block content %}
+
+{% block status_message %}
+{% if form.errors %}
+  <div class="alert alert-warning" role="alert">
+    {% if form.non_field_errors %}
+      {{ form.non_field_errors.as_text }}
+    {% else %}
+      {% trans "Please, correct the following errors." %}
+    {% endif %}
+  </div>
+{% endif %}
 {% endblock %}
 
 
-{% comment %}
-**registration/login.html**
+<div class="container">
+    <form action="{% url "accounts:auth_login" %}" method="post" enctype="multipart/form-data" class=”form-horizontal”
+        style="width: 35%;">
 
-It's your responsibility to provide the login form in a template called
-registration/login.html by default. This template gets passed four
-template context variables:
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{% url "home" %}" />
 
-``form``
-    A Form object representing the login form. See the forms
-    documentation for more on Form objects.
+        <div class="form-group">
+            <label for="id_email" class="col-sm-3 control-label">Email</label>
+            <input type="text" class="form-control" id="id_email" value=""
+                   name="username" />
+            <span class="help-block">{{ form.errors.username.as_data.0.0 }}</span>
+        </div>
 
-``next``
-    The URL to redirect to after successful login. This may contain a
-    query string, too.
+        <div class="form-group">
+            <label for="password" class="col-sm-3 control-label">Password</label>
+            <input type="password" class="form-control" id="password" value=""
+                   name="password" />
+            <span class="help-block">{{ form.errors.password.as_data.0.0 }}</span>
+        </div>
 
-``site``
-    The current Site, according to the SITE_ID setting. If you don't
-    have the site framework installed, this will be set to an instance
-    of RequestSite, which derives the site name and domain from the
-    current HttpRequest.
+        <button type="submit" class="btn btn-primary">Login</button>
 
-``site_name``
-    An alias for site.name. If you don't have the site framework
-    installed, this will be set to the value of
-    request.META['SERVER_NAME']. For more on sites, see The
-    "sites" framework.
-{% endcomment %}
+    </form>
+</div>
+
+{% endblock content %}

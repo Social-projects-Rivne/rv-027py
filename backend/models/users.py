@@ -34,6 +34,7 @@ class User(db.Model):
     role_id = db.Column(db.ForeignKey(u'roles.id'), index=True)
     avatar = db.Column(db.Text)
     delete_date = db.Column(db.TIMESTAMP)
+    last_login = db.Column(db.TIMESTAMP)
     role = db.relationship(u'Role')
 
     @hybrid_property

@@ -8,7 +8,6 @@ import datetime
 from django.contrib.auth.models import AbstractBaseUser
 from django.contrib.auth.hashers import make_password
 from django.db import models
-from django.utils import timezone
 
 from city_issues.user_managers import UserManager
 
@@ -35,7 +34,8 @@ class User(AbstractBaseUser):
     Users table in the database
     """
     name = models.TextField(
-        unique=True)
+        blank=True,
+        null=True)
     alias = models.TextField(
         blank=True,
         null=True)
@@ -55,13 +55,16 @@ class User(AbstractBaseUser):
     delete_date = models.DateTimeField(
         blank=True,
         null=True)
+    last_login = models.DateTimeField(
+        blank=True,
+        null=True)
 
     # Connects a custom user manager
     objects = UserManager()
 
-    USERNAME_FIELD = 'name'
+    USERNAME_FIELD = 'email'
     EMAIL_FIELD = 'email'
-    REQUIRED_FIELDS = ['email']
+    # REQUIRED_FIELDS = ['email']
 
     def get_full_name(self):
         return self.name
@@ -114,15 +117,6 @@ class User(AbstractBaseUser):
             self.role = ROLE_ADMIN
         else:
             self.role = ROLE_USER
-
-    @property
-    def last_login(self):
-        """Added to meet Django AbstractBaseUser interface requirements"""
-        return None
-
-    @last_login.setter
-    def last_login(self, value):
-        return None
 
     class Meta:
         """..."""

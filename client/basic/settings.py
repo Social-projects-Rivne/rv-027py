@@ -35,6 +35,8 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     'city_issues',
+    'django.contrib.sites',
+    'registration',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -129,7 +131,7 @@ STATIC_URL = '/static/'
 
 # Registration settings
 REGISTRATION_OPEN = True
-LOGIN_REDIRECT_URL = '/'
+SITE_ID = 1
 
 
 # Expand the default settings.
