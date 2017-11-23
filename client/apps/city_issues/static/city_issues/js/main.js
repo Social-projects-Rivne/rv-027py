@@ -31,8 +31,6 @@ function IssueMap(elementId) {
 
   IssueMap.prototype.insertAllMarkers = function(jsonData) {
     var markersId = {};
-    var markerColor;
-    var markers = L.markerClusterGroup();
 
     jsonData.forEach(function(key) {
       var issue = JSON.parse(key);
@@ -41,10 +39,10 @@ function IssueMap(elementId) {
         issue.fields.location_lon],{icon: current.iconCreate(issue.fields.category)}).addTo(current.getMap());
 
     markersId[issue.pk]._icon.id = "issue_primary-id" + issue.pk;
-    markers.addLayer(markersId[issue.pk]);
+
     });
 
-    this.getMap().addLayer(markers);
+
   };
 
   IssueMap.prototype.getMarkers = function(serverURL) {
