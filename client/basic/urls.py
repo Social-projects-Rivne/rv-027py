@@ -19,7 +19,6 @@ from city_issues.views import (
     HomePageView, map_page_view, IssueCreate)
 
 
-
 urlpatterns = [
     url(r'^$', HomePageView.as_view(), name='home'),
     url(r'^map/$', map_page_view, name='map'),

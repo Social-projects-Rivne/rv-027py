@@ -3,7 +3,8 @@ Django models
 """
 from __future__ import unicode_literals
 
-import os, time
+import os
+import time
 from django.db import models
 
 
