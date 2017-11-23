@@ -9,15 +9,15 @@ from django.shortcuts import redirect, render
 from django.views.generic.base import TemplateView
 from django.contrib import messages
 
-from forms.forms import IssueForm
 from django.urls import reverse
-from city_issues.models import Attachments Issues, Category
-from forms.forms import EditIssue
+from city_issues.models import Attachments, Issues, Category
+from city_issues.forms.forms import EditIssue, IssueForm
 
 
 class HomePageView(TemplateView):
     """Home page"""
     template_name = "home_page.html"
+
 
 class IssueCreate(CreateView):
     model = Issues

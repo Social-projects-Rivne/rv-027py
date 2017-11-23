@@ -25,7 +25,7 @@ urlpatterns = [
     url(r'^map/$', map_page_view, name='map'),
     url(r'^map/getissuebyid/(?P<issue_id>[0-9]+)$',
         get_issue_data, name='issue_data'),
-    url(r'^map/getissuesall/$', get_all_issues_data, name='all_issues,
+    url(r'^map/getissuesall/$', get_all_issues_data, name='all_issues'),
     url(r'^add-issue', IssueCreate.as_view(), name='create_issue'),
     url(r'^editissue/(?P<issue_id>[0-9]+)$', edit_issue_view, name='edit_issue'),
 ]

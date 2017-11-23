@@ -1,11 +1,13 @@
 """Forms models"""
 from django.core.validators import MaxValueValidator, MinValueValidator
+from django import forms
+
 from django.forms import (
     CharField, FloatField, ModelChoiceField, ModelForm,
     Textarea, TextInput)
 
 from city_issues.models.issues import Issues, Category
-from forms.forms import IssueForm
+
 
 class IssueForm(forms.ModelForm):
     class Meta:
@@ -42,6 +44,7 @@ class IssueForm(forms.ModelForm):
         required=False,
         widget=forms.FileInput(attrs={'accept': 'image/*', 'multiple': True})
     )
+
 
 class EditIssue(ModelForm):
     """Edit issue form."""
