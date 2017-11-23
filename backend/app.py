@@ -1,7 +1,6 @@
 """This module create instance of Flask and activate packages."""
 # pylint: disable=wrong-import-position
 from flask import Flask
-# from flask_bcrypt import Bcrypt
 from flask_bootstrap import Bootstrap
 from flask_wtf.csrf import CSRFProtect
 from flask_sqlalchemy import SQLAlchemy
@@ -9,7 +8,6 @@ from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
 app.config.from_object('backend.config.DevelopmentConfig')
-# bcrypt = Bcrypt(app)
 db = SQLAlchemy(app)
 Bootstrap(app)
 CSRFProtect(app)

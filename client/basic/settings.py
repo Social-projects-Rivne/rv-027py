@@ -17,7 +17,8 @@ import sys
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-# Add visibility for base directory to django app
+# Add visibility for base directory to django
+
 sys.path.insert(1, os.path.dirname(BASE_DIR))
 
 # Quick-start development settings - unsuitable for production
