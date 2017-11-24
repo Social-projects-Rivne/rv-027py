@@ -6,13 +6,10 @@ from __future__ import unicode_literals
 import datetime
 
 from django.contrib.auth.models import AbstractBaseUser
+from django.contrib.auth.hashers import make_password
 from django.db import models
 
 from city_issues.user_managers import UserManager
-
-ROLE_ADMIN = 1
-ROLE_MODERATOR = 2
-ROLE_USER = 3
 
 
 class Role(models.Model):
@@ -28,12 +25,18 @@ class Role(models.Model):
         db_table = 'roles'
 
 
+ROLE_ADMIN = Role.objects.get(id=1)
+ROLE_MODERATOR = Role.objects.get(id=2)
+ROLE_USER = Role.objects.get(id=3)
+
+
 class User(AbstractBaseUser):
     """
     Users table in the database
     """
     name = models.TextField(
-        unique=True)
+        blank=True,
+        null=True)
     alias = models.TextField(
         blank=True,
         null=True)
@@ -53,13 +56,15 @@ class User(AbstractBaseUser):
     delete_date = models.DateTimeField(
         blank=True,
         null=True)
+    last_login = models.DateTimeField(
+        blank=True,
+        null=True)
 
     # Connects a custom user manager
     objects = UserManager()
 
-    USERNAME_FIELD = 'name'
+    USERNAME_FIELD = 'email'
     EMAIL_FIELD = 'email'
-    REQUIRED_FIELDS = ['email']
 
     def get_full_name(self):
         return self.name
@@ -73,8 +78,12 @@ class User(AbstractBaseUser):
         return self.hashed_password
 
     @password.setter
-    def set_hashed_password(self, raw_password):
-        super(User, self).set_password(raw_password)
+    def password(self, raw_password):
+        self.set_password(raw_password)
+
+    def set_password(self, raw_password):
+        self.hashed_password = make_password(raw_password)
+        self._password = raw_password
 
     @property
     def is_active(self):
@@ -82,7 +91,7 @@ class User(AbstractBaseUser):
         return not self.delete_date
 
     @is_active.setter
-    def set_active(self, value):
+    def is_active(self, value):
         self.delete_date = None if value else datetime.datetime.now()
 
     @property
@@ -91,7 +100,7 @@ class User(AbstractBaseUser):
         return self.role == ROLE_MODERATOR
 
     @is_staff.setter
-    def set_staff(self, value):
+    def is_staff(self, value):
         if value:
             self.role = ROLE_MODERATOR
         else:
@@ -103,16 +112,11 @@ class User(AbstractBaseUser):
         return self.role == ROLE_ADMIN
 
     @is_superuser.setter
-    def set_superuser(self, value):
+    def is_superuser(self, value):
         if value:
             self.role = ROLE_ADMIN
         else:
             self.role = ROLE_USER
-
-    @property
-    def last_login(self):
-        """Added to meet Django AbstractBaseUser interface requirements"""
-        return None
 
     class Meta:
         """..."""

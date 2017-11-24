@@ -1,3 +1,4 @@
+{% load i18n %}
 {% load bootstrap3 %}
 {% load static from staticfiles %}
 
@@ -25,11 +26,23 @@
               <a class="navbar-brand" href="{% url "home" %}">CITY ISSUES</a>
             </div>
             <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                {% if user.is_authenticated %}
+                    <!--<p class="navbar-text navbar-right">You are logged as <a href="#">{{ user.email }}</a></p>-->
+                    <!--<a href="#" class="navbar-text navbar-left">{{ user.email }}</a>-->
+                    <a href="{% url "accounts:auth_logout" %}" class="navbar-text navbar-right">Log out</a>
+                    <p class="navbar-text navbar-right">You are logged as <a href="#">{{ user.email }}</a></p>
+                {% else %}
+                    <a href="{% url "accounts:auth_login" %}" class="navbar-text navbar-right">Log in</a>
+                    <a href="{% url "accounts:registration_register" %}" class="navbar-text navbar-right">Sign in</a>
+                {% endif %}
             </div><!-- /.navbar-collapse -->
           </div><!-- /.container-fluid -->
         </nav>
         <!--end navigation-->
-        {% block content %}{% endblock content %}
+
+        {% block content %}
+        {% endblock content %}
+
         <!--scripts-->
         <script   src="https://code.jquery.com/jquery-3.1.1.js"
                   integrity="sha256-16cdPddA6VdVInumRGo6IbivbERE8p7CQR3HzTBuELA="

@@ -18,6 +18,7 @@ import sys
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Add visibility for base directory to django
+
 sys.path.insert(1, os.path.dirname(BASE_DIR))
 
 # Quick-start development settings - unsuitable for production
@@ -28,20 +29,21 @@ sys.path.insert(1, os.path.dirname(BASE_DIR))
 # installed through the pip.
 sys.path.insert(1, os.path.join(BASE_DIR, 'apps'))
 
-
 ALLOWED_HOSTS = []
 
 
 # Application definition
 
 INSTALLED_APPS = [
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'bootstrap3',
+    'city_issues',
+    'django.contrib.sites',
+    'registration',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'city_issues',
-    'bootstrap3',
 ]
 
 MIDDLEWARE = [
@@ -98,8 +100,8 @@ AUTH_PASSWORD_VALIDATORS = [
 
 PASSWORD_HASHERS = [
     'django.contrib.auth.hashers.BCryptPasswordHasher',
-    'django.contrib.auth.hashers.BCryptSHA256PasswordHasher',
     'django.contrib.auth.hashers.PBKDF2PasswordHasher',
+    'django.contrib.auth.hashers.BCryptSHA256PasswordHasher',
     'django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher',
     'django.contrib.auth.hashers.Argon2PasswordHasher',
 ]
@@ -128,8 +130,16 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+
+# Registration settings
+REGISTRATION_OPEN = True
+SITE_ID = 1
+
+
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'apps', 'city_issues', 'media')
+
+
 # Expand the default settings.
 # Loading extension parameters of standard configurations
 try:
