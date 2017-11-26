@@ -29,8 +29,7 @@ class IssueCreate(CreateView):
         issue = form.save(commit=True)
 
         if form.files:
-            files = form.files.getlist('file')
-            self.save_file(form, files, issue)
+            self.save_file(form, form.files.getlist('file'), issue)
 
         messages.success(self.request, 'Issue was successfully saved')
         return super(IssueCreate, self).form_valid(form)
