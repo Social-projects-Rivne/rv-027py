@@ -1,19 +1,25 @@
-# Rename this file to config.py and fill SQLALCHEMY_DATABASE_URI with your's data.
+# Rename this file to config.py and fill SQLALCHEMY_DATABASE_URI with
+# your's data.
+
 
 class Config(object):
 
     DEBUG = False
-
-    SECRET_KEY = 'SECRET_OR_NOT_KEY'
+    
+    # Enter yours secret key(it must be some string)
+    SECRET_KEY = ''
 
     WTF_CSRF_ENABLED = True
 
     WTF_CSRF_SECRET_KEY = 'SECRET_OR_NOT_KEY'
-    
+
     # Change database credentials to yours.
     SQLALCHEMY_DATABASE_URI = 'postgres://user:password@localhost/db_name'
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+
+    # password hashing rounds
+    BCRYPT_LOG_ROUNDS = 14
 
 
 class ProductionConfig(Config):

@@ -1,5 +1,11 @@
 alembic==0.9.6
+bcrypt==3.1.4
+cffi==1.11.2
 click==6.7
+configparser==3.5.0
+Django==1.11.7
+django-registration-redux==1.8
+django-bootstrap3==9.1.0
 dominate==2.3.1
 Flask==0.12.2
 Flask-Bootstrap==3.3.7.1
@@ -11,9 +17,14 @@ itsdangerous==0.24
 Jinja2==2.9.6
 Mako==1.0.7
 MarkupSafe==1.0
+olefile==0.44
+passlib==1.7.1
+Pillow==4.3.0
 psycopg2==2.7.3.2
+pycparser==2.18
 python-dateutil==2.6.1
 python-editor==1.0.3
+pytz==2017.3
 six==1.11.0
 sqlacodegen==1.1.6
 SQLAlchemy==1.1.14

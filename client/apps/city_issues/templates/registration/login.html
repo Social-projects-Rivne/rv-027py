@@ -1,0 +1,47 @@
+{% extends "registration/registration_base.html" %}
+{% load i18n %}
+
+{% block title %}Log in{% endblock %}
+
+
+{% block content %}
+
+{% block status_message %}
+    {% if form.errors %}
+      <div class="alert alert-warning" role="alert">
+        {% if form.non_field_errors %}
+          {{ form.non_field_errors.as_text }}
+        {% else %}
+          {% trans "Please, correct the following errors." %}
+        {% endif %}
+      </div>
+    {% endif %}
+{% endblock %}
+
+<div class="container">
+    <form action="{% url "accounts:auth_login" %}" method="post" enctype="multipart/form-data" class=”form-horizontal”
+        style="width: 35%;">
+
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{% url "home" %}" />
+
+        <div class="form-group">
+            <label for="id_email" class="col-sm-3 control-label">Email</label>
+            <input type="text" class="form-control" id="id_email" value="{{ request.POST.username }}"
+                   name="username" />
+            <span class="help-block">{{ form.errors.username.as_data.0.0 }}</span>
+        </div>
+
+        <div class="form-group">
+            <label for="password" class="col-sm-3 control-label">Password</label>
+            <input type="password" class="form-control" id="password" value="{{ request.POST.password }}"
+                   name="password" />
+            <span class="help-block">{{ form.errors.password.as_data.0.0 }}</span>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Login</button>
+
+    </form>
+</div>
+
+{% endblock content %}
