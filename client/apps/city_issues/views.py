@@ -38,7 +38,7 @@ class IssueCreate(CreateView):
         return super(IssueCreate, self).form_valid(form)
 
     def form_invalid(self, form):
-        messages.error(self.request, 'Failed to save')
+        messages.error(self.request, form.errors)
         return super(IssueCreate, self).form_invalid(form)
 
     def save_file(self, form, files, issue):

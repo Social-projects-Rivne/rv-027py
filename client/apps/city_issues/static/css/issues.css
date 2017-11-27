@@ -95,3 +95,11 @@ li.error{
   content:"*";
   color:red;
 }
+
+ul.messages{
+  list-style-type: none;
+}
+
+a.del-msg{
+  float: right;
+}
