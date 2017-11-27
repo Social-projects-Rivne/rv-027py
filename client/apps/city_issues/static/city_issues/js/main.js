@@ -22,7 +22,7 @@ function IssueMap(elementId) {
     return new L.Icon({
       iconUrl: '/static/city_issues/img/category_' + category + '_marker-icon.png',
       shadowUrl: '/static/city_issues/img/marker-shadow.png',
-      iconSize: [25, 41],
+      iconSize: [41, 41],
       iconAnchor: [12, 41],
       popupAnchor: [1, -34],
       shadowSize: [41, 41]
@@ -91,10 +91,21 @@ function IssueDescription(mapId, issueContainerId, issueCloseId) {
 
   IssueDescription.prototype.insertIssueData = function(jsonData) {
     current.issue_box.style.display = 'block';
-    document.querySelector(".issue_name").innerHTML = jsonData.fields.name;
-    document.querySelector(".issue_description").innerHTML = jsonData.fields.description;
+    document.querySelector(".issue_name").innerHTML = jsonData.name;
+    document.querySelector(".issue_description").innerHTML = jsonData.description;
+    var imgBox = document.querySelector(".issue_img-box");
+    imgBox.innerHTML = "";
+    if (jsonData.images_urls.length > 0) {
+      insertTemplateForBootstrapCarousel("#issue_img-box", "#bootstrap_carousel");
+      bootstrapCarousel(jsonData.images_urls);
+    } else {
+      var img = document.createElement('img');
+      img.src = "/static/city_issues/img/no-image.png";
+      img.classList.add("issue_img");
+      imgBox.appendChild(img);
+    }
     var dataUrl =  document.getElementById("issue_edit").getAttribute("data-url").slice(0,-1);
-    document.getElementById("issue_edit").setAttribute("href", dataUrl + jsonData.pk);
+    document.getElementById("issue_edit").setAttribute("href", dataUrl + jsonData.id);
 
   };
 
@@ -111,6 +122,29 @@ function IssueDescription(mapId, issueContainerId, issueCloseId) {
 
 }
 
+function bootstrapCarousel(images_urls) {
+  var media = "/media/";
+  $(document).ready(function(){  
+  for(var i=0 ; i< images_urls.length ; i++) {
+    $('<div class="item"><img src="'+media+images_urls[i]+'"><div class="carousel-caption"></div>   </div>').appendTo('.carousel-inner');
+    $('<li data-target="#carousel-example-generic" data-slide-to="'+i+'"></li>').appendTo('.carousel-indicators');
+  }
+  $('.item').first().addClass('active');
+  $('.carousel-indicators > li').first().addClass('active');
+  $('#carousel-example-generic').carousel();
+});
+}
+
+
+function insertTemplateForBootstrapCarousel(parentId, templateId) {
+  if ('content' in document.createElement('template')) {
+    var template = document.querySelector(templateId);
+    var parent = document.querySelector(parentId);
+    var clone = document.importNode(template.content, true);
+    parent.appendChild(clone);
+  }
+}
+
 issueMap = new IssueMap("mapid");
 issueMap.setViewPoint(50.621945, 26.249314, 16);
 issueMap.addMapLayer(
@@ -120,5 +154,6 @@ issueMap.addMapLayer(
 issueMap.getMarkers("getissuesall/");
 issueDescription = new IssueDescription("mapid", "issue_container", "issue_close");
 issueDescription.addHandler();
+
 })();
 
