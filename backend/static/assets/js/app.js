@@ -17,7 +17,9 @@ $( document ).ready(function() {
         $("#delete-user").attr('action', '/'+funcName+'/' + elemId);
     });
 
-    $('.table-row').click(function() {
-        window.document.location = $(this).data('href');
-    });
+    $('.table-row').click(function(e) {
+       if (e.target.tagName == "TD") {
+           window.document.location = $(this).data('href');
+       }       
+   });
 });
