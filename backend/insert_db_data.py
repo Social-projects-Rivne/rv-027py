@@ -33,35 +33,36 @@ user2 = User(name='Mark', alias='Marky', email='mark@gmail.com',
 user3 = User(name='Maria', alias='Mary', email='maria@gmail.com',
              password='321', role_id='3')
 
+
 issue1 = Issue(title='Road accident', user_id='2', category_id='1', location_lat='50.621945',
                location_lon='26.249314', description='Car crash ...', status='on moderation',
-               open_date='2017/10/25')
+               open_date='2017/11/15')
 issue2 = Issue(title='Road accident', user_id='3', category_id='2', location_lat='50.623673',
                location_lon='26.250182', description='Bus crash ...', status='new',
-               open_date='2017/11/11')
+               open_date='2017/11/16')
 issue3 = Issue(title='Dog lost', user_id='3', category_id='3', location_lat='50.622584',
-               location_lon='26.252468', description='Some test data 3', status='closed',
-               open_date='2017/09/20')
+               location_lon='26.252468', description='Some test data 3', status='new',
+               open_date='2017/11/17')
 issue4 = Issue(title='Road accident', user_id='1', category_id='1', location_lat='50.622836',
                location_lon='26.246706', description='Some test data 4', status='new',
-               open_date='2017/10/25')
+               open_date='2017/11/18')
 issue5 = Issue(title='Test case 5', user_id='2', category_id='2', location_lat='50.619977',
                location_lon='26.247521', description='Some test data 5', status='open',
-               open_date='2017/10/25')
+               open_date='2017/11/19')
 issue6 = Issue(title='Test case 6', user_id='3', category_id='3', location_lat='50.619453',
                location_lon='26.251834', description='Some test data 6', status='open',
-               open_date='2017/10/25')
+               open_date='2017/11/20')
 issue7 = Issue(title='Test case 7', user_id='1', category_id='1', location_lat='50.618500',
                location_lon='26.249838', description='Some test data 7', status='on moderation',
-               open_date='2017/10/25')
+               open_date='2017/11/21')
 issue8 = Issue(title='Test case 8', user_id='2', category_id='2', location_lat='50.619242',
                location_lon='26.246233', description='Some test data 8', status='closed',
-               open_date='2017/10/25')
+               open_date='2017/11/22')
 
 
-attachment1 = Attachment(issue_id='1', image_url='some url1')
-attachment2 = Attachment(issue_id='2', image_url='some url2')
-attachment3 = Attachment(issue_id='3', image_url='some url3')
+attachment1 = Attachment(issue_id='1', image_url=None)
+attachment2 = Attachment(issue_id='2', image_url=None)
+attachment3 = Attachment(issue_id='3', image_url=None)
 
 issueHistory1 = IssueHistory(user_id='1', issue_id='1', status_id='1',
                              transaction_date='2017/10/25')

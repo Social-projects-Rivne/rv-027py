@@ -26,6 +26,7 @@
               <a class="navbar-brand" href="{% url "home" %}">CITY ISSUES</a>
             </div>
             <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+
                 {% if user.is_authenticated %}
                     <!--<p class="navbar-text navbar-right">You are logged as <a href="#">{{ user.email }}</a></p>-->
                     <!--<a href="#" class="navbar-text navbar-left">{{ user.email }}</a>-->
@@ -35,6 +36,8 @@
                     <a href="{% url "accounts:auth_login" %}" class="navbar-text navbar-right">Log in</a>
                     <a href="{% url "accounts:registration_register" %}" class="navbar-text navbar-right">Sign in</a>
                 {% endif %}
+                    <a href="{% url "create_issue" %}" class="navbar-text navbar-right">Add new issue</a>
+                    <a href="{% url "map" %}" class="navbar-text navbar-right">Issues map</a>
             </div><!-- /.navbar-collapse -->
           </div><!-- /.container-fluid -->
         </nav>

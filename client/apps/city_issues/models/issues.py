@@ -14,6 +14,7 @@ class Attachments(models.Model):
     """
 
     def get_file_path(self, filename):
+        # pylint: disable=no-member
         folder = self.issue.title
         return os.path.join('uploads', folder, filename)
 

@@ -270,7 +270,7 @@ def restore_issue(issue_id):
 
 @app.route('/issue/<int:issue_id>', methods=['GET'])
 @admin_permissions
-def issue(issue_id):
+def issue_info(issue_id):
     """Route for issue page"""
     issue_one = db.session.query(Issue).get(issue_id)
     attach = db.session.query(Attachment).filter(and_(
