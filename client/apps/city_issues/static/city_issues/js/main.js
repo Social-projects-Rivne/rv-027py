@@ -3,6 +3,11 @@
 function IssueMap(elementId) {
   var current = this;
   this.map = L.map(elementId);
+
+  IssueMap.prototype.setFilterFromBtn = function(FilterFromBtnId) {
+    current.filterFormBtn = document.querySelector(FilterFromBtnId);
+  };
+   
   
   IssueMap.prototype.getMap = function() {
     return this.map;
@@ -30,19 +35,44 @@ function IssueMap(elementId) {
   };
 
   IssueMap.prototype.insertAllMarkers = function(jsonData) {
-    var markersId = {};
+    if (current.markers) {
+      current.getMap().removeLayer(current.markers);
+    }
 
+    current.markers = new L.FeatureGroup();
+    
     jsonData.forEach(function(key) {
       var issue = JSON.parse(key);
 
-    markersId[issue.pk] = L.marker([issue.fields.location_lat,
-        issue.fields.location_lon],{icon: current.iconCreate(issue.fields.category)}).addTo(current.getMap());
+      var marker = L.marker([issue.fields.location_lat,
+        issue.fields.location_lon],{icon: current.iconCreate(issue.fields.category)});
 
-    markersId[issue.pk]._icon.id = "issue_primary-id" + issue.pk;
+      current.markers.addLayer(marker);
+      current.getMap().addLayer(current.markers);
+
+      marker._icon.id = "issue_primary-id" + issue.pk;
 
     });
 
 
+  };
+
+  IssueMap.prototype.filterHandler = function(event) {
+    event.preventDefault();
+    var dateFromValue = document.querySelector("#id_date_from").value;
+    var dateToValue = document.querySelector("#id_date_to").value;
+    if (dateFromValue && dateToValue) {
+      document.querySelector("#message_box").style.display = "none";
+      current.getMarkers("getissuesall/?" + "date_from=" + dateFromValue + "&" + "date_to=" + dateToValue);
+    } else {
+      document.querySelector("#message_box").style.display = "block";
+      document.querySelector("#message_box li").innerHTML = "Enter two dates";
+    }
+    
+  };
+
+  IssueMap.prototype.addHandler = function() {
+    current.filterFormBtn.addEventListener('click', current.filterHandler);
   };
 
   IssueMap.prototype.getMarkers = function(serverURL) {
@@ -50,6 +80,15 @@ function IssueMap(elementId) {
     xml.open("GET", serverURL, true);
     xml.send();
     xml.onload = function(){
+      if (xml.responseText == "\"[]\"") {
+        if (current.markers) {
+          current.getMap().removeLayer(current.markers);
+        }
+        document.querySelector("#message_box").style.display = "block";
+        document.querySelector("#message_box li").innerHTML = "No data for that period";
+        return;
+      }
+      document.querySelector("#message_box").style.display = "none";
       var response = JSON.parse(xml.responseText).slice(1,-1).replace(/}, {/g,'}}, {{').split('}, {');
       current.insertAllMarkers(response);
     };
@@ -96,7 +135,7 @@ function IssueDescription(mapId, issueContainerId, issueCloseId) {
     var imgBox = document.querySelector(".issue_img-box");
     imgBox.innerHTML = "";
     if (jsonData.images_urls.length > 0) {
-      insertTemplateForBootstrapCarousel("#issue_img-box", "#bootstrap_carousel");
+      insertTemplate("#issue_img-box", "#bootstrap_carousel");
       bootstrapCarousel(jsonData.images_urls);
     } else {
       var img = document.createElement('img');
@@ -136,7 +175,7 @@ function bootstrapCarousel(images_urls) {
 }
 
 
-function insertTemplateForBootstrapCarousel(parentId, templateId) {
+function insertTemplate(parentId, templateId) {
   if ('content' in document.createElement('template')) {
     var template = document.querySelector(templateId);
     var parent = document.querySelector(parentId);
@@ -145,15 +184,20 @@ function insertTemplateForBootstrapCarousel(parentId, templateId) {
   }
 }
 
+
+
 issueMap = new IssueMap("mapid");
+issueMap.setFilterFromBtn("#issue_filter-form-btn");
 issueMap.setViewPoint(50.621945, 26.249314, 16);
 issueMap.addMapLayer(
   'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', 
   19, 
   '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>');
 issueMap.getMarkers("getissuesall/");
+issueMap.addHandler();
 issueDescription = new IssueDescription("mapid", "issue_container", "issue_close");
 issueDescription.addHandler();
+insertTemplate("#message_box", "#message_list");
 
 })();
 
