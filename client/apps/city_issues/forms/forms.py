@@ -15,7 +15,7 @@ class IssueForm(forms.ModelForm):
         fields = ['description', 'category', 'location_lat', 'location_lon', 'name']
 
     name = forms.CharField(
-        max_length=20,
+        max_length=35,
         min_length=3,
         widget=forms.TextInput(attrs={'class': 'form-control'}),
     )
