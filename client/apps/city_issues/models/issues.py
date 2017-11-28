@@ -69,7 +69,7 @@ class Issues(models.Model):
     """
     Issues table in the database.
     """
-    name = models.TextField(blank=True, null=True)
+    title = models.TextField(blank=True, null=True)
     user = models.ForeignKey('User', models.DO_NOTHING,
                              blank=True, null=True)
     category = models.ForeignKey('Category', models.DO_NOTHING)
