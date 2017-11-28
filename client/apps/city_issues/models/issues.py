@@ -14,7 +14,7 @@ class Attachments(models.Model):
     """
 
     def get_file_path(self, filename):
-        folder = self.issue.name
+        folder = self.issue.title
         return os.path.join('uploads', folder, filename)
 
     issue = models.ForeignKey('Issues', models.DO_NOTHING,

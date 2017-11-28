@@ -201,11 +201,11 @@ def issues_page():
         order_by = int(request.args.get('order_by'))
         search_string = str(request.args.get('search'))
 
-        search_list = ['name', 'category']
+        search_list = ['title', 'category']
 
         if len(search_string) >= MIN_SEARCH_STR:
             search_parameter = '%{}%'.format(search_string)
-            if 'name' == search_list[search_by]:
+            if search_list[search_by] == 'title':
                 condition = Issue.title.ilike(search_parameter)
 
             else:
