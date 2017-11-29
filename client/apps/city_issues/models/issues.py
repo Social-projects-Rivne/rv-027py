@@ -16,6 +16,7 @@ class Attachments(models.Model):
     def get_file_path(self, filename):
         # pylint: disable=no-member
         folder = self.issue.title
+        # pylint: enable=no-member
         return os.path.join('uploads', folder, filename)
 
     issue = models.ForeignKey('Issues', models.DO_NOTHING,
