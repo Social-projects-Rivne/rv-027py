@@ -130,7 +130,7 @@ function IssueDescription(mapId, issueContainerId, issueCloseId) {
 
   IssueDescription.prototype.insertIssueData = function(jsonData) {
     current.issue_box.style.display = 'block';
-    document.querySelector(".issue_name").innerHTML = jsonData.name;
+    document.querySelector(".issue_title").innerHTML = jsonData.title;
     document.querySelector(".issue_description").innerHTML = jsonData.description;
     var imgBox = document.querySelector(".issue_img-box");
     imgBox.innerHTML = "";

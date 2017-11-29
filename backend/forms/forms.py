@@ -159,8 +159,8 @@ class IssueForm(BaseForm):
     """Issue edit form"""
 
     id = HiddenField('id')
-    name = StringField(
-        'name',
+    title = StringField(
+        'title',
         description=u'Length between 3 and 15 chars.',
         validators=[
             DataRequired(),
@@ -264,14 +264,14 @@ class SearchIssuesForm(BaseForm):
     search_by = SelectField(
         'search_by',
         choices=[
-            ('0', 'name'),
+            ('0', 'title'),
             ('1', 'category'),
         ]
     )
     order_by = SelectField(
         'order_by',
         choices=[
-            ('0', 'name'),
+            ('0', 'title'),
             ('1', 'category'),
         ]
     )
