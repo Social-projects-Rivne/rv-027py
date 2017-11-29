@@ -9,6 +9,7 @@ from django.core import serializers
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse
+from django.views.generic import ListView
 
 from city_issues.models import Attachments, Issues, Category
 from city_issues.forms.forms import EditIssue, IssueForm
@@ -81,3 +82,10 @@ def get_all_issues_data(request):
     """Returns all issues records as json"""
     data = serializers.serialize("json", Issues.objects.all())
     return JsonResponse(data, safe=False)
+
+
+class CheckIssues(ListView):
+    """A list of issues"""
+    template_name = 'issues_list.html'
+    model = Issues
+    context_object_name = 'issues_list'

@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% load i18n %}
+{% load static from staticfiles %}
+
+{% block meta_title %}{% trans "All Songs" %}{% endblock meta_title %}
+
+{% block content %}
+
+<div class="container">
+    <div class="row">
+        <div class="page-header text-center">
+          <h1><small>All Songs:</small></h1>
+        </div>
+    </div>
+    <div class="row">
+      <div class="list-group col-sm-9 col-sm-offset-2  col-md-9 col-md-offset-2 text-center">
+          {% for issue in issues_list %}
+          <a href="{% url "edit_issue" issue.id %}" class="navbar-brand list-group-item">{{ issue.name }}</a>
+          {% endfor %}
+      </div>
+    </div>
+</div>
+
+{% endblock content %}
