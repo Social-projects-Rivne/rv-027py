@@ -25,7 +25,6 @@
                     <ul class="messages">
                         {% for message in messages %}
                             <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>
-                                {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}Important: {% endif %}
                                 {{ message }}
                                 <a href="#" class="del-msg">&times;</a>
                             </li>
@@ -60,8 +59,8 @@
                             </div>
                         </div>
                         <div class="form-group required">
-                            <label for="issue-description" class="control-label">Issue name </label>
-                            {{ form.name }}
+                            <label for="issue-description" class="control-label">Issue title </label>
+                            {{ form.title }}
                         </div>
                         <div class="form-group required">
                             <label for="issue-description" class="control-label">Short description </label>

@@ -51,7 +51,7 @@ class Issue(db.Model):
     __tablename__ = 'issues'
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.Text)
+    title = db.Column(db.Text)
     user_id = db.Column(db.ForeignKey(u'users.id'), index=True)
     category_id = db.Column(db.ForeignKey(
         u'category.id'), nullable=False, index=True)

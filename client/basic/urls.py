@@ -14,7 +14,9 @@ Including another URLconf
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
 from django.contrib.auth import views as auth_views
+from django.conf import settings
 from django.conf.urls import include, url
+from django.conf.urls.static import static
 from django.views.generic import RedirectView
 from city_issues.views import (
     edit_issue_view, get_all_issues_data, get_issue_data,
@@ -38,4 +40,4 @@ urlpatterns = [
     url(r'^accounts/profile/$', RedirectView.as_view(pattern_name='home'), name='success'),
     url(r'^accounts/', include('registration.backends.simple.urls', namespace='accounts')),
 
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
