@@ -2,6 +2,9 @@
 Django views
 """
 # -*- coding: utf-8 -*-
+import json
+from datetime import date, datetime, time
+
 from django.views.generic import CreateView
 from django.views.generic.base import TemplateView, View
 from django.contrib import messages
@@ -9,6 +12,7 @@ from django.core import serializers
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse
+from django.utils.timezone import make_aware
 
 from city_issues.models import Attachments, Issues, IssueHistory, User
 from city_issues.forms.forms import EditIssue, IssueForm
@@ -72,7 +76,8 @@ class IssueCreate(CreateView):
 
 def map_page_view(request):
     """Map page"""
-    return render(request, 'map_page.html')
+    form = IssueFilter()
+    return render(request, 'map_page.html', {'form': form})
 
 
 def edit_issue_view(request, issue_id):
@@ -92,12 +97,45 @@ def edit_issue_view(request, issue_id):
 
 def get_issue_data(request, issue_id):
     """Returns single issue record as json"""
-    data = serializers.serialize(
-        "json", Issues.objects.filter(pk=issue_id).select_related())
+
+    attachments_query = list(
+        Attachments.objects.filter(issue=issue_id).values())
+    images_urls = [item['image_url'] for item in attachments_query]
+
+    issue_query = list(Issues.objects.filter(pk=issue_id).values())
+    issue_dict = issue_query[0]
+    issue_dict['images_urls'] = images_urls
+
+    issue_dict['open_date'] = convert_date(issue_dict['open_date'])
+    issue_dict['close_date'] = convert_date(issue_dict['close_date'])
+    issue_dict['delete_date'] = convert_date(issue_dict['delete_date'])
+
+    data = json.dumps(issue_query)
     return JsonResponse(data, safe=False)
 
 
 def get_all_issues_data(request):
     """Returns all issues records as json"""
+    date_from_str = request.GET.get('date_from')
+    date_to_str = request.GET.get('date_to')
+
+    if date_from_str or date_to_str:
+        date_from = make_aware(datetime.combine(
+            datetime.strptime(date_from_str, '%Y-%m-%d'), time.min))
+        date_to = make_aware(datetime.combine(
+            datetime.strptime(date_to_str, '%Y-%m-%d'), time.max))
+
+        date_query = Issues.objects.filter(
+            open_date__range=(date_from, date_to))
+        data = serializers.serialize("json", date_query)
+        return JsonResponse(data, safe=False)
+
     data = serializers.serialize("json", Issues.objects.all())
     return JsonResponse(data, safe=False)
+
+
+def convert_date(obj):
+    """Converts data field from database to json acceptable format"""
+    if isinstance(obj, (date, datetime)):
+        return obj.isoformat()
+    return obj

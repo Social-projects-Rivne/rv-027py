@@ -3,16 +3,18 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django import forms
 
 from django.forms import (
-    CharField, FloatField, ModelChoiceField, ModelForm,
+    CharField, DateInput, FloatField, ModelChoiceField, ModelForm,
     Textarea, TextInput)
 
 from city_issues.models.issues import Issues, Category
 
 
 class IssueForm(forms.ModelForm):
+
     class Meta:
         model = Issues
-        fields = ['description', 'category', 'location_lat', 'location_lon', "title"]
+        fields = ['description', 'category',
+                  'location_lat', 'location_lon', 'title']
 
     title = forms.CharField(
         max_length=35,
@@ -27,11 +29,13 @@ class IssueForm(forms.ModelForm):
     )
 
     location_lat = forms.FloatField(
-        widget=forms.TextInput(attrs={'class': 'form-control', 'readonly': 'readonly'}),
+        widget=forms.TextInput(
+            attrs={'class': 'form-control', 'readonly': 'readonly'}),
     )
 
     location_lon = forms.FloatField(
-        widget=forms.TextInput(attrs={'class': 'form-control', 'readonly': 'readonly'}),
+        widget=forms.TextInput(
+            attrs={'class': 'form-control', 'readonly': 'readonly'}),
     )
 
     category = forms.ModelChoiceField(
@@ -48,7 +52,7 @@ class IssueForm(forms.ModelForm):
 
 class EditIssue(ModelForm):
     """Edit issue form."""
-    name = CharField(
+    title = CharField(
         min_length=5,
         max_length=50,
         widget=TextInput({'size': 50}),
@@ -72,5 +76,15 @@ class EditIssue(ModelForm):
 
     class Meta:
         model = Issues
-        fields = ["title", 'category', 'location_lat',
+        fields = ['title', 'category', 'location_lat',
                   'location_lon', 'description']
+
+
+class IssueFilter(forms.Form):
+    """Issue filter form on map."""
+    date_from = forms.DateField(
+        required=True,
+        widget=DateInput(attrs={'type': 'date'}))
+    date_to = forms.DateField(
+        required=True,
+        widget=DateInput(attrs={'type': 'date'}))
