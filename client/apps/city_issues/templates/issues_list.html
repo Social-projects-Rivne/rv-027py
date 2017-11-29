@@ -39,4 +39,35 @@
     </div>
 </div>
 
+<!--start pagination-->
+{% if is_paginated %}
+<nav class="customPag" aria-label="Page navigation" style="text-align: center">
+    <ul class="pagination pagination-lg">
+        {% if page_obj.has_previous %}
+        <li>
+            <a aria-label="Previous" href="{% url "issues" %}?page={{ page_obj.previous_page_number }}">
+            <span aria-hidden="true">&laquo;</span>
+            </a>
+        </li>
+        {% endif %}
+
+        {% for issue in issues_range %}
+        <li class="{% if page_obj.number == forloop.counter %} active {% endif %}">
+            <a href="{% url "issues" %}?page={{ forloop.counter }}">{{ forloop.counter }}</a>
+        </li>
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+        <li>
+            <a aria-label="Next" href="{% url "issues" %}?page={{ page_obj.next_page_number }}">
+            <span aria-hidden="true">&raquo;</span>
+            </a>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+
+<!--end pagination-->
+
 {% endblock content %}

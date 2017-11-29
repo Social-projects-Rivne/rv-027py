@@ -95,3 +95,7 @@ li.error{
   content:"*";
   color:red;
 }
+
+.customPag {
+  text-align: center;
+}

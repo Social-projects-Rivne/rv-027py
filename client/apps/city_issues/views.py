@@ -89,3 +89,9 @@ class CheckIssues(ListView):
     template_name = 'issues_list.html'
     model = Issues
     context_object_name = 'issues_list'
+    paginate_by = 6
+
+    def get_context_data(self, **kwargs):
+        context = super(CheckIssues, self).get_context_data(**kwargs)
+        context['issues_range'] = range(context["paginator"].num_pages)
+        return context
