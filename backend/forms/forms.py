@@ -159,8 +159,8 @@ class IssueForm(BaseForm):
     """Issue edit form"""
 
     id = HiddenField('id')
-    name = StringField(
-        'name',
+    title = StringField(
+        'title',
         description=u'Length between 3 and 15 chars.',
         validators=[
             DataRequired(),

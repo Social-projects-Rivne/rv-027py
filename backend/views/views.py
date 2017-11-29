@@ -206,12 +206,12 @@ def issues_page():
         if len(search_string) >= MIN_SEARCH_STR:
             search_parameter = '%{}%'.format(search_string)
             if 'name' == search_list[search_by]:
-                condition = Issue.name.ilike(search_parameter)
+                condition = Issue.title.ilike(search_parameter)
 
             else:
                 condition = Category.category.ilike(search_parameter)
 
-        order_list = [Issue.name, Category.category]
+        order_list = [Issue.title, Category.category]
         order = order_list[order_by]
 
     count_att = db.session.query(Issue.id, func.count(Attachment.id).label(
@@ -228,7 +228,7 @@ def issues_page():
         issues = db.session.query(
             Category.category, Issue, User.alias, count_att.c.count).filter(and_(
                 Issue.user_id == User.id, Issue.category_id == Category.id,
-                Issue.id == count_att.c.id)).order_by(Issue.name).all()
+                Issue.id == count_att.c.id)).order_by(Issue.title).all()
 
     return render_template('issues_page.html', issues=issues, form=form)
 
@@ -257,7 +257,7 @@ def issue_modify(issue_id):
 def issue_history(issue_id):
     """Issue history page route."""
     history = db.session.query(
-        IssueHistory, Status.status, User.alias, Issue.name).filter(and_(
+        IssueHistory, Status.status, User.alias, Issue.title).filter(and_(
             IssueHistory.user_id == User.id,
             IssueHistory.status_id == Status.id,
             IssueHistory.issue_id == Issue.id,
@@ -269,7 +269,7 @@ def issue_history(issue_id):
 @admin_permissions
 def attachments(issue_id):
     """Attachments page route."""
-    attach = db.session.query(Attachment, Issue.name).filter(and_(
+    attach = db.session.query(Attachment, Issue.title).filter(and_(
         Attachment.issue_id == issue_id,
         Issue.id == Attachment.issue_id)).all()
     return render_template('attachments.html', attachments=attach)

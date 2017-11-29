@@ -17,7 +17,7 @@
     <table class="table table-striped">
            <tr>
                <th>Id</th>
-               <th>Name</th>
+               <th>Title</th>
                <th>Description</th>
                <th>User</th>
                <th>Category</th>
@@ -34,7 +34,7 @@
            {% for category, issue, user, attach in issues %}
                 <tr>
                     <td>{{ issue.id }}</td>
-                    <td>{{ issue.name }}</td>
+                    <td>{{ issue.title }}</td>
                     <td>{{ issue.description }}</td>
                     <td>{{ user }}</td>
                     <td>{{ category}}</td>

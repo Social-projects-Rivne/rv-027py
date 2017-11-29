@@ -12,9 +12,9 @@ from city_issues.models.issues import Issues, Category
 class IssueForm(forms.ModelForm):
     class Meta:
         model = Issues
-        fields = ['description', 'category', 'location_lat', 'location_lon', 'name']
+        fields = ['description', 'category', 'location_lat', 'location_lon', "title"]
 
-    name = forms.CharField(
+    title = forms.CharField(
         max_length=35,
         min_length=3,
         widget=forms.TextInput(attrs={'class': 'form-control'}),
@@ -40,7 +40,7 @@ class IssueForm(forms.ModelForm):
         empty_label=None
     )
 
-    file = forms.FileField(
+    files = forms.FileField(
         required=False,
         widget=forms.FileInput(attrs={'accept': 'image/*', 'multiple': True})
     )
@@ -72,5 +72,5 @@ class EditIssue(ModelForm):
 
     class Meta:
         model = Issues
-        fields = ['name', 'category', 'location_lat',
+        fields = ["title", 'category', 'location_lat',
                   'location_lon', 'description']

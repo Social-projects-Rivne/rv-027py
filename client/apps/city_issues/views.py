@@ -3,14 +3,14 @@ Django views
 """
 # -*- coding: utf-8 -*-
 from django.views.generic import CreateView
-from django.views.generic.base import TemplateView
+from django.views.generic.base import TemplateView, View
 from django.contrib import messages
 from django.core import serializers
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse
 
-from city_issues.models import Attachments, Issues, Category
+from city_issues.models import Attachments, Issues, IssueHistory, User
 from city_issues.forms.forms import EditIssue, IssueForm
 
 
@@ -19,18 +19,32 @@ class HomePageView(TemplateView):
     template_name = "home_page.html"
 
 
+class UserProfileView(View):
+
+    def get(self, request, user_id):
+        user = User.objects.get(id=user_id)
+        user_issues = IssueHistory.objects.filter(user=user).select_related('issue')
+
+        return render(request, 'user/user.html', {'user': user, 'user_issues': user_issues})
+
+
 class IssueCreate(CreateView):
+    """Create new issue"""
+    MAX_FILE_SIZE = 5242880
+
     model = Issues
     form_class = IssueForm
     template_name = 'issues/issues.html'
     success_url = 'add-issue'
 
     def form_valid(self, form):
+        form.instance.user = self.request.user
         issue = form.save(commit=True)
 
         if form.files:
-            self.save_file(form, form.files.getlist('file'), issue)
+            self.save_files(form, form.files.getlist('files'), issue)
 
+        self.save_issue_history(issue, form.instance.user)
         messages.success(self.request, 'Issue was successfully saved')
         return super(IssueCreate, self).form_valid(form)
 
@@ -38,16 +52,22 @@ class IssueCreate(CreateView):
         messages.error(self.request, form.errors)
         return super(IssueCreate, self).form_invalid(form)
 
-    def save_file(self, form, files, issue):
-        for file in files:
-            if file._size > 5242880:
+    def save_files(self, form, files, issue):
+        for issue_file in files:
+            if issue_file._size > self.MAX_FILE_SIZE:
                 messages.error(self.request, 'Max file size : 5MB')
                 return super(IssueCreate, self).form_valid(form)
             else:
                 attachment = Attachments()
                 attachment.issue = issue
-                attachment.image_url = file
+                attachment.image_url = issue_file
                 attachment.save()
+
+    def save_issue_history(self, issue, user):
+        issue_history = IssueHistory()
+        issue_history.issue = issue
+        issue_history.user = user
+        issue_history.save()
 
 
 def map_page_view(request):

@@ -14,7 +14,7 @@ class Attachments(models.Model):
     """
 
     def get_file_path(self, filename):
-        folder = self.issue.name
+        folder = self.issue.title
         return os.path.join('uploads', folder, filename)
 
     issue = models.ForeignKey('Issues', models.DO_NOTHING,
@@ -49,14 +49,16 @@ class IssueHistory(models.Model):
     """
     IssueHistory table in the database.
     """
+    STATUS_ID_NEW = 1
+
     user = models.ForeignKey('User', models.DO_NOTHING,
                              blank=True, null=True)
     issue = models.ForeignKey('Issues', models.DO_NOTHING,
                               blank=True, null=True)
     status = models.ForeignKey('Statuses', models.DO_NOTHING,
-                               blank=True, null=True)
-    transaction_date = models.DateTimeField(blank=True,
-                                            null=True)
+                               blank=True, null=True, default=STATUS_ID_NEW)
+    transaction_date = models.DateTimeField(blank=True, null=True,
+                                            auto_now_add=True)
 
     class Meta:
         """..."""
@@ -69,13 +71,13 @@ class Issues(models.Model):
     """
     Issues table in the database.
     """
-    name = models.TextField(blank=True, null=True)
+    title = models.TextField(blank=True, null=True)
     user = models.ForeignKey('User', models.DO_NOTHING,
                              blank=True, null=True)
     category = models.ForeignKey('Category', models.DO_NOTHING)
     location_lat = models.FloatField(blank=True, null=True)
     location_lon = models.FloatField(blank=True, null=True)
-    status = models.TextField(blank=True, null=True)
+    status = models.TextField(blank=True, null=True, default='new')
     description = models.TextField(blank=True, null=True)
     open_date = models.DateTimeField(blank=True, null=True, auto_now_add=True)
     close_date = models.DateTimeField(blank=True, null=True)
