@@ -61,9 +61,18 @@ function IssueMap(elementId) {
     event.preventDefault();
     var dateFromValue = document.querySelector("#id_date_from").value;
     var dateToValue = document.querySelector("#id_date_to").value;
+    var showClosedValue = document.querySelector("#id_show_closed").checked;
+    var categoryValue = document.querySelector("#id_category").value;
     if (dateFromValue && dateToValue) {
       document.querySelector("#message_box").style.display = "none";
-      current.getMarkers("getissuesall/?" + "date_from=" + dateFromValue + "&" + "date_to=" + dateToValue);
+      current.getMarkers(
+        "getissuesall/?" +
+        "filter=" + "True" + "&" +
+        "date_from=" + dateFromValue + "&" + 
+        "date_to=" + dateToValue + "&" + 
+        "show_closed=" + showClosedValue + "&" + 
+        "category=" + categoryValue
+        );
     } else {
       document.querySelector("#message_box").style.display = "block";
       document.querySelector("#message_box li").innerHTML = "Enter two dates";

@@ -95,22 +95,42 @@ def get_issue_data(request, issue_id):
 
 
 def get_all_issues_data(request):
-    """Returns all issues records as json"""
-    date_from_str = request.GET.get('date_from')
-    date_to_str = request.GET.get('date_to')
+    """Returns all issues records as json with possible filter."""
+    data = serializers.serialize(
+        "json",
+        Issues.objects.all().filter(close_date__isnull=True))
+    filter_issue = request.GET.get('filter')
 
-    if date_from_str or date_to_str:
-        date_from = make_aware(datetime.combine(
-            datetime.strptime(date_from_str, '%Y-%m-%d'), time.min))
-        date_to = make_aware(datetime.combine(
-            datetime.strptime(date_to_str, '%Y-%m-%d'), time.max))
+    if filter_issue:
+        date_from_str = request.GET.get('date_from')
+        date_to_str = request.GET.get('date_to')
+        show_closed = request.GET.get('show_closed')
+        category = request.GET.get('category')
 
-        date_query = Issues.objects.filter(
-            open_date__range=(date_from, date_to))
-        data = serializers.serialize("json", date_query)
-        return JsonResponse(data, safe=False)
+        if show_closed == 'true':
+            show_closed = False
+        else:
+            show_closed = True
 
-    data = serializers.serialize("json", Issues.objects.all())
+        if date_from_str and date_to_str:
+
+            date_from = make_aware(datetime.combine(
+                datetime.strptime(date_from_str, '%Y-%m-%d'), time.min))
+            date_to = make_aware(datetime.combine(
+                datetime.strptime(date_to_str, '%Y-%m-%d'), time.max))
+
+        kwargs = {
+            '%s__%s' % ('open_date', 'range'): (date_from, date_to),
+            '%s__%s' % ('close_date', 'isnull'): (show_closed),
+        }
+
+        if category != "":
+            kwargs['category'] = category
+
+        query = Issues.objects.filter(**kwargs)
+
+        data = serializers.serialize("json", query)
+
     return JsonResponse(data, safe=False)
 
 

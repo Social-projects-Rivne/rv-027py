@@ -88,3 +88,13 @@ class IssueFilter(forms.Form):
     date_to = forms.DateField(
         required=True,
         widget=DateInput(attrs={'type': 'date'}))
+
+    show_closed = forms.BooleanField(
+        required=False,
+        initial=True)
+
+    category = ModelChoiceField(
+        queryset=Category.objects.all(),
+        empty_label="All categories",
+        required=False
+    )

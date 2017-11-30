@@ -13,20 +13,20 @@
 {% endblock extra_css %}
 
 {% block content %}
-	<div class="container">
-		<div class="row">
-			<div class="col-sm-6" id="message_box"></div>
-		</div>
+	<div class="issue_form-box">
+		<div id="message_box"></div>
+
+		<form action="" method="get">
+		    {% csrf_token %}
+		    {{ form.as_p }}
+		    <input id="issue_filter-form-btn"  class="btn btn-success" type="submit" value="Show" />
+		</form>
 	</div>
 
+	
+
 	<div id="mapid" class="map_container">
-		<div class="issue_form-box">
-			<form action="" method="get">
-				    {% csrf_token %}
-				    {{ form }}
-				    <input id="issue_filter-form-btn"  class="btn btn-success" type="submit" value="Show" />
-			</form>
-		</div>
+		
 	</div>
 	<div id="issue_container"  class="issue_container">
 		<div class="issue_box">
