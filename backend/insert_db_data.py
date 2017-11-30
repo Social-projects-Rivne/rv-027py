@@ -33,6 +33,7 @@ user2 = User(name='Mark', alias='Marky', email='mark@gmail.com',
 user3 = User(name='Maria', alias='Mary', email='maria@gmail.com',
              password='321', role_id='3')
 
+
 issue1 = Issue(title='Road accident', user_id='2', category_id='1', location_lat='50.621945',
                location_lon='26.249314', description='Car crash ...', status='on moderation',
                open_date='2017/11/15')

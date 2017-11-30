@@ -16,7 +16,6 @@ Including another URLconf
 from django.contrib.auth import views as auth_views
 from django.conf import settings
 from django.conf.urls import include, url
-from django.conf.urls import include, url
 from django.conf.urls.static import static
 from django.contrib.auth.decorators import login_required
 from django.views.generic import RedirectView
@@ -38,6 +37,6 @@ urlpatterns = [
     # registration and authorization views
     url(r'^accounts/logout/$', auth_views.logout, kwargs={'next_page': 'home'}, name='auth_logout'),
     url(r'^accounts/profile/(?P<user_id>[0-9]+)$', UserProfileView.as_view(), name='user_profile'),
-    url(r'^accounts/', include('registration.backends.simple.urls', namespace='accounts')),
+    url(r'^accounts/', include('registration.backends.simple.urls', namespace='accounts', )),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

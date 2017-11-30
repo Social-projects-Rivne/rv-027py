@@ -9,13 +9,13 @@ from django.views.generic import CreateView
 from django.views.generic.base import TemplateView, View
 from django.contrib import messages
 from django.core import serializers
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils.timezone import make_aware
 
 from city_issues.models import Attachments, Issues, IssueHistory, User
-from city_issues.forms.forms import EditIssue, IssueForm
+from city_issues.forms.forms import EditIssue, IssueFilter, IssueForm
 
 
 class HomePageView(TemplateView):
@@ -24,10 +24,10 @@ class HomePageView(TemplateView):
 
 
 class UserProfileView(View):
-
+    """User profile page"""
     def get(self, request, user_id):
         user = User.objects.get(id=user_id)
-        user_issues = IssueHistory.objects.filter(user=user).select_related('issue')
+        user_issues = Issues.objects.filter(user_id=user_id)
 
         return render(request, 'user/user.html', {'user': user, 'user_issues': user_issues})
 

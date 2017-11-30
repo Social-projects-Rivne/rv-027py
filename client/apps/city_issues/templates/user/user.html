@@ -87,14 +87,14 @@
                 </tr>
                 </tfoot>
                 <tbody>
-                {% for isssue in user_issues %}
+                {% for issue in user_issues %}
                     <tr>
                         <td>{{ forloop.counter }} </td>
-                        <td>{{ isssue.issue.title }}</td>
-                        <td>{{ isssue.issue.category.category }}</td>
-                        <td>{{ isssue.issue.status }}</td>
-                        <td>{{ isssue.issue.open_date }}</td>
-                        <td>{{ isssue.issue.close_date }}</td>
+                        <td>{{ issue.title }}</td>
+                        <td>{{ issue.category.category }}</td>
+                        <td>{{ issue.status }}</td>
+                        <td>{{ issue.open_date }}</td>
+                        <td>{{ issue.close_date }}</td>
                         <td>
                            <a href="#"
                               class="btn btn-sm btn-info">
