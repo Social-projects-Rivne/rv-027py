@@ -28,7 +28,7 @@
               {% for issue in issues_list %}
                 <tr>
                   <th scope="row">{{ forloop.counter }}</th>
-                  <td><a href="#" class="navbar-brand list-group-item">{{ issue.name }}</a></td>
+                  <td><a href="#" class="navbar-brand list-group-item">{{ issue.title }}</a></td>
                   <td>{{ issue.description }}</td>
                   <td>{{ issue.category }}</td>
                 </tr>

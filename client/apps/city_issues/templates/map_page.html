@@ -8,20 +8,32 @@
  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css"
    integrity="sha512-M2wvCLH6DSRazYeZRIm1JnYyh22purTM+FDB5CsyxtQJYeKq83arPe5wgbNmcFXGqiSH2XR8dT/fJISVA1r/zQ=="
    crossorigin=""/>
-   <link rel="stylesheet" type="text/css" href="https://unpkg.com/leaflet.markercluster@1.2.0/dist/MarkerCluster.css">
-   <link rel="stylesheet" type="text/css" href="https://unpkg.com/leaflet.markercluster@1.2.0/dist/MarkerCluster.Default.css">
    {% load static %}
    <link rel="stylesheet" type="text/css" href="{% static "city_issues/css/style.css" %}">
 {% endblock extra_css %}
 
 {% block content %}
-	<div id="mapid" class="map_container"></div>
+	<div class="container">
+		<div class="row">
+			<div class="col-sm-6" id="message_box"></div>
+		</div>
+	</div>
+
+	<div id="mapid" class="map_container">
+		<div class="issue_form-box">
+			<form action="" method="get">
+				    {% csrf_token %}
+				    {{ form }}
+				    <input id="issue_filter-form-btn"  class="btn btn-success" type="submit" value="Show" />
+			</form>
+		</div>
+	</div>
 	<div id="issue_container"  class="issue_container">
 		<div class="issue_box">
-			<h3 class="issue_name"></h3>
+			<h3 class="issue_title"></h3>
 			<p class="issue_category"></p>
-			<div class="issue_img-box">
-				<img class="issue_img" src="#"></img>
+			<div id="issue_img-box" class="issue_img-box">
+				
 			</div>
 			<h4>Issue description</h4>
 			<p class="issue_description"></p>
@@ -29,14 +41,36 @@
 		<div class="btn btn-danger" id="issue_close">Close</div>
 		<a href="" class="btn btn-primary" id="issue_edit" data-url="{% url 'edit_issue' 1 %}">Edit</a>
 	</div>
+
+	<template id="bootstrap_carousel">
+		<div id="carousel-example-generic" class="carousel slide" data-ride="carousel">
+  				<!-- Indicators -->
+			<ol class="carousel-indicators"></ol>
+				<!-- Wrapper for slides -->
+			<div class="carousel-inner" role="listbox"></div>
+				<!-- Controls -->
+			<a class="left carousel-control" href="#carousel-example-generic" role="button" data-slide="prev">
+				<span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+				 <span class="sr-only">Previous</span>
+			</a>
+			<a class="right carousel-control" href="#carousel-example-generic" role="button" data-slide="next">
+				<span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+				<span class="sr-only">Next</span>
+			</a>
+		</div>
+	</template>
+		
+	<template id="message_list">
+		<ul class="messages">
+			<li class="error"></li>
+		</ul>
+	</template>
 {% endblock content %}
 
 {% block extra_js %}
 	<script src="https://unpkg.com/leaflet@1.2.0/dist/leaflet.js"
 	   integrity="sha512-lInM/apFSqyy1o6s89K4iQUKg6ppXEgsVxT35HbzUupEVRh2Eu9Wdl4tHj7dZO0s1uvplcYGmt3498TtHq+log=="
 	   crossorigin=""></script>
-	<script type="text/javascript" src="https://unpkg.com/leaflet.markercluster@1.2.0/dist/leaflet.markercluster.js"></script>
-
 {% load static %}
 	<script type="text/javascript" src="{% static "city_issues/js/main.js" %}"></script>
 {% endblock extra_js %}

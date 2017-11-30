@@ -1,0 +1,78 @@
+{% extends 'layouts.html' %}
+
+
+{% block title_suffix %}Issues managements{% endblock title_suffix %}
+
+{% block navbar_li %}
+    <li><a href="{{ url_for('admin') }}">Admin page</a></li>
+    <li><a href="{{ url_for('issues_page') }}">Issues page</a></li>
+    <li><a href="{{ url_for('logout') }}">Logout</a></li>
+{% endblock navbar_li %}
+
+{% block content %}
+<div class="lead row">     
+    <div class="col-md-7">  <h1> {{issue.title }} </h1> </div>
+    <div class="text-right text-muted col-md-5">
+        {%  if issue.delete_date %}
+            <small> <i>  Deleted   {{ issue.delete_date.strftime('%Y-%m-%d %H:%M') }} </i> </small>
+            <a class="btn btn-success" data-toggle="modal" data-target="#deletion" data-elem-id="{{ issue.id }}"
+                data-elem-name="{{ issue.title }}" data-func-name="restoreissue">Restore</a>
+        {% else %}
+                <a class="btn btn-danger" data-toggle="modal" data-target="#deletion" data-elem-id="{{ issue.id }}"
+                    data-elem-name="{{ issue.title }}" data-func-name="deleteissue">Delete</a>      
+        {% endif %} 
+        <a href="{{ url_for('issue_modify', issue_id=issue.id) }}" class="btn btn-primary">Edit</a>
+    </div>
+
+    <div class="col-md-12">
+        <hr>
+        <dl class="dl-horizontal ">
+            <dt> Desctiption: </dt>
+                <dd> {{ issue.description }}</dd>
+            <dt> Category: </dt>
+                <dd> {{issue.category.category}} </dd>
+            <dt> Owner: </dt>
+                <dd> {{issue.user.alias}} </dd>
+            <dt> Location: </dt>
+                <dd> {{issue.location_lat}}, {{issue.location_lon }}  </dd>
+            <dt> Last status: </dt>
+                <dd> {{ issue.status }} </dd>
+            {% if attachments %}
+                <dt> Attachments: </dt>
+                {% for attachment in attachments %}
+                    <dd> {{ attachment.image_url}} </dd>               
+                {% endfor %}
+            {% endif %}
+        </dl> 
+        <hr>
+        {% if history_list %}
+            <ul>
+                {% for history in history_list%}
+                <li> <i>{{ history.transaction_date.strftime('%Y-%m-%d')}}</i> status changed to <b>{{ history.status.status }}</b> by <b> {{ history.user.alias }} </b></li>
+                    {% endfor %}
+            </ul>
+        {% endif %}
+    </div>
+</div>
+
+<div class="modal fade" id="deletion" role="dialog">
+        <div class="modal-dialog">
+
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title"></h4>
+                </div>
+                <div class="modal-body"> </div>
+                <div class="modal-footer">
+                    <form id="delete-user" method="post" action="#">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                        <button type="submit" class="btn btn-danger button-confirm"> </button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+      </div>
+{% endblock %}
