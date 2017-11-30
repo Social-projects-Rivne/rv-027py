@@ -18,9 +18,10 @@ from django.conf import settings
 from django.conf.urls import include, url
 from django.conf.urls.static import static
 from django.views.generic import RedirectView
+
 from city_issues.views import (
-    edit_issue_view, get_all_issues_data, get_issue_data,
-    HomePageView, map_page_view, IssueCreate, CheckIssues)
+    CheckIssues, edit_issue_view, get_all_issues_data, get_issue_data,
+    HomePageView, map_page_view, IssueCreate)
 
 
 urlpatterns = [
