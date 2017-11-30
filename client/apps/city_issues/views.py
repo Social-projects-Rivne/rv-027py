@@ -5,17 +5,18 @@ Django views
 import json
 from datetime import date, datetime, time
 
-from django.views.generic import CreateView
+from django.views.generic import CreateView, UpdateView
 from django.views.generic.base import TemplateView, View
 from django.contrib import messages
 from django.core import serializers
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils.timezone import make_aware
+from passlib.handlers.django import django_bcrypt
 
 from city_issues.models import Attachments, Issues, IssueHistory, User
-from city_issues.forms.forms import EditIssue, IssueForm
+from city_issues.forms.forms import EditIssue, IssueFilter, IssueForm, EditUserForm
 
 
 class HomePageView(TemplateView):
@@ -24,12 +25,35 @@ class HomePageView(TemplateView):
 
 
 class UserProfileView(View):
+    """User profile page"""
+    form_class = EditUserForm
+    success_url = 'user_profile'
+    template_name = 'user/user.html'
 
-    def get(self, request, user_id):
-        user = User.objects.get(id=user_id)
-        user_issues = IssueHistory.objects.filter(user=user).select_related('issue')
+    def get(self, request):
+        user = User.objects.get(id=request.user.id)
+        user_issues = Issues.objects.filter(user_id=user.id)
+        form = self.form_class(instance=User.objects.get(pk=user.id))
 
-        return render(request, 'user/user.html', {'user': user, 'user_issues': user_issues})
+        return render(request, self.template_name, {'user': user,
+                                                    'user_issues': user_issues,
+                                                    'form': form})
+
+    def post(self, request):
+        if request.method == 'POST':
+            form = EditUserForm(request.POST, instance=request.user)
+            if form.is_valid():
+                print form.cleaned_data
+                self.check_passwords(form.cleaned_data['current_password'])
+
+            else:
+                messages.error(request, form.errors)
+
+        return redirect(self.success_url)
+
+    def check_passwords(self, current_pass, new_pass, confirm_pass):
+        if not django_bcrypt.verify(current_pass, self.request.user.password):
+            return messages.error(self.request, 'Wrong password')
 
 
 class IssueCreate(CreateView):
@@ -39,7 +63,7 @@ class IssueCreate(CreateView):
     model = Issues
     form_class = IssueForm
     template_name = 'issues/issues.html'
-    success_url = 'add-issue'
+    success_url = 'map'
 
     def form_valid(self, form):
         form.instance.user = self.request.user

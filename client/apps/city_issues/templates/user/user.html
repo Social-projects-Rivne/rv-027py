@@ -15,6 +15,18 @@
 {% block content %}
     <div class="wrapper">
         <div class="width">
+             <div class="row">
+                {% if messages %}
+                    <ul class="messages">
+                        {% for message in messages %}
+                            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>
+                                {{ message }}
+                                <a href="#" class="del-msg">&times;</a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
             <div class="panel panel-info">
                 <div class="panel-heading">
                     <h3 class="panel-title">{{ user.name }}</h3>
@@ -50,10 +62,10 @@
                 </div>
                 <div class="panel-footer">
                     <span class="pull-right">
-                        <a href="#edit.html" class="btn btn-sm btn-warning">
+                        <a href="#" class="btn btn-sm btn-warning" title="edit" data-toggle="modal" data-target="#edit-user-modal">
                             <i class="glyphicon glyphicon-edit"></i>
                         </a>
-                    <a href="/" class="btn btn-sm btn-danger">
+                    <a href="{% url 'map' %}" class="btn btn-sm btn-danger">
                         <i class="glyphicon glyphicon-remove"></i>
                     </a>
                     </span>
@@ -87,16 +99,16 @@
                 </tr>
                 </tfoot>
                 <tbody>
-                {% for isssue in user_issues %}
+                {% for issue in user_issues %}
                     <tr>
                         <td>{{ forloop.counter }} </td>
-                        <td>{{ isssue.issue.title }}</td>
-                        <td>{{ isssue.issue.category.category }}</td>
-                        <td>{{ isssue.issue.status }}</td>
-                        <td>{{ isssue.issue.open_date }}</td>
-                        <td>{{ isssue.issue.close_date }}</td>
+                        <td>{{ issue.title }}</td>
+                        <td>{{ issue.category.category }}</td>
+                        <td>{{ issue.status }}</td>
+                        <td>{{ issue.open_date }}</td>
+                        <td>{{ issue.close_date }}</td>
                         <td>
-                           <a href="#"
+                           <a href="{% url 'edit_issue' issue.id %}"
                               class="btn btn-sm btn-info">
                                <span class="glyphicon glyphicon-edit"></span>
                                edit
@@ -109,6 +121,33 @@
             </table>
         </div>
     </div>
+
+    <div class="modal fade" id="edit-user-modal" tabindex="-1" role="dialog" aria-labelledby="user-modal" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Edit credentials</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+        <form action="{% url 'user_profile'  %}" method="post">
+            {% csrf_token %}
+            <div class="modal-body">
+{#                <div class="form-group required">#}
+{#                    <label for="id_name" class="control-label">New name</label>#}
+{#                    {{ form.name }}#}
+{#                </div>#}
+                  {{ form.as_p }}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary">Save changes</button>
+            </div>
+        </form>
+    </div>
+  </div>
+</div>
 
 {% endblock content %}
 

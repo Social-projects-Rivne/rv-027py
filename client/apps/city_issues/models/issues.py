@@ -47,11 +47,24 @@ class Category(models.Model):
         db_table = 'category'
 
 
+class Statuses(models.Model):
+    """
+    Status table in the database.
+    """
+    status = models.TextField(blank=True, null=True)
+
+    class Meta:
+        """..."""
+        app_label = 'city_issues'
+        managed = False
+        db_table = 'statuses'
+
+
 class IssueHistory(models.Model):
     """
     IssueHistory table in the database.
     """
-    STATUS_ID_NEW = 1
+    STATUS_ID_NEW = Statuses.objects.get(id=1)
 
     user = models.ForeignKey('User', models.DO_NOTHING,
                              blank=True, null=True)
@@ -90,16 +103,3 @@ class Issues(models.Model):
         app_label = 'city_issues'
         managed = False
         db_table = 'issues'
-
-
-class Statuses(models.Model):
-    """
-    Status table in the database.
-    """
-    status = models.TextField(blank=True, null=True)
-
-    class Meta:
-        """..."""
-        app_label = 'city_issues'
-        managed = False
-        db_table = 'statuses'

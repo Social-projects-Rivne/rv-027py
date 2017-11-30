@@ -17,8 +17,24 @@
 		<div class="row">
 			<div class="col-sm-6" id="message_box"></div>
 		</div>
-	</div>
-
+    </div>
+    <div class="wrapper">
+        <div class="width">
+            <div class="row">
+                {% if messages %}
+                    <ul class="messages">
+                        {% for message in messages %}
+                            <li{% if message.tags %}
+                                class="{{ message.tags }}"{% endif %}>
+                                {{ message }}
+                                <a href="#" class="del-msg">&times;</a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+        </div>
+    </div>
 	<div id="mapid" class="map_container">
 		<div class="issue_form-box">
 			<form action="" method="get">

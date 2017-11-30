@@ -247,6 +247,7 @@ def issue_modify(issue_id):
 
     return render_template('issue_modify.html', form=form, route_to=route_to)
 
+
 @app.route('/deleteissue/<int:issue_id>', methods=['POST'])
 @admin_permissions
 def delete_issue(issue_id):

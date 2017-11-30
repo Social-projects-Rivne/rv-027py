@@ -7,6 +7,7 @@ from django.forms import (
     Textarea, TextInput)
 
 from city_issues.models.issues import Issues, Category
+from city_issues.models.users import User
 
 
 class IssueForm(forms.ModelForm):
@@ -88,3 +89,59 @@ class IssueFilter(forms.Form):
     date_to = forms.DateField(
         required=True,
         widget=DateInput(attrs={'type': 'date'}))
+
+
+class EditUserForm(forms.ModelForm):
+
+    class Meta:
+        model = User
+        fields = ['name', 'alias', 'email']
+
+    def clean_email(self):
+        # Get the email
+        email = self.cleaned_data.get('email')
+
+        # Check to see if any users already exist with this email as a username.
+        try:
+            match = User.objects.get(email=email)
+        except User.DoesNotExist:
+            # Unable to find a user, this is fine
+            return email
+
+        # A user was found with this as a username, raise an error.
+        raise forms.ValidationError('This email address is already in use.')
+
+    name = forms.CharField(
+        max_length=25,
+        min_length=3,
+        widget=forms.TextInput(attrs={'class': 'form-control'}),
+    )
+
+    alias = forms.CharField(
+        max_length=20,
+        min_length=3,
+        widget=forms.TextInput(attrs={'class': 'form-control'}),
+    )
+
+    email = forms.EmailField(
+        max_length=50,
+        min_length=4,
+        widget=forms.EmailInput(attrs={'class': 'form-control'}),
+    )
+
+    current_password = forms.CharField(
+        widget=forms.PasswordInput(attrs={'class': 'form-control'})
+    )
+
+    new_password = forms.CharField(
+        max_length=50,
+        min_length=4,
+        widget=forms.PasswordInput(attrs={'class': 'form-control'})
+    )
+
+    confirm_password = forms.CharField(
+        max_length=50,
+        min_length=4,
+        widget=forms.PasswordInput(attrs={'class': 'form-control'})
+    )
+
