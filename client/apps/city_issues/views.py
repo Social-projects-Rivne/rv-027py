@@ -5,17 +5,19 @@ Django views
 import json
 from datetime import date, datetime, time
 
-from django.views.generic import CreateView
-from django.views.generic.base import TemplateView
+
 from django.contrib import messages
 from django.core import serializers
 from django.http import JsonResponse
+from django.db.models import Q
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils.timezone import make_aware
+from django.views.generic import CreateView
+from django.views.generic.base import TemplateView
 
 from city_issues.models import Attachments, Issues
-from city_issues.forms.forms import EditIssue, IssueFilter, IssueForm
+from city_issues.forms.forms import (EditIssue, IssueFilter, IssueForm)
 
 
 class HomePageView(TemplateView):
@@ -98,36 +100,40 @@ def get_all_issues_data(request):
     """Returns all issues records as json with possible filter."""
     data = serializers.serialize(
         "json",
-        Issues.objects.all().filter(close_date__isnull=True))
-    filter_issue = request.GET.get('filter')
+        Issues.objects.filter(close_date__isnull=True))
 
-    if filter_issue:
-        date_from_str = request.GET.get('date_from')
-        date_to_str = request.GET.get('date_to')
-        show_closed = request.GET.get('show_closed')
-        category = request.GET.get('category')
+    form = IssueFilter(request.GET)
+
+    if form.is_valid() and form.data.get('filter'):
+
+        map_date_from = form.data.get('date_from')
+        map_date_to = form.data.get('date_to')
+        show_closed = form.data.get('show_closed')
+        category = form.data.get('category')
+        search = form.data.get('search')
 
         if show_closed == 'true':
             show_closed = False
         else:
             show_closed = True
 
-        if date_from_str and date_to_str:
+        kwargs = {"close_date__isnull": (show_closed)}
 
+        if map_date_from and map_date_to:
             date_from = make_aware(datetime.combine(
-                datetime.strptime(date_from_str, '%Y-%m-%d'), time.min))
+                datetime.strptime(map_date_from, '%Y-%m-%d'), time.min))
             date_to = make_aware(datetime.combine(
-                datetime.strptime(date_to_str, '%Y-%m-%d'), time.max))
+                datetime.strptime(map_date_to, '%Y-%m-%d'), time.max))
+            kwargs["open_date__range"] = (date_from, date_to)
 
-        kwargs = {
-            '%s__%s' % ('open_date', 'range'): (date_from, date_to),
-            '%s__%s' % ('close_date', 'isnull'): (show_closed),
-        }
-
-        if category != "":
+        if category:
             kwargs['category'] = category
 
         query = Issues.objects.filter(**kwargs)
+
+        if search:
+            query = Issues.objects.filter(**kwargs).filter(
+                Q(title__icontains=search) | Q(description__icontains=search))
 
         data = serializers.serialize("json", query)
 
