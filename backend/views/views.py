@@ -140,8 +140,8 @@ def delete_user(users_id):
     user = db.session.query(User).get(users_id)
     is_deleted = user.delete()
     db.session.commit()
-    msg = "User deleted" if is_deleted else "Impossible to delete user"
-    flash(msg)
+    if not is_deleted:
+        flash("Impossible to delete user, because it is the last admin!")
     return redirect(url_for('user_page'))
 
 
@@ -152,7 +152,6 @@ def restore_user(users_id):
     user = db.session.query(User).get(users_id)
     user.restore()
     db.session.commit()
-    flash("User restored")
     return redirect(url_for('user_page'))
 
 
