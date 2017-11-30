@@ -130,6 +130,16 @@ class CheckIssues(ListView):
     context_object_name = 'issues_list'
     paginate_by = 6
 
+    def get_queryset(self):
+        """Adds sorting"""
+        queryset = super(CheckIssues, self).get_queryset()
+        order_by = self.request.GET.get('order_by', 'title')
+        if order_by in ('title', 'description', 'category'):
+            queryset = queryset.order_by(order_by)
+            if self.request.GET.get('reverse', '') == 'vice_versa':
+                queryset = queryset.reverse()
+        return queryset
+
     def get_context_data(self, **kwargs):
         context = super(CheckIssues, self).get_context_data(**kwargs)
         context['issues_range'] = range(context["paginator"].num_pages)

@@ -16,14 +16,38 @@
     <div class="row">
       <div>
           <table class="table table-hover">
+              {% with order_by=request.GET.order_by reverse=request.GET.reverse %}
               <thead>
                 <tr>
                   <th scope="col">#</th>
-                  <th scope="col">Title</th>
-                  <th scope="col">Description</th>
-                  <th scope="col">Category</th>
+                  <th>
+                      <a href="{% url "issues" %}?order_by=title{% if order_by == 'title' and reverse != 'vice_versa' %}&amp;reverse=vice_versa{% endif %}">
+                    Title
+                    {% if order_by == 'title' and reverse != 'vice_versa' %}&uarr;
+                        {% elif order_by != 'description' and order_by != 'category' and reverse != 'vice_versa' %}&uarr;
+                        {% elif order_by == 'title' and reverse == 'vice_versa' %}&darr;
+                    {% endif %}
+                      </a>
+                  </th>
+                  <th>
+                      <a href="{% url "issues" %}?order_by=description{% if order_by == 'description' and reverse != 'vice_versa' %}&amp;reverse=vice_versa{% endif %}">
+                    Description
+                    {% if order_by == 'description' and reverse != 'vice_versa' %}&uarr;
+                        {% elif order_by == 'description' and reverse == 'vice_versa' %}&darr;
+                    {% endif %}
+                      </a>
+                  </th>
+                  <th>
+                      <a href="{% url "issues" %}?order_by=category{% if order_by == 'category' and reverse != 'vice_versa' %}&amp;reverse=vice_versa{% endif %}">
+                    Category
+                    {% if order_by == 'category' and reverse != 'vice_versa' %}&uarr;
+                        {% elif order_by == 'category' and reverse == 'vice_versa' %}&darr;
+                    {% endif %}
+                      </a>
+                  </th>
                 </tr>
               </thead>
+              {% endwith %}
               <tbody>
               {% for issue in issues_list %}
                 <tr>
@@ -41,11 +65,12 @@
 
 <!--start pagination-->
 {% if is_paginated %}
+{% with order_by=request.GET.order_by reverse=request.GET.reverse %}
 <nav class="customPag" aria-label="Page navigation" style="text-align: center">
     <ul class="pagination pagination-lg">
         {% if page_obj.has_previous %}
         <li>
-            <a aria-label="Previous" href="{% url "issues" %}?page={{ page_obj.previous_page_number }}">
+            <a aria-label="Previous" href="{% url "issues" %}?page={{ page_obj.previous_page_number }}&amp;order_by={{ order_by }}&amp;reverse={{ reverse }}">
             <span aria-hidden="true">&laquo;</span>
             </a>
         </li>
@@ -53,19 +78,20 @@
 
         {% for issue in issues_range %}
         <li class="{% if page_obj.number == forloop.counter %} active {% endif %}">
-            <a href="{% url "issues" %}?page={{ forloop.counter }}">{{ forloop.counter }}</a>
+            <a href="{% url "issues" %}?page={{ forloop.counter }}&amp;order_by={{ order_by }}&amp;reverse={{ reverse }}">{{ forloop.counter }}</a>
         </li>
         {% endfor %}
 
         {% if page_obj.has_next %}
         <li>
-            <a aria-label="Next" href="{% url "issues" %}?page={{ page_obj.next_page_number }}">
+            <a aria-label="Next" href="{% url "issues" %}?page={{ page_obj.next_page_number }}&amp;order_by={{ order_by }}&amp;reverse={{ reverse }}">
             <span aria-hidden="true">&raquo;</span>
             </a>
         </li>
         {% endif %}
     </ul>
 </nav>
+{% endwith %}
 {% endif %}
 
 <!--end pagination-->
