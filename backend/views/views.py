@@ -141,7 +141,7 @@ def delete_user(users_id):
     is_deleted = user.delete()
     db.session.commit()
     if not is_deleted:
-        flash("Impossible to delete user, because it is the last admin!")
+        flash("The last admin can't be deleted!")
     return redirect(url_for('user_page'))
 
 
