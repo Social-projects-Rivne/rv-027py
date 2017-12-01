@@ -44,7 +44,7 @@ class IssueForm(forms.ModelForm):
         empty_label=None
     )
 
-    file = forms.FileField(
+    files = forms.FileField(
         required=False,
         widget=forms.FileInput(attrs={'accept': 'image/*', 'multiple': True})
     )
