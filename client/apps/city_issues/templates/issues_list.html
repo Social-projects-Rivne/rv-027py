@@ -21,27 +21,35 @@
                 <tr>
                   <th scope="col">#</th>
                   <th>
-                      <a href="{% url "issues" %}?order_by=title{% if order_by == 'title' and reverse != 'vice_versa' %}&amp;reverse=vice_versa{% endif %}">
+                      <a href="{% url "issues" %}?order_by=title{% if order_by == 'title' and reverse != 'v_v' %}&amp;reverse=v_v{% endif %}">
                     Title
-                    {% if order_by == 'title' and reverse != 'vice_versa' %}&uarr;
-                        {% elif order_by != 'description' and order_by != 'category' and reverse != 'vice_versa' %}&uarr;
-                        {% elif order_by == 'title' and reverse == 'vice_versa' %}&darr;
+                    {% if order_by == 'title' and reverse != 'v_v' %}&uarr;
+                        {% elif order_by != 'status' and order_by != 'description' and order_by != 'category' and reverse != 'v_v' %}&uarr;
+                        {% elif order_by == 'title' and reverse == 'v_v' %}&darr;
                     {% endif %}
                       </a>
                   </th>
                   <th>
-                      <a href="{% url "issues" %}?order_by=description{% if order_by == 'description' and reverse != 'vice_versa' %}&amp;reverse=vice_versa{% endif %}">
+                      <a href="{% url "issues" %}?order_by=status{% if order_by == 'status' and reverse != 'v_v' %}&amp;reverse=v_v{% endif %}">
+                    Status
+                    {% if order_by == 'status' and reverse != 'v_v' %}&uarr;
+                        {% elif order_by == 'status' and reverse == 'v_v' %}&darr;
+                    {% endif %}
+                      </a>
+                  </th>
+                  <th>
+                      <a href="{% url "issues" %}?order_by=description{% if order_by == 'description' and reverse != 'v_v' %}&amp;reverse=v_v{% endif %}">
                     Description
-                    {% if order_by == 'description' and reverse != 'vice_versa' %}&uarr;
-                        {% elif order_by == 'description' and reverse == 'vice_versa' %}&darr;
+                    {% if order_by == 'description' and reverse != 'v_v' %}&uarr;
+                        {% elif  order_by == 'description' and reverse == 'v_v' %}&darr;
                     {% endif %}
                       </a>
                   </th>
                   <th>
-                      <a href="{% url "issues" %}?order_by=category{% if order_by == 'category' and reverse != 'vice_versa' %}&amp;reverse=vice_versa{% endif %}">
+                      <a href="{% url "issues" %}?order_by=category{% if order_by == 'category' and reverse != 'v_v' %}&amp;reverse=v_v{% endif %}">
                     Category
-                    {% if order_by == 'category' and reverse != 'vice_versa' %}&uarr;
-                        {% elif order_by == 'category' and reverse == 'vice_versa' %}&darr;
+                    {% if order_by == 'category' and reverse != 'v_v' %}&uarr;
+                        {% elif order_by == 'category' and reverse == 'v_v' %}&darr;
                     {% endif %}
                       </a>
                   </th>
@@ -52,7 +60,8 @@
               {% for issue in issues_list %}
                 <tr>
                   <th scope="row">{{ forloop.counter }}</th>
-                  <td><a href="#" class="navbar-brand list-group-item">{{ issue.title }}</a></td>
+                  <td><a href="#">{{ issue.title }}</a></td>
+                  <td>{{ issue.status }}</td>
                   <td>{{ issue.description }}</td>
                   <td>{{ issue.category }}</td>
                 </tr>
