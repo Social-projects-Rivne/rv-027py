@@ -2,10 +2,6 @@
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django import forms
 
-from django.forms import (
-    CharField, DateInput, FloatField, ModelChoiceField, ModelForm,
-    Textarea, TextInput)
-
 from city_issues.models.issues import Issues, Category
 
 
@@ -50,28 +46,28 @@ class IssueForm(forms.ModelForm):
     )
 
 
-class EditIssue(ModelForm):
+class EditIssue(forms.ModelForm):
     """Edit issue form."""
-    title = CharField(
+    title = forms.CharField(
         min_length=5,
         max_length=50,
-        widget=TextInput({'size': 50}),
+        widget=forms.TextInput({'size': 50}),
         required=True)
 
-    description = CharField(
+    description = forms.CharField(
         min_length=5,
         max_length=350,
-        widget=Textarea(attrs={'rows': 5, 'class': 'issue_description'}))
+        widget=forms.Textarea(attrs={'rows': 5, 'class': 'issue_description'}))
 
-    category = ModelChoiceField(
+    category = forms.ModelChoiceField(
         queryset=Category.objects.all(),
         empty_label=None
     )
 
-    location_lat = FloatField(
+    location_lat = forms.FloatField(
         validators=[MinValueValidator(-90), MaxValueValidator(90)])
 
-    location_lon = FloatField(
+    location_lon = forms.FloatField(
         validators=[MinValueValidator(-180), MaxValueValidator(180)])
 
     class Meta:
@@ -83,8 +79,28 @@ class EditIssue(ModelForm):
 class IssueFilter(forms.Form):
     """Issue filter form on map."""
     date_from = forms.DateField(
-        required=True,
-        widget=DateInput(attrs={'type': 'date'}))
+        required=False,
+        widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}))
+
     date_to = forms.DateField(
-        required=True,
-        widget=DateInput(attrs={'type': 'date'}))
+        required=False,
+        widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}))
+
+    show_closed = forms.BooleanField(
+        required=False,
+        initial=False,
+        widget=forms.CheckboxInput())
+
+    category = forms.ModelChoiceField(
+        queryset=Category.objects.all(),
+        empty_label="All categories",
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-control'}))
+
+    search = forms.CharField(
+        max_length=20,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Max length 20 chars',
+        }),
+        required=False,)
