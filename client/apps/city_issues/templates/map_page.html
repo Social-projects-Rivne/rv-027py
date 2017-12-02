@@ -13,20 +13,24 @@
 {% endblock extra_css %}
 
 {% block content %}
-	<div class="container">
-		<div class="row">
-			<div class="col-sm-6" id="message_box"></div>
-		</div>
+
+	<div class="issue_form-box">
+		<p id="message_box"></p>
+		    {% csrf_token %}
+                    {% for field in form %}
+                    <div class="form-group">
+                    	{{field.errors}}
+                    	{{field.label_tag}}
+                        {{field}}
+                    </div>
+                    {% endfor %}
+		    <input id="issue_filter-form-btn"  class="btn btn-success" type="submit" value="Show" />
+		</form>
 	</div>
+	
 
 	<div id="mapid" class="map_container">
-		<div class="issue_form-box">
-			<form action="" method="get">
-				    {% csrf_token %}
-				    {{ form }}
-				    <input id="issue_filter-form-btn"  class="btn btn-success" type="submit" value="Show" />
-			</form>
-		</div>
+		
 	</div>
 	<div id="issue_container"  class="issue_container">
 		<div class="issue_box">
@@ -62,7 +66,7 @@
 		
 	<template id="message_list">
 		<ul class="messages">
-			<li class="error"></li>
+			<li class="error small"></li>
 		</ul>
 	</template>
 {% endblock content %}

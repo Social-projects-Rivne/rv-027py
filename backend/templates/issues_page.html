@@ -27,9 +27,9 @@
                <th></th>
            </tr>
            {% for category, issue, user in issues %}
-                <tr class="table-row" data-href="issue/{{issue.id}}" >
+                <tr>
                     <td>{{ issue.id }}</td>
-                    <td>{{ issue.title }}</td>
+                    <td> <a href="issue/{{issue.id}}">{{ issue.title }}</a></td>
                     <td>{{ user }}</td>
                     <td>{{ category}}</td>
                     <td> {{ issue.status }} </td>
@@ -42,11 +42,11 @@
                     <td><a href="{{ url_for('issue_modify', issue_id=issue.id) }}" class="btn btn-primary">Edit</a> </td>
                     {%if not issue.delete_date %}
                         <td><a class="btn btn-danger" data-toggle="modal" data-target="#deletion" data-elem-id="{{ issue.id }}"
-                               data-elem-name="{{ issue.title }}" data-func-name="deleteissue">Delete</a></td>
+                               data-name="{{ issue.title }}" data-func-name="delete" data-elem-name="issue">Delete</a></td>
                     {% else %}
                         <td>
                             <a class="btn btn-success" data-toggle="modal" data-target="#deletion" data-elem-id="{{ issue.id }}"
-                               data-elem-name="{{ issue.title }}" data-func-name="restoreissue">Restore</a>
+                               data-name="{{ issue.title }}" data-func-name="restore" data-elem-name="issue">Restore</a>
                         </td>
                     {% endif %}
                 </tr>

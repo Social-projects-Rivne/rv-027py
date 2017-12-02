@@ -17,11 +17,12 @@ from django.contrib.auth import views as auth_views
 from django.conf import settings
 from django.conf.urls import include, url
 from django.conf.urls.static import static
+from django.contrib.auth.decorators import login_required
 from django.views.generic import RedirectView
 
 from city_issues.views import (
     CheckIssues, edit_issue_view, get_all_issues_data, get_issue_data,
-    HomePageView, map_page_view, IssueCreate)
+    HomePageView, map_page_view, IssueCreate, UserProfileView)
 
 
 urlpatterns = [
@@ -33,12 +34,12 @@ urlpatterns = [
     url(r'^map/getissuebyid/(?P<issue_id>[0-9]+)$',
         get_issue_data, name='issue_data'),
     url(r'^map/getissuesall/$', get_all_issues_data, name='all_issues'),
-    url(r'^add-issue', IssueCreate.as_view(), name='create_issue'),
+    url(r'^add-issue', login_required(IssueCreate.as_view()), name='create_issue'),
     url(r'^editissue/(?P<issue_id>[0-9]+)$', edit_issue_view, name='edit_issue'),
 
     # registration and authorization views
     url(r'^accounts/logout/$', auth_views.logout, kwargs={'next_page': 'home'}, name='auth_logout'),
-    url(r'^accounts/profile/$', RedirectView.as_view(pattern_name='home'), name='success'),
-    url(r'^accounts/', include('registration.backends.simple.urls', namespace='accounts')),
+    url(r'^accounts/profile/(?P<user_id>[0-9]+)$', UserProfileView.as_view(), name='user_profile'),
+    url(r'^accounts/', include('registration.backends.simple.urls', namespace='accounts', )),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

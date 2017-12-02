@@ -5,18 +5,17 @@ Django views
 import json
 from datetime import date, datetime, time
 
-from django.views.generic import CreateView
-from django.views.generic.base import TemplateView
+from django.db.models import Q
+from django.views.generic.base import TemplateView, View
 from django.contrib import messages
 from django.core import serializers
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils.timezone import make_aware
-from django.views.generic import ListView
+from django.views.generic import CreateView, ListView
 
-
-from city_issues.models import Attachments, Issues
+from city_issues.models import Attachments, Issues, IssueHistory, User
 from city_issues.forms.forms import EditIssue, IssueFilter, IssueForm
 
 
@@ -25,18 +24,32 @@ class HomePageView(TemplateView):
     template_name = "home_page.html"
 
 
+class UserProfileView(View):
+    """User profile page"""
+    def get(self, request, user_id):
+        user = User.objects.get(id=user_id)
+        user_issues = Issues.objects.filter(user_id=user_id)
+
+        return render(request, 'user/user.html', {'user': user, 'user_issues': user_issues})
+
+
 class IssueCreate(CreateView):
+    """Create new issue"""
+    MAX_FILE_SIZE = 5242880
+
     model = Issues
     form_class = IssueForm
     template_name = 'issues/issues.html'
     success_url = 'add-issue'
 
     def form_valid(self, form):
+        form.instance.user = self.request.user
         issue = form.save(commit=True)
 
         if form.files:
-            self.save_file(form, form.files.getlist('file'), issue)
+            self.save_files(form, form.files.getlist('files'), issue)
 
+        self.save_issue_history(issue, form.instance.user)
         messages.success(self.request, 'Issue was successfully saved')
         return super(IssueCreate, self).form_valid(form)
 
@@ -44,16 +57,22 @@ class IssueCreate(CreateView):
         messages.error(self.request, form.errors)
         return super(IssueCreate, self).form_invalid(form)
 
-    def save_file(self, form, files, issue):
-        for file in files:
-            if file._size > 5242880:
+    def save_files(self, form, files, issue):
+        for issue_file in files:
+            if issue_file._size > self.MAX_FILE_SIZE:
                 messages.error(self.request, 'Max file size : 5MB')
                 return super(IssueCreate, self).form_valid(form)
             else:
                 attachment = Attachments()
                 attachment.issue = issue
-                attachment.image_url = file
+                attachment.image_url = issue_file
                 attachment.save()
+
+    def save_issue_history(self, issue, user):
+        issue_history = IssueHistory()
+        issue_history.issue = issue
+        issue_history.user = user
+        issue_history.save()
 
 
 def map_page_view(request):
@@ -97,22 +116,46 @@ def get_issue_data(request, issue_id):
 
 
 def get_all_issues_data(request):
-    """Returns all issues records as json"""
-    date_from_str = request.GET.get('date_from')
-    date_to_str = request.GET.get('date_to')
+    """Returns all issues records as json with possible filter."""
+    data = serializers.serialize(
+        "json",
+        Issues.objects.filter(close_date__isnull=True))
 
-    if date_from_str or date_to_str:
-        date_from = make_aware(datetime.combine(
-            datetime.strptime(date_from_str, '%Y-%m-%d'), time.min))
-        date_to = make_aware(datetime.combine(
-            datetime.strptime(date_to_str, '%Y-%m-%d'), time.max))
+    form = IssueFilter(request.GET)
 
-        date_query = Issues.objects.filter(
-            open_date__range=(date_from, date_to))
-        data = serializers.serialize("json", date_query)
-        return JsonResponse(data, safe=False)
+    if form.is_valid() and form.data.get('filter'):
 
-    data = serializers.serialize("json", Issues.objects.all())
+        map_date_from = form.data.get('date_from')
+        map_date_to = form.data.get('date_to')
+        show_closed = form.data.get('show_closed')
+        category = form.data.get('category')
+        search = form.data.get('search')
+
+        if show_closed == 'true':
+            show_closed = False
+        else:
+            show_closed = True
+
+        kwargs = {"close_date__isnull": (show_closed)}
+
+        if map_date_from and map_date_to:
+            date_from = make_aware(datetime.combine(
+                datetime.strptime(map_date_from, '%Y-%m-%d'), time.min))
+            date_to = make_aware(datetime.combine(
+                datetime.strptime(map_date_to, '%Y-%m-%d'), time.max))
+            kwargs["open_date__range"] = (date_from, date_to)
+
+        if category:
+            kwargs['category'] = category
+
+        query = Issues.objects.filter(**kwargs)
+
+        if search:
+            query = Issues.objects.filter(**kwargs).filter(
+                Q(title__icontains=search) | Q(description__icontains=search))
+
+        data = serializers.serialize("json", query)
+
     return JsonResponse(data, safe=False)
 
 
