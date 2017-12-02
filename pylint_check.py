@@ -3,12 +3,18 @@ import sys
 
 from pylint.lint import Run
 
-parser = argparse.ArgumentParser(description='Make pylint to pass with custom score.')
+parser = argparse.ArgumentParser(
+    description='Make pylint to pass with custom score.')
 parser.add_argument('-t', '--targets', nargs='+', dest='targets',
                     help='space separated paths to target modules or packages')
 parser.add_argument('-s', '--score', type=float, dest='score',
                     default=7.0, help='float number, the affordable pylint score')
+parser.add_argument('-l', '--load', dest='load_plugins',
+                    help='load some plugins')
+
 args = parser.parse_args()
+args.load_plugins = ''.join(['--load-plugins=', args.load_plugins])
+args.targets.append(args.load_plugins)
 
 
 def _check_score(lint_results, score):
