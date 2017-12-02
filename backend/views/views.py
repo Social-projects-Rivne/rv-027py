@@ -121,16 +121,24 @@ def user_modify(users_id):
     route_to = url_for('user_modify', users_id=users_id)
     user = db.session.query(User).get(users_id)
     form = UserForm(request.form, obj=user)
+    remove_role_change = (users_id != session['user_id'])
 
     if user.delete_date:
         flash("You can't edit the user who was deleted.")
     elif form.validate_on_submit():
-        form.populate_obj(user)
-        db.session.commit()
-        flash("User modified")
-        return redirect(url_for('user_page'))
+        if (users_id == session['user_id']) and (int(request.form.get('role_id')) != ROLE_ADMIN):
+            flash("You can't change admin role for yourself.")
+        else:
+            form.populate_obj(user)
+            db.session.commit()
+            flash("User modified")
+            return redirect(url_for('user_page'))
 
-    return render_template('user_modify.html', form=form, route_to=route_to)
+    return render_template(
+        'user_modify.html',
+        form=form,
+        route_to=route_to,
+        remove_role_change=remove_role_change)
 
 
 @app.route('/deleteuser/<int:users_id>', methods=['POST'])
