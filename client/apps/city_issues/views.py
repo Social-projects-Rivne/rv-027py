@@ -6,7 +6,6 @@ import json
 from datetime import date, datetime, time
 
 from django.db.models import Q
-from django.views.generic import CreateView
 from django.views.generic.base import TemplateView, View
 from django.contrib import messages
 from django.core import serializers
@@ -14,8 +13,7 @@ from django.http import JsonResponse, HttpResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils.timezone import make_aware
-from django.views.generic import CreateView
-from django.views.generic.base import TemplateView
+from django.views.generic import CreateView, ListView
 
 from city_issues.models import Attachments, Issues, IssueHistory, User
 from city_issues.forms.forms import EditIssue, IssueFilter, IssueForm
@@ -166,3 +164,26 @@ def convert_date(obj):
     if isinstance(obj, (date, datetime)):
         return obj.isoformat()
     return obj
+
+
+class CheckIssues(ListView):
+    """A list of issues"""
+    template_name = 'issues_list.html'
+    model = Issues
+    context_object_name = 'issues_list'
+    paginate_by = 6
+
+    def get_queryset(self):
+        """Adds sorting"""
+        queryset = super(CheckIssues, self).get_queryset()
+        order_by = self.request.GET.get('order_by', 'title')
+        if order_by in ('title', 'status', 'description', 'category'):
+            queryset = queryset.order_by(order_by)
+            if self.request.GET.get('reverse', '') == 'v_v':
+                queryset = queryset.reverse()
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super(CheckIssues, self).get_context_data(**kwargs)
+        context['issues_range'] = range(context["paginator"].num_pages)
+        return context

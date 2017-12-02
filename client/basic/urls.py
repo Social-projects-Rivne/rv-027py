@@ -19,13 +19,16 @@ from django.conf.urls import include, url
 from django.conf.urls.static import static
 from django.contrib.auth.decorators import login_required
 from django.views.generic import RedirectView
+
 from city_issues.views import (
-    edit_issue_view, get_all_issues_data, get_issue_data,
+    CheckIssues, edit_issue_view, get_all_issues_data, get_issue_data,
     HomePageView, map_page_view, IssueCreate, UserProfileView)
 
 
 urlpatterns = [
     url(r'^$', HomePageView.as_view(), name='home'),
+    url(r'^issues/$', CheckIssues.as_view(), name='issues'),
+
 
     url(r'^map/$', map_page_view, name='map'),
     url(r'^map/getissuebyid/(?P<issue_id>[0-9]+)$',
