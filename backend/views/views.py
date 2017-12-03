@@ -202,14 +202,12 @@ def issues_page():
     form = SearchIssuesForm(request.args, meta={'csrf': False})
     condition = None
     order = None
-
     if form.validate():
         search_by = int(request.args.get('search_by'))
         order_by = int(request.args.get('order_by'))
         search_string = str(request.args.get('search'))
 
         search_list = ['title', 'category', 'description']
-
         if len(search_string) >= MIN_SEARCH_STR:
             search_parameter = '%{}%'.format(search_string)
             if search_list[search_by] == 'title':
