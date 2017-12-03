@@ -51,7 +51,7 @@ class UserProfileView(View):
 
         return redirect(self.success_url)
 
-    def check_passwords(self, current_pass, new_pass, confirm_pass):
+    def check_passwords(self, current_pass):
         if not django_bcrypt.verify(current_pass, self.request.user.password):
             return messages.error(self.request, 'Wrong password')
 
