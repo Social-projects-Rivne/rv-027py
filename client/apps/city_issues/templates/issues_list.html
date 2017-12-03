@@ -60,7 +60,7 @@
               {% for issue in issues_list %}
                 <tr>
                   <th scope="row">{{ forloop.counter }}</th>
-                  <td><a href="#">{{ issue.title }}</a></td>
+                  <td><a href="{% url 'issue-comment' issue.pk %}">{{ issue.title }}</a></td>
                   <td>{{ issue.status }}</td>
                   <td>{{ issue.description }}</td>
                   <td>{{ issue.category }}</td>

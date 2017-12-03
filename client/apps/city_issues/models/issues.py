@@ -103,3 +103,20 @@ class Issues(models.Model):
         app_label = 'city_issues'
         managed = False
         db_table = 'issues'
+
+
+class Comments(models.Model):
+    """
+    Issues table in the database.
+    """
+    user = models.ForeignKey('User', models.DO_NOTHING,
+                             blank=True, null=True)
+    issue = models.ForeignKey('Issues', models.DO_NOTHING)
+    comment = models.TextField(max_length=400, null=False, blank=False)
+    date_public = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        """..."""
+        app_label = 'city_issues'
+        managed = False
+        db_table = 'comments'
