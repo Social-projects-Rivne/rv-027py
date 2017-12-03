@@ -4,6 +4,7 @@ Django views
 # -*- coding: utf-8 -*-
 import json
 from datetime import date, datetime, time
+import operator
 
 from django.db.models import Q
 from django.views.generic.base import TemplateView, View
@@ -13,10 +14,10 @@ from django.http import JsonResponse, HttpResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils.timezone import make_aware
-from django.views.generic import CreateView, ListView
+from django.views.generic import CreateView, FormView, ListView
 
-from city_issues.models import Attachments, Issues, IssueHistory, User
-from city_issues.forms.forms import EditIssue, IssueFilter, IssueForm
+from city_issues.models import Attachments, Issues,  IssueHistory, User
+from city_issues.forms.forms import EditIssue, IssueFilter, IssueForm, IssueSearchForm
 
 
 class HomePageView(TemplateView):
@@ -166,18 +167,28 @@ def convert_date(obj):
     return obj
 
 
-class CheckIssues(ListView):
+class CheckIssues(ListView, FormView):
     """A list of issues"""
+    form_class = IssueSearchForm
     template_name = 'issues_list.html'
     model = Issues
     context_object_name = 'issues_list'
     paginate_by = 6
 
+
     def get_queryset(self):
         """Adds sorting"""
         queryset = super(CheckIssues, self).get_queryset()
         order_by = self.request.GET.get('order_by', 'title')
+        search = self.request.GET.get('search')
+        if search:
+            query_list = search.split()
+            queryset = queryset.filter(
+                reduce(operator.or_, (Q(title__icontains=q) for q in query_list)) |
+                reduce(operator.or_, (Q(description__icontains=q) for q in query_list))
+            )
         if order_by in ('title', 'status', 'description', 'category'):
+            print queryset
             queryset = queryset.order_by(order_by)
             if self.request.GET.get('reverse', '') == 'v_v':
                 queryset = queryset.reverse()

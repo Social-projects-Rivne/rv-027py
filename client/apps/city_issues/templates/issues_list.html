@@ -11,17 +11,21 @@
     <div class="row">
         <div class="page-header text-center">
           <h1><small>All Issues:</small></h1>
+           <form action="{% url "issues" %}" method="GET">
+               {{form.search}} 
+            <button class="btn btn-info" type="submit" > Search </button>
+            </form>
         </div>
     </div>
     <div class="row">
       <div>
           <table class="table table-hover">
-              {% with order_by=request.GET.order_by reverse=request.GET.reverse %}
+              {% with search=request.GET.search order_by=request.GET.order_by reverse=request.GET.reverse %}
               <thead>
                 <tr>
                   <th scope="col">#</th>
                   <th>
-                      <a href="{% url "issues" %}?order_by=title{% if order_by == 'title' and reverse != 'v_v' %}&amp;reverse=v_v{% endif %}">
+                      <a href="{% url "issues" %}?{%if search %}search={{request.GET.search}}&amp;{%endif%}order_by=title{% if order_by == 'title' and reverse != 'v_v' %}&amp;reverse=v_v{% endif %}">
                     Title
                     {% if order_by == 'title' and reverse != 'v_v' %}&uarr;
                         {% elif order_by != 'status' and order_by != 'description' and order_by != 'category' and reverse != 'v_v' %}&uarr;
@@ -30,7 +34,7 @@
                       </a>
                   </th>
                   <th>
-                      <a href="{% url "issues" %}?order_by=status{% if order_by == 'status' and reverse != 'v_v' %}&amp;reverse=v_v{% endif %}">
+                      <a href="{% url "issues" %}?{%if search %}search={{request.GET.search}}&amp;{%endif%}order_by=status{% if order_by == 'status' and reverse != 'v_v' %}&amp;reverse=v_v{% endif %}">
                     Status
                     {% if order_by == 'status' and reverse != 'v_v' %}&uarr;
                         {% elif order_by == 'status' and reverse == 'v_v' %}&darr;
@@ -38,7 +42,7 @@
                       </a>
                   </th>
                   <th>
-                      <a href="{% url "issues" %}?order_by=description{% if order_by == 'description' and reverse != 'v_v' %}&amp;reverse=v_v{% endif %}">
+                      <a href="{% url "issues" %}?{%if search %}search={{request.GET.search}}&amp;{%endif%}order_by=description{% if order_by == 'description' and reverse != 'v_v' %}&amp;reverse=v_v{% endif %}">
                     Description
                     {% if order_by == 'description' and reverse != 'v_v' %}&uarr;
                         {% elif  order_by == 'description' and reverse == 'v_v' %}&darr;
@@ -46,7 +50,7 @@
                       </a>
                   </th>
                   <th>
-                      <a href="{% url "issues" %}?order_by=category{% if order_by == 'category' and reverse != 'v_v' %}&amp;reverse=v_v{% endif %}">
+                      <a href="{% url "issues" %}?{%if search %}search={{request.GET.search}}&amp;{%endif%}order_by=category{% if order_by == 'category' and reverse != 'v_v' %}&amp;reverse=v_v{% endif %}">
                     Category
                     {% if order_by == 'category' and reverse != 'v_v' %}&uarr;
                         {% elif order_by == 'category' and reverse == 'v_v' %}&darr;

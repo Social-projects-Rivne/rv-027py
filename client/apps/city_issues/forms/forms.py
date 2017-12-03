@@ -104,3 +104,14 @@ class IssueFilter(forms.Form):
             'placeholder': 'Max length 20 chars',
         }),
         required=False,)
+
+
+class IssueSearchForm(forms.Form):
+    "Issue search form"
+    search = forms.CharField(
+        min_length=2,
+        max_length=100,
+        widget=forms.TextInput(attrs={
+            'size':'60%',
+        }),
+        required=False,)

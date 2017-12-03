@@ -23,11 +23,12 @@ from django.views.generic import RedirectView
 from city_issues.views import (
     CheckIssues, edit_issue_view, get_all_issues_data, get_issue_data,
     HomePageView, map_page_view, IssueCreate, UserProfileView)
+from city_issues.models import Issues
 
 
 urlpatterns = [
     url(r'^$', HomePageView.as_view(), name='home'),
-    url(r'^issues/$', CheckIssues.as_view(), name='issues'),
+    url(r'^issues/$', CheckIssues.as_view(queryset=Issues.objects.filter(status='new')), name='issues'),
 
 
     url(r'^map/$', map_page_view, name='map'),
