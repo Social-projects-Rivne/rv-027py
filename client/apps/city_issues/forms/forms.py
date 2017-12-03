@@ -105,7 +105,6 @@ class IssueFilter(forms.Form):
         }),
         required=False,)
 
-
 class IssueSearchForm(forms.Form):
     "Issue search form"
     search = forms.CharField(

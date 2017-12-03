@@ -175,6 +175,15 @@ class CheckIssues(ListView, FormView):
     context_object_name = 'issues_list'
     paginate_by = 6
 
+    # def search_issue(self):
+    #     search = self.request.GET.get('search')
+    #     all_issue = Issues.objects.all()
+    #     if search:
+    #         query_list = search.split()
+    #         issues_list = all_issue.filter(
+    #             reduce(operator.or_, (Q(title__icontains=q) for q in query_list)) |
+    #             reduce(operator.or_, (Q(description__icontains=q) for q in query_list)))
+    #         return issues_list
 
     def get_queryset(self):
         """Adds sorting"""
@@ -188,7 +197,6 @@ class CheckIssues(ListView, FormView):
                 reduce(operator.or_, (Q(description__icontains=q) for q in query_list))
             )
         if order_by in ('title', 'status', 'description', 'category'):
-            print queryset
             queryset = queryset.order_by(order_by)
             if self.request.GET.get('reverse', '') == 'v_v':
                 queryset = queryset.reverse()
@@ -198,3 +206,15 @@ class CheckIssues(ListView, FormView):
         context = super(CheckIssues, self).get_context_data(**kwargs)
         context['issues_range'] = range(context["paginator"].num_pages)
         return context
+
+def search_issue(request):
+    """ Search issues """
+    form = IssueSearchForm
+    search = request.GET.get('search')
+    all_issue = Issues.objects.all()
+    if search:
+        query_list = search.split()
+        issues_list = all_issue.filter(
+            reduce(operator.or_, (Q(title__icontains=q) for q in query_list)) |
+            reduce(operator.or_, (Q(description__icontains=q) for q in query_list)))
+    return render (request, 'issues_list.html',  {'form': form, 'issues_list': issues_list})
