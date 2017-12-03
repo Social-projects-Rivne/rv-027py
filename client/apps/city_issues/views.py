@@ -17,6 +17,7 @@ from django.views.generic import CreateView, ListView
 
 from city_issues.models import Attachments, Issues, IssueHistory, User, Comments
 from city_issues.forms.forms import EditIssue, IssueFilter, IssueForm
+from city_issues.mixins import LoginRequiredMixin
 
 
 class HomePageView(TemplateView):
@@ -189,7 +190,7 @@ class CheckIssues(ListView):
         return context
 
 
-class CommentIssues(CreateView):
+class CommentIssues(LoginRequiredMixin, CreateView):
     """Comment issue"""
     template_name = 'comment_issue.html'
     model = Comments
