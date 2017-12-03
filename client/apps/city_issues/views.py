@@ -14,9 +14,10 @@ from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils.timezone import make_aware
 from django.views.generic import CreateView, ListView
+from django.views.generic.edit import UpdateView
 
 from city_issues.models import Attachments, Issues, IssueHistory, User
-from city_issues.forms.forms import EditIssue, IssueFilter, IssueForm
+from city_issues.forms.forms import EditIssue, IssueFilter, IssueForm, IssueFormEdit
 
 
 class HomePageView(TemplateView):
@@ -26,6 +27,7 @@ class HomePageView(TemplateView):
 
 class UserProfileView(View):
     """User profile page"""
+
     def get(self, request, user_id):
         user = User.objects.get(id=user_id)
         user_issues = Issues.objects.filter(user_id=user_id)
@@ -79,21 +81,6 @@ def map_page_view(request):
     """Map page"""
     form = IssueFilter()
     return render(request, 'map_page.html', {'form': form})
-
-
-def edit_issue_view(request, issue_id):
-    """Edit page"""
-    if request.method == 'POST':
-        form = EditIssue(request.POST)
-        if form.is_valid():
-            EditIssue(request.POST, instance=Issues.objects.get(
-                pk=issue_id)).save()
-            return redirect(reverse('map'))
-    else:
-        form = EditIssue(instance=Issues.objects.get(pk=issue_id))
-
-    return render(
-        request, 'edit_issue.html', {'form': form, 'issue_id': issue_id})
 
 
 def get_issue_data(request, issue_id):
@@ -187,3 +174,11 @@ class CheckIssues(ListView):
         context = super(CheckIssues, self).get_context_data(**kwargs)
         context['issues_range'] = range(context["paginator"].num_pages)
         return context
+
+
+class UpdateIssue(UpdateView):
+    """Edit issue from map."""
+    model = Issues
+    form_class = IssueFormEdit
+    template_name = 'edit_issue.html'
+    success_url = '/map/'

@@ -14,7 +14,12 @@ function IssueMap(elementId) {
   };
 
   IssueMap.prototype.setViewPoint = function(latitude, longitude, scale) {
-    this.map.setView([latitude, longitude], scale);
+    if (localStorage.getItem('lat') && localStorage.getItem('lng')) {
+       this.map.setView([localStorage.getItem('lat'), localStorage.getItem('lng')], scale);
+    } else {
+      this.map.setView([latitude, longitude], scale);
+    }
+    
   };
 
 
@@ -44,8 +49,9 @@ function IssueMap(elementId) {
     jsonData.forEach(function(key) {
       var issue = JSON.parse(key);
 
-      var marker = L.marker([issue.fields.location_lat,
-        issue.fields.location_lon],{icon: current.iconCreate(issue.fields.category)});
+      var marker = L.marker(
+        [issue.fields.location_lat, issue.fields.location_lon],
+        {icon: current.iconCreate(issue.fields.category), title: issue.fields.title});
 
       current.markers.addLayer(marker);
       current.getMap().addLayer(current.markers);
@@ -83,8 +89,17 @@ function IssueMap(elementId) {
     
   };
 
+  IssueMap.prototype.lanlatHendler = function(event) {
+    if (event.originalEvent.target.classList.contains("leaflet-marker-icon")) {
+      localStorage.setItem('lat', event.latlng.lat);
+      localStorage.setItem('lng', event.latlng.lng);
+    }
+   
+  };
+
   IssueMap.prototype.addHandler = function() {
     current.filterFormBtn.addEventListener('click', current.filterHandler);
+    current.map.on('click', current.lanlatHendler);
   };
 
   IssueMap.prototype.getMarkers = function(serverURL) {
@@ -120,6 +135,7 @@ function IssueDescription(mapId, issueContainerId, issueCloseId) {
     if (event.target.id.slice(0,16) == "issue_primary-id") {
     current.getIssueById(event.target.id.slice(16));
     current.issue_box.style.display = 'block';
+    console.log(event);
       } 
     else {
       if (event.target.id == "mapid" && current.issue_box.style.display == "block") {

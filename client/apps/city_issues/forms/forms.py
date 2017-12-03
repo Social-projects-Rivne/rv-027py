@@ -104,3 +104,8 @@ class IssueFilter(forms.Form):
             'placeholder': 'Max length 20 chars',
         }),
         required=False,)
+
+
+class IssueFormEdit(IssueForm):
+
+    files = None
