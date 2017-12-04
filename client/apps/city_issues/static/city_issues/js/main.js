@@ -4,8 +4,16 @@ function IssueMap(elementId) {
   var current = this;
   this.map = L.map(elementId);
 
-  IssueMap.prototype.setFilterFromBtn = function(FilterFromBtnId) {
-    current.filterFormBtn = document.querySelector(FilterFromBtnId);
+  IssueMap.prototype.setFilterFromBtn = function(filterFormBtnId) {
+    current.filterFormBtn = document.querySelector(filterFormBtnId);
+  };
+
+  IssueMap.prototype.setFilterFromCloseBtn = function(filterFormCloseBtnId) {
+    current.filterFormCloseBtnId = document.querySelector(filterFormCloseBtnId);
+  };
+
+  IssueMap.prototype.setFilterFromShowBtn = function(filterFormShowBtnId) {
+    current.filterFormShowBtnId = document.querySelector(filterFormShowBtnId);
   };
    
   
@@ -89,7 +97,7 @@ function IssueMap(elementId) {
     
   };
 
-  IssueMap.prototype.lanlatHendler = function(event) {
+  IssueMap.prototype.mapCoordinatesHandler = function(event) {
     if (event.originalEvent.target.classList.contains("leaflet-marker-icon")) {
       localStorage.setItem('lat', event.latlng.lat);
       localStorage.setItem('lng', event.latlng.lng);
@@ -97,9 +105,21 @@ function IssueMap(elementId) {
    
   };
 
+  IssueMap.prototype.filterCloseHandler = function(event) {
+    document.querySelector("#issue_form-container").style.display = "none";
+    current.filterFormShowBtnId.style.display = "block";
+  };
+
+  IssueMap.prototype.filterShowHandler = function(event) {
+    document.querySelector("#issue_form-container").style.display = "block";
+    current.filterFormShowBtnId.style.display = "none";
+  };
+
   IssueMap.prototype.addHandler = function() {
     current.filterFormBtn.addEventListener('click', current.filterHandler);
-    current.map.on('click', current.lanlatHendler);
+    current.map.on('click', current.mapCoordinatesHandler);
+    current.filterFormCloseBtnId.addEventListener('click', current.filterCloseHandler);
+    current.filterFormShowBtnId.addEventListener('click', current.filterShowHandler);
   };
 
   IssueMap.prototype.getMarkers = function(serverURL) {
@@ -135,7 +155,6 @@ function IssueDescription(mapId, issueContainerId, issueCloseId) {
     if (event.target.id.slice(0,16) == "issue_primary-id") {
     current.getIssueById(event.target.id.slice(16));
     current.issue_box.style.display = 'block';
-    console.log(event);
       } 
     else {
       if (event.target.id == "mapid" && current.issue_box.style.display == "block") {
@@ -190,10 +209,10 @@ function IssueDescription(mapId, issueContainerId, issueCloseId) {
 }
 
 function bootstrapCarousel(images_urls) {
-  var media = "/media/";
   $(document).ready(function(){  
   for(var i=0 ; i< images_urls.length ; i++) {
-    $('<div class="item"><img src="'+media+images_urls[i]+'"><div class="carousel-caption"></div>   </div>').appendTo('.carousel-inner');
+    var fullImgUrl = "/media/" + images_urls[i];
+    $('<div class="item"><img src="' + fullImgUrl + '"><div class="carousel-caption"></div>   </div>').appendTo('.carousel-inner');
     $('<li data-target="#carousel-example-generic" data-slide-to="'+i+'"></li>').appendTo('.carousel-indicators');
   }
   $('.item').first().addClass('active');
@@ -212,10 +231,10 @@ function insertTemplate(parentId, templateId) {
   }
 }
 
-
-
 issueMap = new IssueMap("mapid");
 issueMap.setFilterFromBtn("#issue_filter-form-btn");
+issueMap.setFilterFromCloseBtn("#issue_filter-form-close-btn");
+issueMap.setFilterFromShowBtn("#issue_filter-form-show-btn");
 issueMap.setViewPoint(50.621945, 26.249314, 16);
 issueMap.addMapLayer(
   'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', 
