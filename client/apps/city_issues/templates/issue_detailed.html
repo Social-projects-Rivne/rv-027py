@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% load i18n %}
+{% load static from staticfiles %}
+
+{% block meta_title %}Detailed Issue{% endblock meta_title %}
+
+{% block content %}
+
+<div class="container">
+    <div class="row">
+        <div class="page-header text-center">
+          <h1>{{ object.title }}<small> {{ object.user }}</small></h1>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-8 col-sm-offset-2 col-md-8 col-md-offset-2">
+            <ul class="list-group text-center">
+              <li class="list-group-item">Category: {{ object.category}}</li>
+              <li class="list-group-item">Latitude: {{ object.location_lat}}</li>
+              <li class="list-group-item">Longitude: {{ object.location_lon}}</li>
+              <li class="list-group-item">Status: {{ object.status}}</li>
+              <li class="list-group-item">Description: {{ object.description}}</li>
+              <li class="list-group-item">Open date: {{ object.open_date}}</li>
+              <li class="list-group-item">Close date: {{ object.close_date}}</li>
+              <li class="list-group-item">Delete date: {{ object.delete_date}}</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
