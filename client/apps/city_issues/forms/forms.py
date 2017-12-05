@@ -96,20 +96,16 @@ class EditUserForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ['name', 'alias', 'email']
-
-    def clean_email(self):
-        # Get the email
-        email = self.cleaned_data.get('email')
-
-        # Check to see if any users already exist with this email as a username.
-        try:
-            match = User.objects.get(email=email)
-        except User.DoesNotExist:
-            # Unable to find a user, this is fine
-            return email
-
-        # A user was found with this as a username, raise an error.
-        raise forms.ValidationError('This email address is already in use.')
+    #
+    # def clean_email(self):
+    #     alias = self.cleaned_data["alias"]
+    #     email = self.cleaned_data["email"]
+    #     users = User.objects.filter(email__iexact=email).exclude(
+    #         alias__iexact=alias)
+    #     if users:
+    #         raise forms.ValidationError(
+    #             'User with that email already exists.')
+    #     return email.lower()
 
     name = forms.CharField(
         max_length=25,
@@ -130,18 +126,21 @@ class EditUserForm(forms.ModelForm):
     )
 
     current_password = forms.CharField(
+        required=False,
+        min_length=4,
         widget=forms.PasswordInput(attrs={'class': 'form-control'})
     )
 
     new_password = forms.CharField(
+        required=False,
         max_length=50,
         min_length=4,
         widget=forms.PasswordInput(attrs={'class': 'form-control'})
     )
 
     confirm_password = forms.CharField(
+        required=False,
         max_length=50,
         min_length=4,
         widget=forms.PasswordInput(attrs={'class': 'form-control'})
     )
-

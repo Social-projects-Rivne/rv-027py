@@ -40,20 +40,44 @@ class UserProfileView(View):
                                                     'form': form})
 
     def post(self, request):
-        if request.method == 'POST':
-            form = EditUserForm(request.POST, instance=request.user)
-            if form.is_valid():
-                print form.cleaned_data
-                self.check_passwords(form.cleaned_data['current_password'])
+        user = User.objects.get(id=request.user.id)
+        form = EditUserForm(data=request.POST, instance=request.user)
 
-            else:
-                messages.error(request, form.errors)
+        if form.is_valid():
+            print user.id
+            print user.name
+            if self.is_not_empty_passwrds(form.cleaned_data) and self.check_passwords(user, form.cleaned_data):
+                user.set_password(form.cleaned_data['confirm_password'])
+
+            user.name = form.cleaned_data['name']
+            user.alias = form.cleaned_data['alias']
+            user.email = form.cleaned_data['email']
+            user.save()
+            messages.success(request, 'Changes successfully saved')
+
+        else:
+            messages.error(request, form.errors)
 
         return redirect(self.success_url)
 
-    def check_passwords(self, current_pass):
-        if not django_bcrypt.verify(current_pass, self.request.user.password):
-            return messages.error(self.request, 'Wrong password')
+    def check_passwords(self, user,  form_data):
+        print user.id
+        if not user.check_password(form_data['current_password']):
+            messages.error(self.request, 'Wrong current password')
+            return redirect(self.success_url)
+
+        elif not form_data['new_password'] == form_data['confirm_password']:
+            messages.error(self.request, "New and confirm password don't match")
+            return redirect(self.success_url)
+
+        else:
+            return True
+
+    def is_not_empty_passwrds(self, data):
+        if data['current_password'] == '' and data['new_password'] == '' and data['confirm_password'] == '':
+            return False
+        else:
+            return True
 
 
 class IssueCreate(CreateView):
