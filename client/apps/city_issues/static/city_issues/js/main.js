@@ -211,9 +211,15 @@ function IssueDescription(mapId, issueContainerId, issueCloseId) {
 function bootstrapCarousel(images_urls) {
   $(document).ready(function(){  
   for(var i=0 ; i< images_urls.length ; i++) {
-    var fullImgUrl = "/media/" + images_urls[i];
-    $('<div class="item"><img src="' + fullImgUrl + '"><div class="carousel-caption"></div>   </div>').appendTo('.carousel-inner');
-    $('<li data-target="#carousel-example-generic" data-slide-to="'+i+'"></li>').appendTo('.carousel-indicators');
+    var fullImgUrl = images_urls[i];
+    if (fullImgUrl !== null) {
+        fullImgUrl = "/media/" + fullImgUrl;
+    } else {
+        fullImgUrl = "/static/city_issues/img/no-image.png";
+    }
+    
+  $('<div class="item"><img src="' + fullImgUrl + '"><div class="carousel-caption"></div>   </div>').appendTo('.carousel-inner');
+  $('<li data-target="#carousel-example-generic" data-slide-to="'+i+'"></li>').appendTo('.carousel-indicators');
   }
   $('.item').first().addClass('active');
   $('.carousel-indicators > li').first().addClass('active');

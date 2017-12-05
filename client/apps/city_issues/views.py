@@ -3,6 +3,8 @@ Django views
 """
 # -*- coding: utf-8 -*-
 import json
+import os.path
+
 from datetime import date, datetime, time
 
 from django.db.models import Q
@@ -18,6 +20,8 @@ from django.views.generic.edit import UpdateView
 
 from city_issues.models import Attachments, Issues, IssueHistory, User
 from city_issues.forms.forms import EditIssue, IssueFilter, IssueForm, IssueFormEdit
+
+DIR_WITH_IMGS = "media"
 
 
 class HomePageView(TemplateView):
@@ -89,10 +93,22 @@ def get_issue_data(request, issue_id):
     attachments_query = list(
         Attachments.objects.filter(issue=issue_id).values())
     images_urls = [item['image_url'] for item in attachments_query]
+    checked_img_urls = []
+    for img in images_urls:
+
+        full_img_url = "/".join(
+            [os.path.dirname(os.path.abspath(__file__)),
+             DIR_WITH_IMGS,
+             str(img)])
+
+        if not os.path.isfile(str(full_img_url)):
+            checked_img_urls.append(None)
+        else:
+            checked_img_urls.append(img)
 
     issue_query = list(Issues.objects.filter(pk=issue_id).values())
     issue_dict = issue_query[0]
-    issue_dict['images_urls'] = images_urls
+    issue_dict['images_urls'] = checked_img_urls
 
     issue_dict['open_date'] = convert_date(issue_dict['open_date'])
     issue_dict['close_date'] = convert_date(issue_dict['close_date'])
