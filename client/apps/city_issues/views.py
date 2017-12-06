@@ -22,13 +22,11 @@ from django.views.generic import CreateView, ListView
 from django.views.generic.edit import UpdateView
 
 from city_issues.models import Attachments, Issues, IssueHistory, User
-from city_issues.forms.forms import EditIssue, IssueFilter, IssueForm, 
 from city_issues.forms.forms import EditIssue, IssueFilter, IssueForm, IssueFormEdit, EditUserForm
 
 ROLE_ADMIN = 1
 ROLE_MODERATOR = 2
 ROLE_USER = 3
-
 
 
 class HomePageView(TemplateView):
