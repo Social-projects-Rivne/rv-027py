@@ -127,4 +127,3 @@ class IssueSearchForm(forms.Form):
     page = forms.IntegerField(
         widget=forms.HiddenInput(),
         required=False)
-

@@ -10,10 +10,10 @@
 
 <div class="container">
     <div class="row">
-        {% with search=request.GET.search order_by=request.GET.order_by %}
+        {% with search=request.GET.search order_by=request.GET.order_by reverse=request.GET.reverse %}
         <div class="page-header text-center">
           <h1><small>All Issues:</small></h1>
-           <form action="{% url "issues" %}" method="GET" id="search-filter" data-search="{% if search %}{{search}}{% endif %}" data-order="{% if order_by %}{{order_by}}{% endif %}">
+           <form action="{% url "issues" %}" method="GET" id="search-filter" data-search="{% if search %}{{search}}{% endif %}" data-order="{% if order_by %}{{order_by}}{% else %}title{% endif %}" data-reverse="{% if reverse %}{{reverse}}{% endif %}">
                {{form}}
             <button class="btn btn-info" type="submit" id="submit">{% bootstrap_icon 'search' %}</button>
             </form>

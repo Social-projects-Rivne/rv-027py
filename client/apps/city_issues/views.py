@@ -178,7 +178,9 @@ class CheckIssues(ListView, FormView):
     def get_queryset(self):
         """Adds sorting"""
         queryset = super(CheckIssues, self).get_queryset()
-        order_by = self.request.GET.get('order_by')
+        order_by = self.request.GET.get('order_by','title')
+        # if order_by == "":
+        #     order_by = 'title'
         search = self.request.GET.get('search')
         if search:
             query_list = search.split()

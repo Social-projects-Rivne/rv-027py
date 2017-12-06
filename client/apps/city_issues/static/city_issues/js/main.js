@@ -205,18 +205,25 @@ $( document ).ready(function() {
       var reverse = $(this).data('reverse');
       var page = $(this).data('page');
 
+      if (order_by == undefined){
+        order_by = $('#search-filter').data('order');
+      }
+      if (reverse == undefined){
+        reverse = $('#search-filter').data('reverse');
+      }
+
       $("#id_search").val(search);
       $("#id_order_by").val(order_by);
       $("#id_reverse").val(reverse);
       $("#id_page").val(page);
 
+      $('#search-filter').data('order',order_by);
       $('#submit').click();
     });
 
-    $('#search-filter').on('click', function(e){
-    if (order_by == ""){
-        $("#id_order_by").val('title');
-    }
+    $('#search-filter').on('submit', function(e){
+      order_by = $('#search-filter').data('order');
+      $("#id_order_by").val(order_by);
     });
 });
 
