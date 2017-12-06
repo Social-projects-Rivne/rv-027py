@@ -3,6 +3,7 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django import forms
 
 from city_issues.models.issues import Issues, Category
+from city_issues.models.users import User
 
 
 class IssueForm(forms.ModelForm):
