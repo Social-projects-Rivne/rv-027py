@@ -1,9 +1,10 @@
 $( document ).ready(function() {
     $('#deletion').on('show.bs.modal', function(e) {
         var elemId = $(e.relatedTarget).data('elem-id');
-        var elemName = $(e.relatedTarget).data('elem-name');
+        var name = $(e.relatedTarget).data('name');
         var funcName = $(e.relatedTarget).data('func-name');
-        if (funcName == 'deleteissue'){
+        var elemName = $(e.relatedTarget).data('elem-name');
+        if (funcName == 'delete'){
             buttonText ='Delete';
             bodyText = "Please click "+buttonText+" button if you want to delete data.";
         }
@@ -11,15 +12,9 @@ $( document ).ready(function() {
             buttonText ='Restore';
             bodyText = "Please click "+buttonText+" button if you want to restore data.";
         }
-        $(".modal-title").text("Confirm operation of " + elemName);
+        $(".modal-title").text("Confirm operation of \"" + name+"\"");
         $(".button-confirm").text(buttonText);
         $(".modal-body").text(bodyText);
-        $("#delete-user").attr('action', '/'+funcName+'/' + elemId);
+        $("#delete-user").attr('action', '/'+funcName+elemName+'/' + elemId);
     });
-
-    $('.table-row').click(function(e) {
-       if (e.target.tagName == "TD") {
-           window.document.location = $(this).data('href');
-       }       
-   });
 });
