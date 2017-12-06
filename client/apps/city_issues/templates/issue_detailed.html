@@ -26,18 +26,20 @@
                   <th>Open date</th>
                   <th>Close date</th>
                   <th>Delete date</th>
+                  <th>Attachments</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  <th>{{ object.category}}</th>
+                  <td>{{ object.category}}</td>
                   <td>{{ object.location_lat}}</td>
                   <td>{{ object.location_lon}}</td>
-                  <td>{{ issue.status }}</td>
+                  <td>{{ object.status }}</td>
                   <td>{{ object.description}}</td>
                   <td>{{ object.open_date}}</td>
                   <td>{{ object.close_date}}</td>
                   <td>{{ object.delete_date}}</td>
+                  <td>None</td>
                 </tr>
               </tbody>
         </table>
