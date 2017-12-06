@@ -134,9 +134,9 @@ def get_all_issues_data(request):
         category = form.data.get('category')
         search = form.cleaned_data.get('search')
 
-        show_closed = not show_closed
+        show_opened_issue = not show_closed
 
-        kwargs = {"close_date__isnull": (show_closed)}
+        kwargs = {"close_date__isnull": (show_opened_issue)}
 
         if map_date_from and map_date_to:
             date_from = make_aware(datetime.combine(map_date_from, time.min))
