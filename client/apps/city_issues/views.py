@@ -101,8 +101,6 @@ def get_issue_data(request, issue_id):
     for img in images_urls:
         if img and os.path.isfile(os.path.join(settings.MEDIA_ROOT, img)):
             checked_img_urls.append(img)
-        else:
-            checked_img_urls.append(None)
 
     issue_query = list(Issues.objects.filter(pk=issue_id).values())
     issue_dict = issue_query[0]
