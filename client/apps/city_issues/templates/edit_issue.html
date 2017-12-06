@@ -1,17 +1,39 @@
 {% extends "base.html" %}
 {% block meta_title %}Edit issue page{% endblock meta_title %}
+
+{% block extra_css %}
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/issues.css' %}"/>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css"
+          integrity="sha512-M2wvCLH6DSRazYeZRIm1JnYyh22purTM+FDB5CsyxtQJYeKq83arPe5wgbNmcFXGqiSH2XR8dT/fJISVA1r/zQ=="
+          crossorigin=""/>
+{% endblock extra_css %}
+
 {% block content %}
 
 <div class="container">
 	<div class="row">
 		<div class="col-sm-6">
-			<form action="{% url 'edit_issue' issue_id=issue_id %}" method="post">
-			    {% csrf_token %}
+			<form action="" method="post">{% csrf_token %}
 			    {{ form.as_p }}
-			    <input class="btn btn-success" type="submit" value="Save" />
+			    <input type="submit" value="Update" />
 			</form>
+		</div>
+		<div class="col-sm-6">
+			<div id="map"></div>
 		</div>
 	</div>
 </div>
 
 {% endblock content %}
+
+{% block extra_js %}
+    <script src="https://unpkg.com/leaflet@1.2.0/dist/leaflet.js"
+            integrity="sha512-lInM/apFSqyy1o6s89K4iQUKg6ppXEgsVxT35HbzUupEVRh2Eu9Wdl4tHj7dZO0s1uvplcYGmt3498TtHq+log=="
+            crossorigin="">
+    </script>
+
+    {% load static %}
+    <script type="text/javascript" src="{% static "city_issues/js/edit_on_map.js" %}"></script>
+
+{% endblock extra_js %}

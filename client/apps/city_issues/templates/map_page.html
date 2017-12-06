@@ -13,25 +13,26 @@
 {% endblock extra_css %}
 
 {% block content %}
-
+	
 	<div class="issue_form-box">
-		<p id="message_box"></p>
-		    {% csrf_token %}
-                    {% for field in form %}
-                    <div class="form-group">
-                    	{{field.errors}}
-                    	{{field.label_tag}}
-                        {{field}}
-                    </div>
-                    {% endfor %}
-		    <input id="issue_filter-form-btn"  class="btn btn-success" type="submit" value="Show" />
-		</form>
+		<button id="issue_filter-form-show-btn" class="btn btn-primary">SHow filter</button>
+		<div id="issue_form-container" class="issue_form-container">
+			<p id="message_box"></p>
+			    {% csrf_token %}
+                {% for field in form %}
+                <div class="form-group">
+                	{{field.errors}}
+                	{{field.label_tag}}
+                    {{field}}
+                </div>
+                {% endfor %}
+			    <input id="issue_filter-form-btn"  class="btn btn-success" type="submit" value="Show" />
+			    <button id="issue_filter-form-close-btn" class="btn btn-danger">Close</button>
+		</div>
 	</div>
 	
 
-	<div id="mapid" class="map_container">
-		
-	</div>
+	<div id="mapid" class="map_container"></div>
 	<div id="issue_container"  class="issue_container">
 		<div class="issue_box">
 			<h3 class="issue_title"></h3>
