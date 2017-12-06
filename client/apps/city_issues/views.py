@@ -17,6 +17,7 @@ from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils.timezone import make_aware
 from django.views.generic import CreateView, ListView
+from django.views.generic.detail import DetailView
 from django.views.generic.edit import UpdateView
 
 from city_issues.models import Attachments, Issues, IssueHistory, User
@@ -181,6 +182,12 @@ class CheckIssues(ListView):
         context = super(CheckIssues, self).get_context_data(**kwargs)
         context['issues_range'] = range(context["paginator"].num_pages)
         return context
+
+
+class DetailedIssue(DetailView):
+    """Detailed issue"""
+    template_name = 'issue_detailed.html'
+    model = Issues
 
 
 class UpdateIssue(UpdateView):
