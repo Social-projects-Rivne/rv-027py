@@ -107,7 +107,7 @@ class IssueFilter(forms.Form):
 
 
 class IssueSearchForm(forms.Form):
-    "Issue search form"
+    """Issue search form"""
     search = forms.CharField(
         min_length=2,
         max_length=100,
@@ -117,11 +117,9 @@ class IssueSearchForm(forms.Form):
         }),
         required=False)
     order_by = forms.CharField(
-        max_length=15,
         widget=forms.HiddenInput(),
         required=False)
     reverse = forms.CharField(
-        max_length=3,
         widget=forms.HiddenInput(),
         required=False)
     page = forms.IntegerField(

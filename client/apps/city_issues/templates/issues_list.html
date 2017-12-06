@@ -15,7 +15,7 @@
           <h1><small>All Issues:</small></h1>
            <form action="{% url "issues" %}" method="GET" id="search-filter" data-search="{% if search %}{{search}}{% endif %}" data-order="{% if order_by %}{{order_by}}{% else %}title{% endif %}" data-reverse="{% if reverse %}{{reverse}}{% endif %}">
                {{form}}
-            <button class="btn btn-info" type="submit" id="submit">{% bootstrap_icon 'search' %}</button>
+            <button class="btn btn-info" type="submit" id="submit-btn">{% bootstrap_icon 'search' %}</button>
             </form>
         </div>
         {% endwith %}
@@ -115,5 +115,5 @@
 {% block extra_js %}
 
 {% load static %}
-	<script type="text/javascript" src="{% static "city_issues/js/main.js" %}"></script>
+	<script type="text/javascript" src="{% static "city_issues/js/search_issue.js" %}"></script>
 {% endblock extra_js %}
