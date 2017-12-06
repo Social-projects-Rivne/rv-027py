@@ -21,8 +21,8 @@ from django.contrib.auth.decorators import login_required
 from django.views.generic import RedirectView
 
 from city_issues.views import (
-    CheckIssues, DetailedIssue, edit_issue_view, get_all_issues_data, get_issue_data,
-    HomePageView, map_page_view, IssueCreate, UserProfileView)
+    CheckIssues, DetailedIssue, get_all_issues_data, get_issue_data,
+    HomePageView, map_page_view, IssueCreate, UserProfileView, UpdateIssue)
 
 
 urlpatterns = [
@@ -36,7 +36,7 @@ urlpatterns = [
         get_issue_data, name='issue_data'),
     url(r'^map/getissuesall/$', get_all_issues_data, name='all_issues'),
     url(r'^add-issue', login_required(IssueCreate.as_view()), name='create_issue'),
-    url(r'^editissue/(?P<issue_id>[0-9]+)$', edit_issue_view, name='edit_issue'),
+    url(r'^editissue/(?P<pk>[0-9]+)$', UpdateIssue.as_view(), name='edit_issue'),
 
     # registration and authorization views
     url(r'^accounts/logout/$', auth_views.logout, kwargs={'next_page': 'home'}, name='auth_logout'),

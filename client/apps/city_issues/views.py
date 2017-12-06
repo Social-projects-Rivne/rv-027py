@@ -3,21 +3,29 @@ Django views
 """
 # -*- coding: utf-8 -*-
 import json
+import os.path
+
 from datetime import date, datetime, time
 
 from django.db.models import Q
 from django.views.generic.base import TemplateView, View
+from django.conf import settings
 from django.contrib import messages
 from django.core import serializers
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse, HttpResponse, Http404
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils.timezone import make_aware
 from django.views.generic import CreateView, ListView
 from django.views.generic.detail import DetailView
+from django.views.generic.edit import UpdateView
 
 from city_issues.models import Attachments, Issues, IssueHistory, User
-from city_issues.forms.forms import EditIssue, IssueFilter, IssueForm
+from city_issues.forms.forms import EditIssue, IssueFilter, IssueForm, IssueFormEdit
+
+ROLE_ADMIN = 1
+ROLE_MODERATOR = 2
+ROLE_USER = 3
 
 
 class HomePageView(TemplateView):
@@ -27,6 +35,7 @@ class HomePageView(TemplateView):
 
 class UserProfileView(View):
     """User profile page"""
+
     def get(self, request, user_id):
         user = User.objects.get(id=user_id)
         user_issues = Issues.objects.filter(user_id=user_id)
@@ -82,31 +91,21 @@ def map_page_view(request):
     return render(request, 'map_page.html', {'form': form})
 
 
-def edit_issue_view(request, issue_id):
-    """Edit page"""
-    if request.method == 'POST':
-        form = EditIssue(request.POST)
-        if form.is_valid():
-            EditIssue(request.POST, instance=Issues.objects.get(
-                pk=issue_id)).save()
-            return redirect(reverse('map'))
-    else:
-        form = EditIssue(instance=Issues.objects.get(pk=issue_id))
-
-    return render(
-        request, 'edit_issue.html', {'form': form, 'issue_id': issue_id})
-
-
 def get_issue_data(request, issue_id):
     """Returns single issue record as json"""
 
     attachments_query = list(
         Attachments.objects.filter(issue=issue_id).values())
     images_urls = [item['image_url'] for item in attachments_query]
+    checked_img_urls = []
+
+    for img in images_urls:
+        if img and os.path.isfile(os.path.join(settings.MEDIA_ROOT, img)):
+            checked_img_urls.append(img)
 
     issue_query = list(Issues.objects.filter(pk=issue_id).values())
     issue_dict = issue_query[0]
-    issue_dict['images_urls'] = images_urls
+    issue_dict['images_urls'] = checked_img_urls
 
     issue_dict['open_date'] = convert_date(issue_dict['open_date'])
     issue_dict['close_date'] = convert_date(issue_dict['close_date'])
@@ -126,24 +125,19 @@ def get_all_issues_data(request):
 
     if form.is_valid() and form.data.get('filter'):
 
-        map_date_from = form.data.get('date_from')
-        map_date_to = form.data.get('date_to')
-        show_closed = form.data.get('show_closed')
+        map_date_from = form.cleaned_data.get('date_from')
+        map_date_to = form.cleaned_data.get('date_to')
+        show_closed = form.cleaned_data.get('show_closed')
         category = form.data.get('category')
-        search = form.data.get('search')
+        search = form.cleaned_data.get('search')
 
-        if show_closed == 'true':
-            show_closed = False
-        else:
-            show_closed = True
+        show_closed = not show_closed
 
         kwargs = {"close_date__isnull": (show_closed)}
 
         if map_date_from and map_date_to:
-            date_from = make_aware(datetime.combine(
-                datetime.strptime(map_date_from, '%Y-%m-%d'), time.min))
-            date_to = make_aware(datetime.combine(
-                datetime.strptime(map_date_to, '%Y-%m-%d'), time.max))
+            date_from = make_aware(datetime.combine(map_date_from, time.min))
+            date_to = make_aware(datetime.combine(map_date_to, time.max))
             kwargs["open_date__range"] = (date_from, date_to)
 
         if category:
@@ -194,3 +188,17 @@ class DetailedIssue(DetailView):
     """Detailed issue"""
     template_name = 'issue_detailed.html'
     model = Issues
+
+
+class UpdateIssue(UpdateView):
+    """Edit issue from map."""
+    model = Issues
+    form_class = IssueFormEdit
+    template_name = 'edit_issue.html'
+    success_url = '/map/'
+
+    def dispatch(self, request, *args, **kwargs):
+        obj = self.get_object()
+        if (self.request.user.role.id in (ROLE_ADMIN, ROLE_MODERATOR)) or (obj.user == self.request.user):
+            return super(UpdateIssue, self).dispatch(request, *args, **kwargs)
+        raise Http404("You are not allowed to edit this issue")
