@@ -19,6 +19,7 @@ ul.messages{
   top: 75px;
   z-index: 1000;
   right: 90px;
+  background: white;
 }
 
 a.del-msg{

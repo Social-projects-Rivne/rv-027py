@@ -5,15 +5,15 @@ Django views
 import json
 from datetime import date, datetime, time
 
-from django.views.generic import CreateView, UpdateView
+from django.contrib.auth import update_session_auth_hash
+from django.views.generic import CreateView
 from django.views.generic.base import TemplateView, View
 from django.contrib import messages
 from django.core import serializers
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils.timezone import make_aware
-from passlib.handlers.django import django_bcrypt
 
 from city_issues.models import Attachments, Issues, IssueHistory, User
 from city_issues.forms.forms import EditIssue, IssueFilter, IssueForm, EditUserForm
@@ -31,9 +31,9 @@ class UserProfileView(View):
     template_name = 'user/user.html'
 
     def get(self, request):
-        user = User.objects.get(id=request.user.id)
+        user = request.user
         user_issues = Issues.objects.filter(user_id=user.id)
-        form = self.form_class(instance=User.objects.get(pk=user.id))
+        form = self.form_class(instance=User.objects.get(id=user.id))
 
         return render(request, self.template_name, {'user': user,
                                                     'user_issues': user_issues,
@@ -44,15 +44,15 @@ class UserProfileView(View):
         form = EditUserForm(data=request.POST, instance=request.user)
 
         if form.is_valid():
-            print user.id
-            print user.name
-            if self.is_not_empty_passwrds(form.cleaned_data) and self.check_passwords(user, form.cleaned_data):
+            if self.is_not_empty_passwords(form.cleaned_data) and self.check_passwords(user, form.cleaned_data):
+
                 user.set_password(form.cleaned_data['confirm_password'])
 
             user.name = form.cleaned_data['name']
             user.alias = form.cleaned_data['alias']
             user.email = form.cleaned_data['email']
             user.save()
+            update_session_auth_hash(request, user)
             messages.success(request, 'Changes successfully saved')
 
         else:
@@ -61,7 +61,6 @@ class UserProfileView(View):
         return redirect(self.success_url)
 
     def check_passwords(self, user,  form_data):
-        print user.id
         if not user.check_password(form_data['current_password']):
             messages.error(self.request, 'Wrong current password')
             return redirect(self.success_url)
@@ -73,7 +72,7 @@ class UserProfileView(View):
         else:
             return True
 
-    def is_not_empty_passwrds(self, data):
+    def is_not_empty_passwords(self, data):
         if data['current_password'] == '' and data['new_password'] == '' and data['confirm_password'] == '':
             return False
         else:

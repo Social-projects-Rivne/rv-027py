@@ -92,20 +92,10 @@ class IssueFilter(forms.Form):
 
 
 class EditUserForm(forms.ModelForm):
-
+    """Edit user form"""
     class Meta:
         model = User
         fields = ['name', 'alias', 'email']
-    #
-    # def clean_email(self):
-    #     alias = self.cleaned_data["alias"]
-    #     email = self.cleaned_data["email"]
-    #     users = User.objects.filter(email__iexact=email).exclude(
-    #         alias__iexact=alias)
-    #     if users:
-    #         raise forms.ValidationError(
-    #             'User with that email already exists.')
-    #     return email.lower()
 
     name = forms.CharField(
         max_length=25,
