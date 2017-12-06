@@ -16,7 +16,7 @@ from django.urls import reverse
 from django.utils.timezone import make_aware
 from django.views.generic import CreateView, FormView, ListView
 
-from city_issues.models import Attachments, Issues,  IssueHistory, User
+from city_issues.models import Attachments, Issues, IssueHistory, User
 from city_issues.forms.forms import EditIssue, IssueFilter, IssueForm, IssueSearchForm
 
 
@@ -175,20 +175,10 @@ class CheckIssues(ListView, FormView):
     context_object_name = 'issues_list'
     paginate_by = 6
 
-    # def search_issue(self):
-    #     search = self.request.GET.get('search')
-    #     all_issue = Issues.objects.all()
-    #     if search:
-    #         query_list = search.split()
-    #         issues_list = all_issue.filter(
-    #             reduce(operator.or_, (Q(title__icontains=q) for q in query_list)) |
-    #             reduce(operator.or_, (Q(description__icontains=q) for q in query_list)))
-    #         return issues_list
-
     def get_queryset(self):
         """Adds sorting"""
         queryset = super(CheckIssues, self).get_queryset()
-        order_by = self.request.GET.get('order_by', 'title')
+        order_by = self.request.GET.get('order_by')
         search = self.request.GET.get('search')
         if search:
             query_list = search.split()
@@ -206,15 +196,3 @@ class CheckIssues(ListView, FormView):
         context = super(CheckIssues, self).get_context_data(**kwargs)
         context['issues_range'] = range(context["paginator"].num_pages)
         return context
-
-def search_issue(request):
-    """ Search issues """
-    form = IssueSearchForm
-    search = request.GET.get('search')
-    all_issue = Issues.objects.all()
-    if search:
-        query_list = search.split()
-        issues_list = all_issue.filter(
-            reduce(operator.or_, (Q(title__icontains=q) for q in query_list)) |
-            reduce(operator.or_, (Q(description__icontains=q) for q in query_list)))
-    return render (request, 'issues_list.html',  {'form': form, 'issues_list': issues_list})

@@ -196,6 +196,29 @@ function insertTemplate(parentId, templateId) {
   }
 }
 
+$( document ).ready(function() {
+    $('.get-request').on('click', function(e) {
+      e.preventDefault();
+
+      var search = $('#search-filter').data('search');
+      var order_by = $(this).data('order-by');
+      var reverse = $(this).data('reverse');
+      var page = $(this).data('page');
+
+      $("#id_search").val(search);
+      $("#id_order_by").val(order_by);
+      $("#id_reverse").val(reverse);
+      $("#id_page").val(page);
+
+      $('#submit').click();
+    });
+
+    $('#search-filter').on('click', function(e){
+    if (order_by == ""){
+        $("#id_order_by").val('title');
+    }
+    });
+});
 
 
 issueMap = new IssueMap("mapid");

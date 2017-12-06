@@ -55,7 +55,6 @@ check_alias = UniqueValue(
 class BaseForm(FlaskForm):
     """Adds csrf"""
     class Meta:
-        """..."""
         csrf = True
 
 
@@ -251,7 +250,6 @@ class SearchUserForm(BaseForm):
     )
 
     class Meta:
-        """..."""
         csrf = False
 
 
@@ -277,5 +275,4 @@ class SearchIssuesForm(BaseForm):
     )
 
     class Meta:
-        """..."""
         csrf = False
