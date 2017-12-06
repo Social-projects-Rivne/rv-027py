@@ -127,3 +127,8 @@ class IssueSearchForm(forms.Form):
     page = forms.IntegerField(
         widget=forms.HiddenInput(),
         required=False)
+    
+ 
+class IssueFormEdit(IssueForm):
+
+    files = None

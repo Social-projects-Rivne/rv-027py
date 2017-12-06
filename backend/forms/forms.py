@@ -259,17 +259,20 @@ class SearchIssuesForm(BaseForm):
     search = StringField(
         'search'
     )
+
     search_by = SelectField(
         'search_by',
         choices=[
-            ('0', 'title'),
+            ('0', 'summary'),
             ('1', 'category'),
+            ('2', 'description'),
         ]
     )
+
     order_by = SelectField(
         'order_by',
         choices=[
-            ('0', 'title'),
+            ('0', 'summary'),
             ('1', 'category'),
         ]
     )

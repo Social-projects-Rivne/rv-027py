@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% load i18n %}
+{% load static from staticfiles %}
+
+{% block meta_title %}Detailed Issue{% endblock meta_title %}
+
+{% block content %}
+
+<div class="container">
+    <div class="row">
+        <div class="page-header text-center">
+          <h1>{{ object.title }}<small> {{ object.user }}</small></h1>
+        </div>
+    </div>
+    <div class="row">
+      <div>
+          <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th>Category</th>
+                  <th>Latitude</th>
+                  <th>Longitude</th>
+                  <th>Status</th>
+                  <th>Description</th>
+                  <th>Open date</th>
+                  <th>Close date</th>
+                  <th>Attachments</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>{{ object.category}}</td>
+                  <td>{{ object.location_lat}}</td>
+                  <td>{{ object.location_lon}}</td>
+                  <td>{{ object.status }}</td>
+                  <td>{{ object.description}}</td>
+                  <td>{{ object.open_date}}</td>
+                  <td>{{ object.close_date}}</td>
+                  <td>None</td>
+                </tr>
+              </tbody>
+        </table>
+      </div>
+    </div>
+</div>
+
+{% endblock content %}
