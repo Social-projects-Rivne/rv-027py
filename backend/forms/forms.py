@@ -274,7 +274,7 @@ class SearchIssuesForm(BaseForm):
     order_by = SelectField(
         'order_by',
         choices=[
-            ('0', 'title'),
+            ('0', 'summary'),
             ('1', 'category'),
         ]
     )
