@@ -70,7 +70,7 @@ class UserProfileView(View):
 
         return redirect(self.success_url)
 
-    def check_passwords(self, user,  form_data):
+    def check_passwords(self, user, form_data):
         if not user.check_password(form_data['current_password']):
             messages.error(self.request, 'Wrong current password')
             return redirect(self.success_url)

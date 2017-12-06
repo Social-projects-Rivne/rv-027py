@@ -3,7 +3,6 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django import forms
 
 from city_issues.models.issues import Issues, Category
-from city_issues.models.users import User
 
 
 class IssueForm(forms.ModelForm):
@@ -84,8 +83,6 @@ class IssueFilter(forms.Form):
         widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}))
 
     date_to = forms.DateField(
-        required=True,
-        widget=DateInput(attrs={'type': 'date'}))
         required=False,
         widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}))
 
@@ -109,11 +106,6 @@ class IssueFilter(forms.Form):
         required=False,)
 
 
-class IssueFormEdit(IssueForm):
-
-    files = None
-
-    
 class EditUserForm(forms.ModelForm):
     """Edit user form"""
     class Meta:
@@ -157,3 +149,8 @@ class EditUserForm(forms.ModelForm):
         min_length=4,
         widget=forms.PasswordInput(attrs={'class': 'form-control'})
     )
+
+
+class IssueFormEdit(IssueForm):
+
+    files = None
