@@ -24,7 +24,6 @@ class Attachments(models.Model):
     image_url = models.ImageField(blank=True, null=True, upload_to=get_file_path)
 
     class Meta:
-        """..."""
         app_label = 'city_issues'
         managed = False
         db_table = 'attachments'
@@ -41,7 +40,6 @@ class Category(models.Model):
         return u'{0}'.format(self.category)
 
     class Meta:
-        """..."""
         app_label = 'city_issues'
         managed = False
         db_table = 'category'
@@ -54,7 +52,6 @@ class Statuses(models.Model):
     status = models.TextField(blank=True, null=True)
 
     class Meta:
-        """..."""
         app_label = 'city_issues'
         managed = False
         db_table = 'statuses'
@@ -76,7 +73,6 @@ class IssueHistory(models.Model):
                                             auto_now_add=True)
 
     class Meta:
-        """..."""
         app_label = 'city_issues'
         managed = False
         db_table = 'issue_History'
@@ -99,7 +95,6 @@ class Issues(models.Model):
     delete_date = models.DateTimeField(blank=True, null=True)
 
     class Meta:
-        """..."""
         app_label = 'city_issues'
         managed = False
         db_table = 'issues'

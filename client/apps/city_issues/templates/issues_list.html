@@ -2,6 +2,7 @@
 
 {% load i18n %}
 {% load static from staticfiles %}
+{% load bootstrap3%}
 
 {% block meta_title %}All Issues{% endblock meta_title %}
 
@@ -9,9 +10,15 @@
 
 <div class="container">
     <div class="row">
+        {% with search=request.GET.search order_by=request.GET.order_by reverse=request.GET.reverse %}
         <div class="page-header text-center">
           <h1><small>All Issues:</small></h1>
+           <form action="{% url "issues" %}" method="GET" id="search-filter" data-search="{% if search %}{{search}}{% endif %}" data-order="{% if order_by %}{{order_by}}{% else %}title{% endif %}" data-reverse="{% if reverse %}{{reverse}}{% endif %}">
+               {{form}}
+            <button class="btn btn-info" type="submit" id="submit-btn">{% bootstrap_icon 'search' %}</button>
+            </form>
         </div>
+        {% endwith %}
     </div>
     <div class="row">
       <div>
@@ -21,7 +28,7 @@
                 <tr>
                   <th scope="col">#</th>
                   <th>
-                      <a href="{% url "issues" %}?order_by=title{% if order_by == 'title' and reverse != 'v_v' %}&amp;reverse=v_v{% endif %}">
+                      <a href="" class="get-request" data-order-by='title'  data-reverse="{% if order_by == 'title' and reverse != 'v_v' %}v_v{% elif order_by == 'title' and reverse == 'v_v' %}{% else %}{% endif %}">
                     Title
                     {% if order_by == 'title' and reverse != 'v_v' %}&uarr;
                         {% elif order_by != 'status' and order_by != 'description' and order_by != 'category' and reverse != 'v_v' %}&uarr;
@@ -30,7 +37,7 @@
                       </a>
                   </th>
                   <th>
-                      <a href="{% url "issues" %}?order_by=status{% if order_by == 'status' and reverse != 'v_v' %}&amp;reverse=v_v{% endif %}">
+                      <a href="" class="get-request" data-order-by="status" data-reverse="{% if order_by == 'status' and reverse != 'v_v' %}v_v{% elif order_by == 'status' and reverse == 'v_v' %}{% else %}{% endif %}">
                     Status
                     {% if order_by == 'status' and reverse != 'v_v' %}&uarr;
                         {% elif order_by == 'status' and reverse == 'v_v' %}&darr;
@@ -38,7 +45,7 @@
                       </a>
                   </th>
                   <th>
-                      <a href="{% url "issues" %}?order_by=description{% if order_by == 'description' and reverse != 'v_v' %}&amp;reverse=v_v{% endif %}">
+                      <a href="" class="get-request" data-order-by="description" data-reverse="{% if order_by == 'description' and reverse != 'v_v' %}v_v{% elif order_by == 'description' and reverse == 'v_v' %}{% else %}{% endif %}">
                     Description
                     {% if order_by == 'description' and reverse != 'v_v' %}&uarr;
                         {% elif  order_by == 'description' and reverse == 'v_v' %}&darr;
@@ -46,7 +53,7 @@
                       </a>
                   </th>
                   <th>
-                      <a href="{% url "issues" %}?order_by=category{% if order_by == 'category' and reverse != 'v_v' %}&amp;reverse=v_v{% endif %}">
+                      <a href="" class="get-request" data-order-by="category" data-reverse="{% if order_by == 'category' and reverse != 'v_v' %}v_v{% elif order_by == 'category' and reverse == 'v_v' %}{% else %}{% endif %}">
                     Category
                     {% if order_by == 'category' and reverse != 'v_v' %}&uarr;
                         {% elif order_by == 'category' and reverse == 'v_v' %}&darr;
@@ -74,12 +81,11 @@
 
 <!--start pagination-->
 {% if is_paginated %}
-{% with order_by=request.GET.order_by reverse=request.GET.reverse %}
 <nav class="customPag" aria-label="Page navigation" style="text-align: center">
     <ul class="pagination pagination-lg">
         {% if page_obj.has_previous %}
         <li>
-            <a aria-label="Previous" href="{% url "issues" %}?page={{ page_obj.previous_page_number }}&amp;order_by={{ order_by }}&amp;reverse={{ reverse }}">
+            <a aria-label="Previous" href="" class="get-request" data-page= {{ page_obj.previous_page_number }}>
             <span aria-hidden="true">&laquo;</span>
             </a>
         </li>
@@ -87,22 +93,27 @@
 
         {% for issue in issues_range %}
         <li class="{% if page_obj.number == forloop.counter %} active {% endif %}">
-            <a href="{% url "issues" %}?page={{ forloop.counter }}&amp;order_by={{ order_by }}&amp;reverse={{ reverse }}">{{ forloop.counter }}</a>
+            <a href="" class="get-request" data-page= {{ forloop.counter }} >{{ forloop.counter }}</a>
         </li>
         {% endfor %}
 
         {% if page_obj.has_next %}
         <li>
-            <a aria-label="Next" href="{% url "issues" %}?page={{ page_obj.next_page_number }}&amp;order_by={{ order_by }}&amp;reverse={{ reverse }}">
+            <a aria-label="Next" href="" class="get-request" data-page= {{ page_obj.next_page_number }}>
             <span aria-hidden="true">&raquo;</span>
             </a>
         </li>
         {% endif %}
     </ul>
 </nav>
-{% endwith %}
 {% endif %}
 
 <!--end pagination-->
 
 {% endblock content %}
+
+{% block extra_js %}
+
+{% load static %}
+	<script type="text/javascript" src="{% static "city_issues/js/search_issue.js" %}"></script>
+{% endblock extra_js %}
