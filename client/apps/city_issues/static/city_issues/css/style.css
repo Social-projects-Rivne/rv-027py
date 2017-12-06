@@ -4,7 +4,7 @@
 
 .issue_container {
 	position: fixed;
-	top: 0;
+	top: 72px;
 	right: 0;
 
 	display: none;
@@ -19,12 +19,13 @@
 }
 
 .issue_img-box {
+	width: 360px;
 	height: 225px;
 }
 
-.issue_img {
-	height: 225px;
-	width: auto;
+#carousel-example-generic img {
+	height: 100%;
+	width: 100%;
 }
 
 .carousel-inner  .item{
@@ -46,17 +47,17 @@
 	z-index: 999;
 }
 
-#message_box {
+.message_box {
 	display: none;
 }
 
-#message_box ul {
+.message_box ul {
 	list-style: none;
 	margin: 0;
 	padding: 0;
 }
 
-#message_box .error {
+.message_box .error {
 	
 	font-size: 16px;
 	color: red;

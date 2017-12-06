@@ -1,0 +1,89 @@
+{% extends "home_page.html" %}
+
+{% load i18n %}
+
+{% block meta_title %}Issues page{% endblock meta_title %}
+
+{% block extra_css %}
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/issues.css' %}"/>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css"
+          integrity="sha512-M2wvCLH6DSRazYeZRIm1JnYyh22purTM+FDB5CsyxtQJYeKq83arPe5wgbNmcFXGqiSH2XR8dT/fJISVA1r/zQ=="
+          crossorigin=""/>
+{% endblock extra_css %}
+
+
+{% block content %}
+    <div class="wrapper container">
+        <div class="width">
+            <h1>Comment issue</h1>
+        </div>
+
+        <div class="width">
+            <div class="row">
+                {% if messages %}
+                    <ul class="messages">
+                        {% for message in messages %}
+                            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>
+                                {{ message }}
+                                <a href="#" class="del-msg">&times;</a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+                <table class="table">
+                    <tr>
+                        <th>Title</th>
+                        <th>Categoty</th>
+                        <th>Status</th>
+                        <th>Description</th>
+                        <th>Open Date</th>
+                    </tr>
+                    <tr>
+                        <td> {{ issue.title }}</td>
+                        <td> {{ issue.category }}</td>
+                        <td> {{ issue.status }}</td>
+                        <td> {{ issue.description }}</td>
+                        <td> {{ issue.open_date }}</td>
+                    </tr>
+                </table>
+                <ul>
+                </ul>
+            <div class="row">
+                <h3>Comments: </h3>
+
+                {% for com in  issue.comments_set.all %}
+                    <h5>User {{ com.user.name }} {{ com.date_public }}</h5>
+                    <p style="text-indent:20px;">{{ com.comment }}</p>
+                {% endfor %}
+             <form action="{% url 'issue-comment' issue.pk %}" method="POST">
+                {% csrf_token %}
+                 <div class="col-md-6">
+                 <label for={{ form.comment.id_for_label }}>Comment:</label>
+                <textarea type="text" class="form-control"
+                          rows="5" name="{{ form.comment.name }}" maxlength="400"
+                          id={{ form.comment.id_for_label }}></textarea>
+                     <br>
+                 <input type='submit' class="btn btn-primary" value='Comment' name="Comment"/>
+             </div>
+
+             </form>
+
+                </div>
+                <br>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+
+
+{% block extra_js %}
+    <script src="https://unpkg.com/leaflet@1.2.0/dist/leaflet.js"
+            integrity="sha512-lInM/apFSqyy1o6s89K4iQUKg6ppXEgsVxT35HbzUupEVRh2Eu9Wdl4tHj7dZO0s1uvplcYGmt3498TtHq+log=="
+            crossorigin="">
+    </script>
+
+    {% load static %}
+    <script type="text/javascript" src="{% static "js/issues.js" %}"></script>
+
+{% endblock extra_js %}

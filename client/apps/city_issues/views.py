@@ -21,8 +21,9 @@ from django.views.generic import CreateView, FormView, ListView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import UpdateView
 
-from city_issues.models import Attachments, Issues, IssueHistory, User
+from city_issues.models import Attachments, Issues, IssueHistory, User, Comments
 from city_issues.forms.forms import EditIssue, IssueFilter, IssueForm, IssueFormEdit, IssueSearchForm
+from city_issues.mixins import LoginRequiredMixin
 
 ROLE_ADMIN = 1
 ROLE_MODERATOR = 2
@@ -132,9 +133,9 @@ def get_all_issues_data(request):
         category = form.data.get('category')
         search = form.cleaned_data.get('search')
 
-        show_closed = not show_closed
+        show_opened_issue = not show_closed
 
-        kwargs = {"close_date__isnull": (show_closed)}
+        kwargs = {"close_date__isnull": (show_opened_issue)}
 
         if map_date_from and map_date_to:
             date_from = make_aware(datetime.combine(map_date_from, time.min))
@@ -211,3 +212,27 @@ class UpdateIssue(UpdateView):
         if (self.request.user.role.id in (ROLE_ADMIN, ROLE_MODERATOR)) or (obj.user == self.request.user):
             return super(UpdateIssue, self).dispatch(request, *args, **kwargs)
         raise Http404("You are not allowed to edit this issue")
+
+
+class CommentIssues(LoginRequiredMixin, CreateView):
+    """Comment issue"""
+    template_name = 'comment_issue.html'
+    model = Comments
+    fields = ['comment']
+
+    def get_context_data(self, **kwargs):
+        context = super(CommentIssues, self).get_context_data(**kwargs)
+        context['issue'] = Issues.objects.get(pk=self.kwargs['pk'])
+        return context
+
+    def form_valid(self, form):
+        form = form.save(commit=False)
+        issue = Issues.objects.get(pk=self.kwargs['pk'])
+        user = User.objects.get(pk=self.request.user.id)
+        form.issue = issue
+        form.user = user
+        form.save()
+        return redirect(reverse('issue-comment', kwargs={'pk': self.kwargs['pk']}))
+
+    def form_invalid(self, form):
+        return super(CommentIssues, self).form_invalid(form)
