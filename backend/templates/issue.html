@@ -42,7 +42,11 @@
         <ul>
             {% for history in list_history%}
               {% if history[0] == 'change_status' %}
-                <li> <i>{{ history[3]}}</i> status changed to <b>{{ history[1] }}</b> by <b> {{ history[2] }} </b></li>
+                    {% if history[1]=='new' %}
+                        <li> <i>{{ history[3]}}</i> new issue created by <b> {{ history[2] }} </b></li>
+                    {% else %}
+                        <li> <i>{{ history[3]}}</i> status changed to <b>{{ history[1] }}</b> by <b> {{ history[2] }} </b></li>
+                    {% endif %}
               {% else %}
                 <ul>
                     <li type="circle"> <i>{{ history[3]}}  </i> by <b> {{history[1]}} </b> <p> "{{history[2]}}" </li>
