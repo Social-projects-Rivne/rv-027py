@@ -190,8 +190,13 @@ function IssueDescription(mapId, issueContainerId, issueCloseId) {
       img.classList.add("issue_img");
       imgBox.appendChild(img);
     }
-    var dataUrl =  document.getElementById("issue_edit").getAttribute("data-url").slice(0,-1);
-    document.getElementById("issue_edit").setAttribute("href", dataUrl + jsonData.id);
+    var editBtn = document.getElementById("issue_edit");
+    var dataUrl =  editBtn.getAttribute("data-url").slice(0,-1);
+    editBtn.setAttribute("href", dataUrl + jsonData.id);
+    editBtn.style.display = "none";
+    if (jsonData.editable) {
+      editBtn.style.display = "inline-block";
+    }
 
   };
 
