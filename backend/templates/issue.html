@@ -37,12 +37,6 @@
                 <dd> {{issue.location_lat}}, {{issue.location_lon }}  </dd>
             <dt> Last status: </dt>
                 <dd> {{ issue.status }} </dd>
-            {% if attachments %}
-                <dt> Attachments: </dt>
-                {% for attachment in attachments %}
-                    <dd> {{ attachment.image_url}} </dd>               
-                {% endfor %}
-            {% endif %}
         </dl> 
         <hr>
         <ul>
