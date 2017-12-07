@@ -63,7 +63,7 @@
 	padding: 0;
 }
 
-.message_box .error {
+.message_box .some_error {
 	
 	font-size: 16px;
 	color: red;
