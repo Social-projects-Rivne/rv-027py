@@ -237,6 +237,7 @@ function insertTemplate(parentId, templateId) {
   }
 }
 
+
 issueMap = new IssueMap("mapid");
 issueMap.setFilterFromBtn("#issue_filter-form-btn");
 issueMap.setFilterFromCloseBtn("#issue_filter-form-close-btn");

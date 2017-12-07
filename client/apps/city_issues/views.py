@@ -6,6 +6,7 @@ import json
 import os.path
 
 from datetime import date, datetime, time
+import operator
 
 from django.db.models import Q
 from django.conf import settings
@@ -15,13 +16,15 @@ from django.core import serializers
 from django.http import JsonResponse, HttpResponse, Http404
 from django.shortcuts import redirect, render
 from django.utils.timezone import make_aware
-from django.views.generic import CreateView, ListView
-from django.views.generic.base import TemplateView, View
+from django.views.generic import CreateView, FormView, ListView
+from django.views.generic.detail import DetailView
 from django.views.generic.edit import UpdateView
 from django.urls import reverse
 
-from city_issues.models import Attachments, Issues, IssueHistory, User
-from city_issues.forms.forms import EditIssue, EditUserForm, IssueFilter, IssueForm, IssueFormEdit
+from city_issues.models import Attachments, Issues, IssueHistory, User, Comments
+from city_issues.forms.forms import EditIssue, IssueFilter, IssueForm, IssueFormEdit, IssueSearchForm
+from city_issues.mixins import LoginRequiredMixin
+
 
 ROLE_ADMIN = 1
 ROLE_MODERATOR = 2
@@ -176,9 +179,9 @@ def get_all_issues_data(request):
         category = form.data.get('category')
         search = form.cleaned_data.get('search')
 
-        show_closed = not show_closed
+        show_opened_issue = not show_closed
 
-        kwargs = {"close_date__isnull": (show_closed)}
+        kwargs = {"close_date__isnull": (show_opened_issue)}
 
         if map_date_from and map_date_to:
             date_from = make_aware(datetime.combine(map_date_from, time.min))
@@ -206,8 +209,9 @@ def convert_date(obj):
     return obj
 
 
-class CheckIssues(ListView):
+class CheckIssues(ListView, FormView):
     """A list of issues"""
+    form_class = IssueSearchForm
     template_name = 'issues_list.html'
     model = Issues
     context_object_name = 'issues_list'
@@ -217,6 +221,13 @@ class CheckIssues(ListView):
         """Adds sorting"""
         queryset = super(CheckIssues, self).get_queryset()
         order_by = self.request.GET.get('order_by', 'title')
+        search = self.request.GET.get('search')
+        if search:
+            query_list = search.split()
+            queryset = queryset.filter(
+                reduce(operator.or_, (Q(title__icontains=q) for q in query_list)) |
+                reduce(operator.or_, (Q(description__icontains=q) for q in query_list))
+            )
         if order_by in ('title', 'status', 'description', 'category'):
             queryset = queryset.order_by(order_by)
             if self.request.GET.get('reverse', '') == 'v_v':
@@ -227,6 +238,12 @@ class CheckIssues(ListView):
         context = super(CheckIssues, self).get_context_data(**kwargs)
         context['issues_range'] = range(context["paginator"].num_pages)
         return context
+
+
+class DetailedIssue(DetailView):
+    """Detailed issue"""
+    template_name = 'issue_detailed.html'
+    model = Issues
 
 
 class UpdateIssue(UpdateView):
@@ -241,3 +258,27 @@ class UpdateIssue(UpdateView):
         if (self.request.user.role.id in (ROLE_ADMIN, ROLE_MODERATOR)) or (obj.user == self.request.user):
             return super(UpdateIssue, self).dispatch(request, *args, **kwargs)
         raise Http404("You are not allowed to edit this issue")
+
+
+class CommentIssues(LoginRequiredMixin, CreateView):
+    """Comment issue"""
+    template_name = 'comment_issue.html'
+    model = Comments
+    fields = ['comment']
+
+    def get_context_data(self, **kwargs):
+        context = super(CommentIssues, self).get_context_data(**kwargs)
+        context['issue'] = Issues.objects.get(pk=self.kwargs['pk'])
+        return context
+
+    def form_valid(self, form):
+        form = form.save(commit=False)
+        issue = Issues.objects.get(pk=self.kwargs['pk'])
+        user = User.objects.get(pk=self.request.user.id)
+        form.issue = issue
+        form.user = user
+        form.save()
+        return redirect(reverse('issue-comment', kwargs={'pk': self.kwargs['pk']}))
+
+    def form_invalid(self, form):
+        return super(CommentIssues, self).form_invalid(form)

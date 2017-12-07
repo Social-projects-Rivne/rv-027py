@@ -88,3 +88,24 @@ class Status(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     status = db.Column(db.Text)
+
+
+class Comments(db.Model):
+    """
+    Issues table in the database.
+    """
+
+    __tablename__ = 'comments'
+    id = db.Column(db.Integer, primary_key=True)
+    comment = db.Column(db.Text)
+    date_public = db.Column(db.TIMESTAMP)
+    user_id = db.Column(db.ForeignKey(u'users.id'))
+    issue_id = db.Column(db.ForeignKey(u'issues.id'), index=True)
+    issue = db.relationship(u'Issue')
+    user = db.relationship(u'User')
+
+    class Meta:
+        """..."""
+        app_label = 'city_issues'
+        managed = False
+        db_table = 'comments'

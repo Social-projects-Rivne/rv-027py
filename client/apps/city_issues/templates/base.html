@@ -39,6 +39,8 @@
                 <!--<a href="#" class="navbar-text navbar-left">{{ user.email }}</a>-->
                 <a href="{% url "accounts:auth_logout" %}"
                    class="navbar-text navbar-right">Log out</a>
+                <a href="{% url "issues" %}"
+                   class="navbar-text navbar-right">All Issues</a>
                 <p class="navbar-text navbar-right">You are logged as <a
                         href="{% url 'user_profile' %}">{{ user.email }}</a></p>
             {% else %}
@@ -46,6 +48,8 @@
                    class="navbar-text navbar-right">Log in</a>
                 <a href="{% url "accounts:registration_register" %}"
                    class="navbar-text navbar-right">Sign in</a>
+                <a href="{% url "issues" %}"
+                   class="navbar-text navbar-right">All Issues</a>
             {% endif %}
         </div><!-- /.navbar-collapse -->
     </div><!-- /.container-fluid -->

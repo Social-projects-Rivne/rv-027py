@@ -150,6 +150,27 @@ class EditUserForm(forms.ModelForm):
         min_length=4,
         widget=forms.PasswordInput(attrs={'class': 'form-control'})
     )
+    
+    
+class IssueSearchForm(forms.Form):
+    """Issue search form"""
+    search = forms.CharField(
+        min_length=2,
+        max_length=100,
+        label='',
+        widget=forms.TextInput(attrs={
+            'size': '60%'
+        }),
+        required=False)
+    order_by = forms.CharField(
+        widget=forms.HiddenInput(),
+        required=False)
+    reverse = forms.CharField(
+        widget=forms.HiddenInput(),
+        required=False)
+    page = forms.IntegerField(
+        widget=forms.HiddenInput(),
+        required=False)
 
 
 class IssueFormEdit(IssueForm):
