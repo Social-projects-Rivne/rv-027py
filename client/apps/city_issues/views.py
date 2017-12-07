@@ -35,6 +35,9 @@ class HomePageView(TemplateView):
     """Home page"""
     template_name = "home_page.html"
 
+    def get(self, request):
+        return redirect("map")
+
 
 class UserProfileView(View):
     """User profile page"""
