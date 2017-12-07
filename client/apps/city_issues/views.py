@@ -37,6 +37,9 @@ class HomePageView(TemplateView):
     """Home page"""
     template_name = "home_page.html"
 
+    def get(self, request):
+        return redirect("map")
+
 
 class UserProfileView(View):
     """User profile page"""
@@ -257,7 +260,9 @@ class UpdateIssue(UpdateView):
 
     def dispatch(self, request, *args, **kwargs):
         obj = self.get_object()
-        if (self.request.user.role.id in (ROLE_ADMIN, ROLE_MODERATOR)) or (obj.user == self.request.user):
+        if hasattr(self.request.user, 'role') and (
+                (self.request.user.role.id in (ROLE_ADMIN, ROLE_MODERATOR)) or
+                (obj.user == self.request.user)):
             return super(UpdateIssue, self).dispatch(request, *args, **kwargs)
         raise Http404("You are not allowed to edit this issue")
 

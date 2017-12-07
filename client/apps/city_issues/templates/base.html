@@ -41,6 +41,8 @@
                    class="navbar-text navbar-right">Log out</a>
                 <a href="{% url "issues" %}"
                    class="navbar-text navbar-right">All Issues</a>
+                 <a href="{% url "map" %}"
+                 class="navbar-text navbar-right">Map</a>
                 <p class="navbar-text navbar-right">You are logged as <a
                         href="{% url 'user_profile' %}">{{ user.email }}</a></p>
             {% else %}
@@ -50,6 +52,8 @@
                    class="navbar-text navbar-right">Sign in</a>
                 <a href="{% url "issues" %}"
                    class="navbar-text navbar-right">All Issues</a>
+                <a href="{% url "map" %}"
+                   class="navbar-text navbar-right">Map</a>
             {% endif %}
         </div><!-- /.navbar-collapse -->
     </div><!-- /.container-fluid -->
