@@ -27,7 +27,7 @@
     <div class="col-md-12">
         <hr>
         <dl class="dl-horizontal ">
-            <dt> Desctiption: </dt>
+            <dt> Description: </dt>
                 <dd> {{ issue.description }}</dd>
             <dt> Category: </dt>
                 <dd> {{issue.category.category}} </dd>
@@ -45,13 +45,17 @@
             {% endif %}
         </dl> 
         <hr>
-        {% if history_list %}
-            <ul>
-                {% for history in history_list%}
-                <li> <i>{{ history.transaction_date.strftime('%Y-%m-%d')}}</i> status changed to <b>{{ history.status.status }}</b> by <b> {{ history.user.alias }} </b></li>
-                    {% endfor %}
-            </ul>
-        {% endif %}
+        <ul>
+            {% for history in list_history%}
+              {% if history[0] == 'change_status' %}
+                <li> <i>{{ history[3]}}</i> status changed to <b>{{ history[1] }}</b> by <b> {{ history[2] }} </b></li>
+              {% else %}
+                <ul>
+                    <li type="circle"> <i>{{ history[3]}}  </i> by <b> {{history[1]}} </b> <p> "{{history[2]}}" </li>
+                </ul>
+              {% endif%}
+            {% endfor %}
+        </ul>
     </div>
 </div>
 

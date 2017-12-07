@@ -1,6 +1,6 @@
 """Forms models"""
-from django.core.validators import MaxValueValidator, MinValueValidator
 from django import forms
+from django.core.validators import MaxValueValidator, MinValueValidator
 
 from city_issues.models.issues import Issues, Category
 
@@ -107,7 +107,7 @@ class IssueFilter(forms.Form):
 
 
 class IssueSearchForm(forms.Form):
-    """Issue search form"""
+    """Issue search form."""
     search = forms.CharField(
         min_length=2,
         max_length=100,

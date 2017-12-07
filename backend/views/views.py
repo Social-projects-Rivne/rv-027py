@@ -9,7 +9,7 @@ from backend.app import app, db
 from backend.forms.forms import (IssueForm, LoginForm, SearchUserForm,
                                  SearchIssuesForm, UserForm, UserAddForm)
 
-from backend.models.issues import (Attachment, Category, IssueHistory,
+from backend.models.issues import (Attachment, Category, Comments, IssueHistory,
                                    Issue, Status)
 from backend.models.users import Role, User
 
@@ -284,6 +284,14 @@ def issue_info(issue_id):
     attach = db.session.query(Attachment).filter(and_(
         Attachment.issue_id == issue_id)).all()
     history = db.session.query(
-        IssueHistory).filter(and_(
-            IssueHistory.issue_id == issue_id)).order_by(IssueHistory.transaction_date).all()
-    return render_template('issue.html', issue=issue_one, attachments=attach, history_list=history)
+        IssueHistory).filter(IssueHistory.issue_id == issue_id).order_by(
+            IssueHistory.transaction_date).all()
+    comments = db.session.query(Comments).filter(
+        Comments.issue_id == issue_id).order_by(Comments.date_public).all()
+    list_history = []
+    for histor in history:
+        list_history.append(['change_status', histor.status.status, histor.user.alias, histor.transaction_date.strftime('%Y-%m-%d %H:%M')])
+    for comment in comments:
+        list_history.append(['add_comment', comment.user.alias, comment.comment, comment.date_public.strftime('%Y-%m-%d %H:%M')])
+    list_history.sort(key=lambda history: history[3])
+    return render_template('issue.html', issue=issue_one, attachments=attach, list_history=list_history)
