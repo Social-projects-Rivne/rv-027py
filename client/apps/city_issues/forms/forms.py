@@ -150,8 +150,8 @@ class EditUserForm(forms.ModelForm):
         min_length=4,
         widget=forms.PasswordInput(attrs={'class': 'form-control'})
     )
-    
-    
+
+
 class IssueSearchForm(forms.Form):
     """Issue search form"""
     search = forms.CharField(
