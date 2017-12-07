@@ -220,7 +220,7 @@ class CheckIssues(ListView, FormView):
     template_name = 'issues_list.html'
     model = Issues
     context_object_name = 'issues_list'
-    paginate_by = 6
+    paginate_by = 4
 
     def get_queryset(self):
         """Adds sorting"""

@@ -1,6 +1,7 @@
 """This module creates Users model."""
 # pylint: disable=too-few-public-methods
 
+from sqlalchemy import or_
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.sql.functions import func
 from passlib.hash import django_bcrypt
@@ -78,3 +79,28 @@ class User(db.Model):
             self.delete_date = None
             return True
         return False
+
+
+def user_search(search_string, search_by):
+    """Method user search."""
+    MIN_SEARCH_STR = 2
+
+    condition_list = []
+    for one_string in search_string.split():
+        if len(one_string) < MIN_SEARCH_STR:
+            continue
+        search_parameter = '%{}%'.format(one_string)
+        name_search = User.name.ilike(search_parameter)
+        alias_search = User.alias.ilike(search_parameter)
+        email_search = User.email.ilike(search_parameter)
+        conditions = [
+            name_search,
+            alias_search,
+            email_search,
+            or_(name_search, alias_search),
+            or_(alias_search, email_search),
+            or_(email_search, name_search),
+            or_(name_search, alias_search, email_search)
+        ]
+        condition_list.append(conditions[search_by])
+    return or_(*condition_list)
