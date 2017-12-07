@@ -9,7 +9,6 @@ from datetime import date, datetime, time
 import operator
 
 from django.db.models import Q
-from django.views.generic.base import TemplateView, View
 from django.conf import settings
 from django.contrib import messages
 from django.core import serializers
@@ -18,6 +17,7 @@ from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils.timezone import make_aware
 from django.views.generic import CreateView, FormView, ListView
+from django.views.generic.base import TemplateView, View
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import UpdateView
 
@@ -169,7 +169,7 @@ class CheckIssues(ListView, FormView):
     template_name = 'issues_list.html'
     model = Issues
     context_object_name = 'issues_list'
-    paginate_by = 6
+    paginate_by = 4
 
     def get_queryset(self):
         """Adds sorting"""

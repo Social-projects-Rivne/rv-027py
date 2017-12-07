@@ -101,6 +101,7 @@ class Comments(db.Model):
     date_public = db.Column(db.TIMESTAMP)
     user_id = db.Column(db.ForeignKey(u'users.id'))
     issue_id = db.Column(db.ForeignKey(u'issues.id'), index=True)
+
     issue = db.relationship(u'Issue')
     user = db.relationship(u'User')
 
@@ -109,3 +110,20 @@ class Comments(db.Model):
         app_label = 'city_issues'
         managed = False
         db_table = 'comments'
+
+
+def get_all_issue_history(issue_id):
+    """Method return all issue history and comments sorted by date."""
+    history = db.session.query(
+        IssueHistory).filter(IssueHistory.issue_id == issue_id).order_by(
+            IssueHistory.transaction_date).all()
+    comments = db.session.query(Comments).filter(
+        Comments.issue_id == issue_id).order_by(Comments.date_public).all()
+    list_history = []
+    for histor in history:
+        list_history.append(['change_status', histor.status.status, histor.user.alias, histor.transaction_date.strftime('%Y-%m-%d %H:%M')])
+    for comment in comments:
+        list_history.append(['add_comment', comment.user.alias, comment.comment, comment.date_public.strftime('%Y-%m-%d %H:%M')])
+    list_history.sort(key=lambda history: history[3])
+    return list_history
+
