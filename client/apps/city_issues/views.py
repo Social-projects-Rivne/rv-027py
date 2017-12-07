@@ -7,22 +7,21 @@ import os.path
 
 from datetime import date, datetime, time
 
-from django.contrib.auth import update_session_auth_hash
-from django.views.generic import CreateView
 from django.db.models import Q
-from django.views.generic.base import TemplateView, View
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth import update_session_auth_hash
 from django.core import serializers
 from django.http import JsonResponse, HttpResponse, Http404
 from django.shortcuts import redirect, render
-from django.urls import reverse
 from django.utils.timezone import make_aware
 from django.views.generic import CreateView, ListView
+from django.views.generic.base import TemplateView, View
 from django.views.generic.edit import UpdateView
+from django.urls import reverse
 
 from city_issues.models import Attachments, Issues, IssueHistory, User
-from city_issues.forms.forms import EditIssue, IssueFilter, IssueForm, IssueFormEdit, EditUserForm
+from city_issues.forms.forms import EditIssue, EditUserForm, IssueFilter, IssueForm, IssueFormEdit
 
 ROLE_ADMIN = 1
 ROLE_MODERATOR = 2
