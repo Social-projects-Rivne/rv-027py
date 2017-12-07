@@ -13,7 +13,9 @@
           href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
           integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
           crossorigin="anonymous">
-    {% block extra_css %}{% endblock extra_css %}
+    {% block extra_css %}
+
+    {% endblock extra_css %}
 
 </head>
 <body>
@@ -29,7 +31,7 @@
              id="bs-example-navbar-collapse-1">
             {% if user.is_authenticated %}
                 <div class="navbar-form navbar-left">
-                    <a href="{% url 'create_issue' %}" type="button" class="btn btn-md btn-info">
+                    <a href="{% url 'create_issue' %}" class="btn btn-md btn-info">
                         <span class="glyphicon glyphicon-plus"></span> Add issue
                     </a>
                 </div>
@@ -39,8 +41,10 @@
                    class="navbar-text navbar-right">Log out</a>
                 <a href="{% url "issues" %}"
                    class="navbar-text navbar-right">All Issues</a>
+                 <a href="{% url "map" %}"
+                 class="navbar-text navbar-right">Map</a>
                 <p class="navbar-text navbar-right">You are logged as <a
-                        href="{% url 'user_profile' user.id  %}">{{ user.email }}</a></p>
+                        href="{% url 'user_profile' %}">{{ user.email }}</a></p>
             {% else %}
                 <a href="{% url "accounts:auth_login" %}"
                    class="navbar-text navbar-right">Log in</a>
@@ -48,6 +52,8 @@
                    class="navbar-text navbar-right">Sign in</a>
                 <a href="{% url "issues" %}"
                    class="navbar-text navbar-right">All Issues</a>
+                <a href="{% url "map" %}"
+                   class="navbar-text navbar-right">Map</a>
             {% endif %}
         </div><!-- /.navbar-collapse -->
     </div><!-- /.container-fluid -->

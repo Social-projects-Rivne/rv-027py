@@ -8,6 +8,7 @@ import datetime
 from django.contrib.auth.models import AbstractBaseUser
 from django.contrib.auth.hashers import make_password
 from django.db import models
+from passlib.handlers.django import django_bcrypt
 
 from city_issues.user_managers import UserManager
 
@@ -82,6 +83,10 @@ class User(AbstractBaseUser):
     def set_password(self, raw_password):
         self.hashed_password = make_password(raw_password)
         self._password = raw_password
+
+    def check_password(self, raw_password):
+        """Checking the password form database."""
+        return django_bcrypt.verify(raw_password, self.hashed_password)
 
     @property
     def is_active(self):
