@@ -9,21 +9,24 @@ from datetime import date, datetime, time
 import operator
 
 from django.db.models import Q
-from django.views.generic.base import TemplateView, View
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth import update_session_auth_hash
 from django.core import serializers
 from django.http import JsonResponse, HttpResponse, Http404
 from django.shortcuts import redirect, render
-from django.urls import reverse
 from django.utils.timezone import make_aware
-from django.views.generic import CreateView, FormView, ListView
+from django.views import View
+from django.views.generic import CreateView, FormView, ListView, TemplateView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import UpdateView
+from django.urls import reverse
 
 from city_issues.models import Attachments, Issues, IssueHistory, User, Comments
-from city_issues.forms.forms import EditIssue, IssueFilter, IssueForm, IssueFormEdit, IssueSearchForm
+from city_issues.forms.forms import EditIssue, IssueFilter, IssueForm, \
+    IssueFormEdit, IssueSearchForm, EditUserForm
 from city_issues.mixins import LoginRequiredMixin
+
 
 ROLE_ADMIN = 1
 ROLE_MODERATOR = 2
@@ -37,12 +40,57 @@ class HomePageView(TemplateView):
 
 class UserProfileView(View):
     """User profile page"""
+    form_class = EditUserForm
+    success_url = 'user_profile'
+    template_name = 'user/user.html'
 
-    def get(self, request, user_id):
-        user = User.objects.get(id=user_id)
-        user_issues = Issues.objects.filter(user_id=user_id)
+    def get(self, request):
+        user = request.user
+        user_issues = Issues.objects.filter(user_id=user.id)
+        form = self.form_class(instance=User.objects.get(id=user.id))
 
-        return render(request, 'user/user.html', {'user': user, 'user_issues': user_issues})
+        return render(request, self.template_name, {'user': user,
+                                                    'user_issues': user_issues,
+                                                    'form': form})
+
+    def post(self, request):
+        user = User.objects.get(id=request.user.id)
+        form = EditUserForm(data=request.POST, instance=request.user)
+
+        if form.is_valid():
+            if self.is_not_empty_passwords(form.cleaned_data) and self.check_passwords(user, form.cleaned_data):
+
+                user.set_password(form.cleaned_data['confirm_password'])
+
+            user.name = form.cleaned_data['name']
+            user.alias = form.cleaned_data['alias']
+            user.email = form.cleaned_data['email']
+            user.save()
+            update_session_auth_hash(request, user)
+            messages.success(request, 'Changes successfully saved')
+
+        else:
+            messages.error(request, form.errors)
+
+        return redirect(self.success_url)
+
+    def check_passwords(self, user, form_data):
+        if not user.check_password(form_data['current_password']):
+            messages.error(self.request, 'Wrong current password')
+            return redirect(self.success_url)
+
+        elif not form_data['new_password'] == form_data['confirm_password']:
+            messages.error(self.request, "New and confirm password don't match")
+            return redirect(self.success_url)
+
+        else:
+            return True
+
+    def is_not_empty_passwords(self, data):
+        if data['current_password'] == '' and data['new_password'] == '' and data['confirm_password'] == '':
+            return False
+        else:
+            return True
 
 
 class IssueCreate(CreateView):
@@ -52,7 +100,7 @@ class IssueCreate(CreateView):
     model = Issues
     form_class = IssueForm
     template_name = 'issues/issues.html'
-    success_url = 'add-issue'
+    success_url = 'map'
 
     def form_valid(self, form):
         form.instance.user = self.request.user

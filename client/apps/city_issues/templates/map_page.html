@@ -10,6 +10,7 @@
    crossorigin=""/>
    {% load static %}
    <link rel="stylesheet" type="text/css" href="{% static "city_issues/css/style.css" %}">
+   <link rel="stylesheet" type="text/css" href="{% static 'css/general.css' %}"/>
 {% endblock extra_css %}
 
 {% block content %}
@@ -29,8 +30,34 @@
 			    <input id="issue_filter-form-btn"  class="btn btn-success" type="submit" value="Show" />
 			    <button id="issue_filter-form-close-btn" class="btn btn-danger">Close</button>
 		</div>
+    </div>
+    <div class="wrapper">
+        <div class="width">
+            <div class="row">
+                {% if messages %}
+                    <ul class="messages">
+                        {% for message in messages %}
+                            <li{% if message.tags %}
+                                class="{{ message.tags }}"{% endif %}>
+                                {{ message }}
+                                <a href="#" class="del-msg">&times;</a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+	<div id="mapid" class="map_container">
+		<div class="issue_form-box">
+			<form action="" method="get">
+				    {% csrf_token %}
+				    {{ form }}
+				    <input id="issue_filter-form-btn"  class="btn btn-success" type="submit" value="Show" />
+			</form>
+		</div>
 	</div>
-	
+	</div>
 
 	<div id="mapid" class="map_container"></div>
 	<div id="issue_container"  class="issue_container">
@@ -78,4 +105,5 @@
 	   crossorigin=""></script>
 {% load static %}
 	<script type="text/javascript" src="{% static "city_issues/js/main.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/general.js" %}"></script>
 {% endblock extra_js %}
