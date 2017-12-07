@@ -83,7 +83,8 @@ class UserProfileView(View):
             return redirect(self.success_url)
 
         elif not form_data['new_password'] == form_data['confirm_password']:
-            messages.error(self.request, "New and confirm password don't match")
+            messages.error(
+                self.request, "New and confirm password don't match")
             return redirect(self.success_url)
 
         else:
@@ -156,9 +157,20 @@ def get_issue_data(request, issue_id):
         if img and os.path.isfile(os.path.join(settings.MEDIA_ROOT, img)):
             checked_img_urls.append(img)
 
-    issue_query = list(Issues.objects.filter(pk=issue_id).values())
+    issue_obj = Issues.objects.filter(pk=issue_id)
+    unpacked_issue_obj = issue_obj[0]
+
+    issue_is_editable = False
+
+    if hasattr(request.user, 'role') and (
+            (request.user.role.id in (ROLE_ADMIN, ROLE_MODERATOR)) or
+            (unpacked_issue_obj.user_id == request.user.id)):
+        issue_is_editable = True
+
+    issue_query = list(issue_obj.values())
     issue_dict = issue_query[0]
     issue_dict['images_urls'] = checked_img_urls
+    issue_dict['editable'] = issue_is_editable
 
     issue_dict['open_date'] = convert_date(issue_dict['open_date'])
     issue_dict['close_date'] = convert_date(issue_dict['close_date'])
@@ -231,7 +243,8 @@ class CheckIssues(ListView, FormView):
             query_list = search.split()
             queryset = queryset.filter(
                 reduce(operator.or_, (Q(title__icontains=q) for q in query_list)) |
-                reduce(operator.or_, (Q(description__icontains=q) for q in query_list))
+                reduce(operator.or_, (Q(description__icontains=q)
+                                      for q in query_list))
             )
         if order_by in ('title', 'status', 'description', 'category'):
             queryset = queryset.order_by(order_by)
