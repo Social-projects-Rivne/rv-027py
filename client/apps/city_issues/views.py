@@ -16,13 +16,15 @@ from django.core import serializers
 from django.http import JsonResponse, HttpResponse, Http404
 from django.shortcuts import redirect, render
 from django.utils.timezone import make_aware
-from django.views.generic import CreateView, FormView, ListView
+from django.views import View
+from django.views.generic import CreateView, FormView, ListView, TemplateView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import UpdateView
 from django.urls import reverse
 
 from city_issues.models import Attachments, Issues, IssueHistory, User, Comments
-from city_issues.forms.forms import EditIssue, IssueFilter, IssueForm, IssueFormEdit, IssueSearchForm
+from city_issues.forms.forms import EditIssue, IssueFilter, IssueForm, \
+    IssueFormEdit, IssueSearchForm, EditUserForm
 from city_issues.mixins import LoginRequiredMixin
 
 
