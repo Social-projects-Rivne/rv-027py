@@ -126,4 +126,3 @@ def get_all_issue_history(issue_id):
         list_history.append(['add_comment', comment.user.alias, comment.comment, comment.date_public.strftime('%Y-%m-%d %H:%M')])
     list_history.sort(key=lambda history: history[3])
     return list_history
-
