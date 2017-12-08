@@ -9,9 +9,9 @@ from backend.app import app, db
 from backend.forms.forms import (IssueForm, LoginForm, SearchUserForm,
                                  SearchIssuesForm, UserForm, UserAddForm)
 
-from backend.models.issues import (Attachment, Category, IssueHistory,
-                                   Issue, Status)
-from backend.models.users import Role, User
+from backend.models.issues import (Attachment, Category, Comments, get_all_issue_history,
+                                   IssueHistory, Issue, Status)
+from backend.models.users import Role, User, user_search
 
 
 ROLE_ADMIN = 1
@@ -53,25 +53,7 @@ def user_page():
         order_by = int(request.args.get('order_by'))
         search_string = str(request.args.get('search'))
         if len(search_string) >= MIN_SEARCH_STR:
-            condition_list = []
-            for one_string in search_string.split():
-                if len(one_string) < MIN_SEARCH_STR:
-                    continue
-                search_parameter = '%{}%'.format(one_string)
-                name_search = User.name.ilike(search_parameter)
-                alias_search = User.alias.ilike(search_parameter)
-                email_search = User.email.ilike(search_parameter)
-                conditions = [
-                    name_search,
-                    alias_search,
-                    email_search,
-                    or_(name_search, alias_search),
-                    or_(alias_search, email_search),
-                    or_(email_search, name_search),
-                    or_(name_search, alias_search, email_search)
-                ]
-                condition_list.append(conditions[search_by])
-            condition = or_(*condition_list)
+            condition = user_search(search_string, search_by)
         else:
             condition = ""
             if search_string != "":
@@ -281,9 +263,5 @@ def restore_issue(issue_id):
 def issue_info(issue_id):
     """Route for issue page"""
     issue_one = db.session.query(Issue).get(issue_id)
-    attach = db.session.query(Attachment).filter(and_(
-        Attachment.issue_id == issue_id)).all()
-    history = db.session.query(
-        IssueHistory).filter(and_(
-            IssueHistory.issue_id == issue_id)).order_by(IssueHistory.transaction_date).all()
-    return render_template('issue.html', issue=issue_one, attachments=attach, history_list=history)
+    list_history = get_all_issue_history(issue_id)
+    return render_template('issue.html', issue=issue_one, list_history=list_history)

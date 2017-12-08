@@ -22,14 +22,15 @@ from django.views.generic import RedirectView
 
 from city_issues.views import (
     CheckIssues, DetailedIssue, get_all_issues_data, get_issue_data,
-    HomePageView, map_page_view, IssueCreate, UserProfileView, UpdateIssue)
+    HomePageView, map_page_view, IssueCreate, UserProfileView, UpdateIssue,
+    CommentIssues)
 
 
 urlpatterns = [
     url(r'^$', HomePageView.as_view(), name='home'),
     url(r'^issues/$', CheckIssues.as_view(), name='issues'),
     url(r'^issue/(?P<pk>\d+)/$', DetailedIssue.as_view(), name='issue'),
-
+    url(r'^issue-comment/(?P<pk>[0-9]+)/$', CommentIssues.as_view(), name='issue-comment'),
 
     url(r'^map/$', map_page_view, name='map'),
     url(r'^map/getissuebyid/(?P<issue_id>[0-9]+)$',
@@ -40,7 +41,7 @@ urlpatterns = [
 
     # registration and authorization views
     url(r'^accounts/logout/$', auth_views.logout, kwargs={'next_page': 'home'}, name='auth_logout'),
-    url(r'^accounts/profile/(?P<user_id>[0-9]+)$', UserProfileView.as_view(), name='user_profile'),
+    url(r'^accounts/profile/$', UserProfileView.as_view(), name='user_profile'),
     url(r'^accounts/', include('registration.backends.simple.urls', namespace='accounts', )),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

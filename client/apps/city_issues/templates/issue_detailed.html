@@ -22,7 +22,7 @@
                   <th>Latitude</th>
                   <th>Longitude</th>
                   <th>Status</th>
-                  <th>Description</th>
+                  <th class="col-md-4">Description</th>
                   <th>Open date</th>
                   <th>Close date</th>
                   <th>Attachments</th>
@@ -41,6 +41,11 @@
                 </tr>
               </tbody>
         </table>
+           <div class="navbar-form navbar-left">
+                    <a href="{% url 'issue-comment' object.pk %}" type="button" class="btn btn-md btn-info">
+                        <span class="glyphicon glyphicon-plus"></span> Add Comments
+                    </a>
+                </div>
       </div>
     </div>
 </div>

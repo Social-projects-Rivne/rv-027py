@@ -1,8 +1,9 @@
 """Forms models"""
-from django.core.validators import MaxValueValidator, MinValueValidator
 from django import forms
+from django.core.validators import MaxValueValidator, MinValueValidator
 
 from city_issues.models.issues import Issues, Category
+from city_issues.models.users import User
 
 
 class IssueForm(forms.ModelForm):
@@ -104,6 +105,72 @@ class IssueFilter(forms.Form):
             'placeholder': 'Max length 20 chars',
         }),
         required=False,)
+
+
+class EditUserForm(forms.ModelForm):
+    """Edit user form"""
+    class Meta:
+        model = User
+        fields = ['name', 'alias', 'email']
+
+    name = forms.CharField(
+        max_length=25,
+        min_length=3,
+        widget=forms.TextInput(attrs={'class': 'form-control'}),
+    )
+
+    alias = forms.CharField(
+        max_length=20,
+        min_length=3,
+        widget=forms.TextInput(attrs={'class': 'form-control'}),
+    )
+
+    email = forms.EmailField(
+        max_length=50,
+        min_length=4,
+        widget=forms.EmailInput(attrs={'class': 'form-control'}),
+    )
+
+    current_password = forms.CharField(
+        required=False,
+        min_length=4,
+        widget=forms.PasswordInput(attrs={'class': 'form-control'})
+    )
+
+    new_password = forms.CharField(
+        required=False,
+        max_length=50,
+        min_length=4,
+        widget=forms.PasswordInput(attrs={'class': 'form-control'})
+    )
+
+    confirm_password = forms.CharField(
+        required=False,
+        max_length=50,
+        min_length=4,
+        widget=forms.PasswordInput(attrs={'class': 'form-control'})
+    )
+
+
+class IssueSearchForm(forms.Form):
+    """Issue search form."""
+    search = forms.CharField(
+        min_length=2,
+        max_length=100,
+        label='',
+        widget=forms.TextInput(attrs={
+            'size': '60%'
+        }),
+        required=False)
+    order_by = forms.CharField(
+        widget=forms.HiddenInput(),
+        required=False)
+    reverse = forms.CharField(
+        widget=forms.HiddenInput(),
+        required=False)
+    page = forms.IntegerField(
+        widget=forms.HiddenInput(),
+        required=False)
 
 
 class IssueFormEdit(IssueForm):

@@ -8,6 +8,7 @@ import datetime
 from django.contrib.auth.models import AbstractBaseUser
 from django.contrib.auth.hashers import make_password
 from django.db import models
+from passlib.handlers.django import django_bcrypt
 
 from city_issues.user_managers import UserManager
 
@@ -20,7 +21,6 @@ class Role(models.Model):
     app_label = 'city_issues'
 
     class Meta:
-        """..."""
         managed = False
         db_table = 'roles'
 
@@ -74,7 +74,6 @@ class User(AbstractBaseUser):
 
     @property
     def password(self):
-        """..."""
         return self.hashed_password
 
     @password.setter
@@ -85,9 +84,12 @@ class User(AbstractBaseUser):
         self.hashed_password = make_password(raw_password)
         self._password = raw_password
 
+    def check_password(self, raw_password):
+        """Checking the password form database."""
+        return django_bcrypt.verify(raw_password, self.hashed_password)
+
     @property
     def is_active(self):
-        """..."""
         return not self.delete_date
 
     @is_active.setter
@@ -96,7 +98,6 @@ class User(AbstractBaseUser):
 
     @property
     def is_staff(self):
-        """..."""
         return self.role == ROLE_MODERATOR
 
     @is_staff.setter
@@ -108,7 +109,6 @@ class User(AbstractBaseUser):
 
     @property
     def is_superuser(self):
-        """..."""
         return self.role == ROLE_ADMIN
 
     @is_superuser.setter
@@ -119,6 +119,5 @@ class User(AbstractBaseUser):
             self.role = ROLE_USER
 
     class Meta:
-        """..."""
         managed = False
         db_table = 'users'

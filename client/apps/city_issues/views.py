@@ -6,22 +6,27 @@ import json
 import os.path
 
 from datetime import date, datetime, time
+import operator
 
 from django.db.models import Q
-from django.views.generic.base import TemplateView, View
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth import update_session_auth_hash
 from django.core import serializers
 from django.http import JsonResponse, HttpResponse, Http404
 from django.shortcuts import redirect, render
-from django.urls import reverse
 from django.utils.timezone import make_aware
-from django.views.generic import CreateView, ListView
+from django.views import View
+from django.views.generic import CreateView, FormView, ListView, TemplateView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import UpdateView
+from django.urls import reverse
 
-from city_issues.models import Attachments, Issues, IssueHistory, User
-from city_issues.forms.forms import EditIssue, IssueFilter, IssueForm, IssueFormEdit
+from city_issues.models import Attachments, Issues, IssueHistory, User, Comments
+from city_issues.forms.forms import EditIssue, IssueFilter, IssueForm, \
+    IssueFormEdit, IssueSearchForm, EditUserForm
+from city_issues.mixins import LoginRequiredMixin
+
 
 ROLE_ADMIN = 1
 ROLE_MODERATOR = 2
@@ -32,15 +37,64 @@ class HomePageView(TemplateView):
     """Home page"""
     template_name = "home_page.html"
 
+    def get(self, request):
+        return redirect("map")
+
 
 class UserProfileView(View):
     """User profile page"""
+    form_class = EditUserForm
+    success_url = 'user_profile'
+    template_name = 'user/user.html'
 
-    def get(self, request, user_id):
-        user = User.objects.get(id=user_id)
-        user_issues = Issues.objects.filter(user_id=user_id)
+    def get(self, request):
+        user = request.user
+        user_issues = Issues.objects.filter(user_id=user.id)
+        form = self.form_class(instance=User.objects.get(id=user.id))
 
-        return render(request, 'user/user.html', {'user': user, 'user_issues': user_issues})
+        return render(request, self.template_name, {'user': user,
+                                                    'user_issues': user_issues,
+                                                    'form': form})
+
+    def post(self, request):
+        user = User.objects.get(id=request.user.id)
+        form = EditUserForm(data=request.POST, instance=request.user)
+
+        if form.is_valid():
+            if self.is_not_empty_passwords(form.cleaned_data) and self.check_passwords(user, form.cleaned_data):
+
+                user.set_password(form.cleaned_data['confirm_password'])
+
+            user.name = form.cleaned_data['name']
+            user.alias = form.cleaned_data['alias']
+            user.email = form.cleaned_data['email']
+            user.save()
+            update_session_auth_hash(request, user)
+            messages.success(request, 'Changes successfully saved')
+
+        else:
+            messages.error(request, form.errors)
+
+        return redirect(self.success_url)
+
+    def check_passwords(self, user, form_data):
+        if not user.check_password(form_data['current_password']):
+            messages.error(self.request, 'Wrong current password')
+            return redirect(self.success_url)
+
+        elif not form_data['new_password'] == form_data['confirm_password']:
+            messages.error(
+                self.request, "New and confirm password don't match")
+            return redirect(self.success_url)
+
+        else:
+            return True
+
+    def is_not_empty_passwords(self, data):
+        if data['current_password'] == '' and data['new_password'] == '' and data['confirm_password'] == '':
+            return False
+        else:
+            return True
 
 
 class IssueCreate(CreateView):
@@ -50,7 +104,7 @@ class IssueCreate(CreateView):
     model = Issues
     form_class = IssueForm
     template_name = 'issues/issues.html'
-    success_url = 'add-issue'
+    success_url = 'map'
 
     def form_valid(self, form):
         form.instance.user = self.request.user
@@ -103,9 +157,20 @@ def get_issue_data(request, issue_id):
         if img and os.path.isfile(os.path.join(settings.MEDIA_ROOT, img)):
             checked_img_urls.append(img)
 
-    issue_query = list(Issues.objects.filter(pk=issue_id).values())
+    issue_obj = Issues.objects.filter(pk=issue_id)
+    unpacked_issue_obj = issue_obj[0]
+
+    issue_is_editable = False
+
+    if hasattr(request.user, 'role') and (
+            (request.user.role.id in (ROLE_ADMIN, ROLE_MODERATOR)) or
+            (unpacked_issue_obj.user_id == request.user.id)):
+        issue_is_editable = True
+
+    issue_query = list(issue_obj.values())
     issue_dict = issue_query[0]
     issue_dict['images_urls'] = checked_img_urls
+    issue_dict['editable'] = issue_is_editable
 
     issue_dict['open_date'] = convert_date(issue_dict['open_date'])
     issue_dict['close_date'] = convert_date(issue_dict['close_date'])
@@ -131,9 +196,9 @@ def get_all_issues_data(request):
         category = form.data.get('category')
         search = form.cleaned_data.get('search')
 
-        show_closed = not show_closed
+        show_opened_issue = not show_closed
 
-        kwargs = {"close_date__isnull": (show_closed)}
+        kwargs = {"close_date__isnull": (show_opened_issue)}
 
         if map_date_from and map_date_to:
             date_from = make_aware(datetime.combine(map_date_from, time.min))
@@ -161,17 +226,26 @@ def convert_date(obj):
     return obj
 
 
-class CheckIssues(ListView):
+class CheckIssues(ListView, FormView):
     """A list of issues"""
+    form_class = IssueSearchForm
     template_name = 'issues_list.html'
     model = Issues
     context_object_name = 'issues_list'
-    paginate_by = 6
+    paginate_by = 4
 
     def get_queryset(self):
         """Adds sorting"""
         queryset = super(CheckIssues, self).get_queryset()
         order_by = self.request.GET.get('order_by', 'title')
+        search = self.request.GET.get('search')
+        if search:
+            query_list = search.split()
+            queryset = queryset.filter(
+                reduce(operator.or_, (Q(title__icontains=q) for q in query_list)) |
+                reduce(operator.or_, (Q(description__icontains=q)
+                                      for q in query_list))
+            )
         if order_by in ('title', 'status', 'user', 'category', 'open_date'):
             queryset = queryset.order_by(order_by)
             if self.request.GET.get('reverse', '') == 'v_v':
@@ -199,6 +273,32 @@ class UpdateIssue(UpdateView):
 
     def dispatch(self, request, *args, **kwargs):
         obj = self.get_object()
-        if (self.request.user.role.id in (ROLE_ADMIN, ROLE_MODERATOR)) or (obj.user == self.request.user):
+        if hasattr(self.request.user, 'role') and (
+                (self.request.user.role.id in (ROLE_ADMIN, ROLE_MODERATOR)) or
+                (obj.user == self.request.user)):
             return super(UpdateIssue, self).dispatch(request, *args, **kwargs)
         raise Http404("You are not allowed to edit this issue")
+
+
+class CommentIssues(LoginRequiredMixin, CreateView):
+    """Comment issue"""
+    template_name = 'comment_issue.html'
+    model = Comments
+    fields = ['comment']
+
+    def get_context_data(self, **kwargs):
+        context = super(CommentIssues, self).get_context_data(**kwargs)
+        context['issue'] = Issues.objects.get(pk=self.kwargs['pk'])
+        return context
+
+    def form_valid(self, form):
+        form = form.save(commit=False)
+        issue = Issues.objects.get(pk=self.kwargs['pk'])
+        user = User.objects.get(pk=self.request.user.id)
+        form.issue = issue
+        form.user = user
+        form.save()
+        return redirect(reverse('issue-comment', kwargs={'pk': self.kwargs['pk']}))
+
+    def form_invalid(self, form):
+        return super(CommentIssues, self).form_invalid(form)

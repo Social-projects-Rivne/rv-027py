@@ -16,8 +16,10 @@
 		<div class="col-sm-6">
 			<form action="" method="post">{% csrf_token %}
 			    {{ form.as_p }}
-			    <input type="submit" value="Update" />
+			    <input class="btn btn-success" type="submit" value="Update" />
 			</form>
+			<br>
+			<a href="{% url "map" %}" class="btn btn-danger">Return to map</a>
 		</div>
 		<div class="col-sm-6">
 			<div id="map"></div>

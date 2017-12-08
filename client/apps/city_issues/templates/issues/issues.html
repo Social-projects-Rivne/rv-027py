@@ -7,6 +7,7 @@
 {% block extra_css %}
     {% load static %}
     <link rel="stylesheet" type="text/css" href="{% static 'css/issues.css' %}"/>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/general.css' %}"/>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css"
           integrity="sha512-M2wvCLH6DSRazYeZRIm1JnYyh22purTM+FDB5CsyxtQJYeKq83arPe5wgbNmcFXGqiSH2XR8dT/fJISVA1r/zQ=="
           crossorigin=""/>
@@ -73,7 +74,7 @@
 
                         <div class="file-upload form-group" data-text="Select image">
                             <label for="">Select image</label>
-                            {{ form.file }}
+                            {{ form.files }}
                         </div>
 
                         <button type="submit" class="btn btn-primary">Submit</button>
@@ -94,5 +95,6 @@
 
     {% load static %}
     <script type="text/javascript" src="{% static "js/issues.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/general.js" %}"></script>
 
 {% endblock extra_js %}
