@@ -172,7 +172,7 @@ class CheckIssues(ListView):
         """Adds sorting"""
         queryset = super(CheckIssues, self).get_queryset()
         order_by = self.request.GET.get('order_by', 'title')
-        if order_by in ('title', 'status', 'description', 'category'):
+        if order_by in ('title', 'status', 'user', 'category', 'open_date'):
             queryset = queryset.order_by(order_by)
             if self.request.GET.get('reverse', '') == 'v_v':
                 queryset = queryset.reverse()
