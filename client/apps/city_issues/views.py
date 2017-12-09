@@ -246,7 +246,7 @@ class CheckIssues(ListView, FormView):
                 reduce(operator.or_, (Q(description__icontains=q)
                                       for q in query_list))
             )
-        if order_by in ('title', 'status', 'description', 'category'):
+        if order_by in ('title', 'status', 'user', 'category', 'open_date'):
             queryset = queryset.order_by(order_by)
             if self.request.GET.get('reverse', '') == 'v_v':
                 queryset = queryset.reverse()
