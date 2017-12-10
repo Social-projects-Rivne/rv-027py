@@ -88,6 +88,7 @@ class IssueFilter(forms.Form):
         widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}))
 
     show_closed = forms.BooleanField(
+        label="Closed only",
         required=False,
         initial=False,
         widget=forms.CheckboxInput())
