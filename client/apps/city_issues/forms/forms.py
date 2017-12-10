@@ -151,6 +151,37 @@ class EditUserForm(forms.ModelForm):
         widget=forms.PasswordInput(attrs={'class': 'form-control'})
     )
 
+    def clean(self):
+        cleaned_data = super(EditUserForm, self).clean()
+        current_password = cleaned_data.get('current_password')
+        new_password = cleaned_data.get('new_password')
+        confirm_password = cleaned_data.get('confirm_password')
+
+        user = User.objects.get(id=self.instance.id)
+
+        if self.check_current_password(user, current_password):
+            self.check_new_passwords(current_password, new_password, confirm_password)
+
+        return cleaned_data
+
+    def check_current_password(self, user, current_password):
+        if not user.check_password(current_password):
+            self._errors['Current password'] = self.error_class(
+                ['Incorrect current password'])
+            return False
+        else:
+            return True
+
+    def check_new_passwords(self, current_password, new_password, confirm_password):
+        if not current_password and new_password and confirm_password:
+            self._errors['Current password'] = self.error_class(
+                ['Current password is empty'])
+
+        if not (confirm_password or new_password) or (new_password != confirm_password):
+            self._errors['Confirm password'] = self.error_class(
+                ['Passwords do not match.'])
+            del self.cleaned_data['confirm_password']
+
 
 class IssueSearchForm(forms.Form):
     """Issue search form."""
