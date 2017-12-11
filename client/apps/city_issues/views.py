@@ -14,7 +14,7 @@ from django.contrib import messages
 from django.contrib.auth import update_session_auth_hash
 from django.core import serializers
 from django.http import JsonResponse, HttpResponse, Http404
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect, render, get_object_or_404
 from django.utils.timezone import make_aware
 from django.views import View
 from django.views.generic import CreateView, FormView, ListView, TemplateView
@@ -262,6 +262,10 @@ class DetailedIssue(DetailView):
     """Detailed issue"""
     template_name = 'issue_detailed.html'
     model = Issues
+
+    # def get_queryset(self):
+    #     self.attachment = get_object_or_404(Attachments, id=self.kwargs['pk'])
+    #     return Attachments.objects.filter(image_url=self.attachment)
 
 
 class UpdateIssue(UpdateView):
