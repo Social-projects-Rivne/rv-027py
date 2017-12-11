@@ -62,40 +62,20 @@ class UserProfileView(View):
         form = EditUserForm(data=request.POST, instance=request.user)
 
         if form.is_valid():
-            if self.is_not_empty_passwords(form.cleaned_data) and self.check_passwords(user, form.cleaned_data):
-
-                user.set_password(form.cleaned_data['confirm_password'])
-
             user.name = form.cleaned_data['name']
             user.alias = form.cleaned_data['alias']
             user.email = form.cleaned_data['email']
+            user.set_password(form.cleaned_data['confirm_password'])
             user.save()
             update_session_auth_hash(request, user)
             messages.success(request, 'Changes successfully saved')
 
         else:
             messages.error(request, form.errors)
+            return render(request, self.template_name,
+                          {'form': form, 'has_error': 'error'})
 
         return redirect(self.success_url)
-
-    def check_passwords(self, user, form_data):
-        if not user.check_password(form_data['current_password']):
-            messages.error(self.request, 'Wrong current password')
-            return redirect(self.success_url)
-
-        elif not form_data['new_password'] == form_data['confirm_password']:
-            messages.error(
-                self.request, "New and confirm password don't match")
-            return redirect(self.success_url)
-
-        else:
-            return True
-
-    def is_not_empty_passwords(self, data):
-        if data['current_password'] == '' and data['new_password'] == '' and data['confirm_password'] == '':
-            return False
-        else:
-            return True
 
 
 class IssueCreate(CreateView):
