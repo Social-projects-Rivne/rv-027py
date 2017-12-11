@@ -26,10 +26,10 @@
                <th></th>
                <th></th>
            </tr>
-           {% for category, issue, user in issues %}
+           {% for category, issue, user in issues.items %}
                 <tr>
                     <td>{{ issue.id }}</td>
-                    <td> <a href="issue/{{issue.id}}">{{ issue.title }}</a></td>
+                    <td> <a href="{{ url_for('issue_info', issue_id=issue.id) }}">{{ issue.title }}</a></td>
                     <td>{{ user }}</td>
                     <td>{{ category}}</td>
                     <td> {{ issue.status }} </td>
@@ -53,6 +53,23 @@
             {% endfor %}
     </table>
 </div>
+{% if issues.pages > 1 %}
+  <div class="text-center">
+    {% if issues.has_prev %}
+        <a class="btn btn-primary" href="{{ url_for('issues_page', num_page=issues.prev_num)+ get  }}"><< </a>
+    {% endif %}
+    {% for page in issues.iter_pages() %}
+        {% if page == issues.page %}
+            <a class="btn btn-success" >{{ page }}</a>
+        {% else %}
+            <a class="btn btn-primary" href="{{ url_for('issues_page', num_page=page )+ get }}">{{ page }}</a>
+        {% endif %}
+    {% endfor %}
+    {% if issues.has_next %}
+        <a class="btn btn-primary" href="{{ url_for('issues_page', num_page=issues.next_num)+ get  }}">>></a>
+    {% endif %}
+  </div>
+{%endif%}
 
 <div class="modal fade" id="deletion" role="dialog">
         <div class="modal-dialog">
