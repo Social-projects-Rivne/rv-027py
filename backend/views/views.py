@@ -221,7 +221,7 @@ def issues_page(num_page=1):
                     Issue.id).paginate(per_page=PAGINATE_PAGE, page=num_page, error_out=True)
 
     return render_template('issues_page.html', issues=issues, form=form,
-                           get="?"+urlencode(request.args))
+                           get="?" + urlencode(request.args))
 
 
 @app.route('/issuemodify/<int:issue_id>', methods=['GET', 'POST'])
