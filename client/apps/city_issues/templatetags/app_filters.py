@@ -4,6 +4,7 @@ from django import template
 
 register = template.Library()
 
+
 @register.simple_tag
 def update_url(val, **kwargs):
     parameters = val.copy()

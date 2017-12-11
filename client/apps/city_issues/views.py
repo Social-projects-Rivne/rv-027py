@@ -34,7 +34,6 @@ ROLE_MODERATOR = 2
 ROLE_USER = 3
 
 
-
 class HomePageView(TemplateView):
     """Home page"""
     template_name = "home_page.html"
@@ -278,7 +277,6 @@ class CheckIssues(ListView, FormView):
         context = super(CheckIssues, self).get_context_data(**kwargs)
         context['issues_range'] = range(context["paginator"].num_pages)
         return context
-
 
 
 class DetailedIssue(DetailView):
