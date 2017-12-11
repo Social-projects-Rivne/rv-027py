@@ -1,16 +1,16 @@
 """This module generates routes for admin panel"""
 from functools import wraps
+from urllib import urlencode
 
 from flask import flash, redirect, request, render_template, session, url_for
-from sqlalchemy import and_, func, or_
+from sqlalchemy import and_
 
 from backend.app import app, db
 
 from backend.forms.forms import (IssueForm, LoginForm, SearchUserForm,
                                  SearchIssuesForm, UserForm, UserAddForm)
 
-from backend.models.issues import (Attachment, Category, Comments, get_all_issue_history,
-                                   IssueHistory, Issue, Status)
+from backend.models.issues import Category, get_all_issue_history, Issue
 from backend.models.users import Role, User, user_search
 
 
@@ -19,6 +19,8 @@ ROLE_MODERATOR = 2
 ROLE_USER = 3
 
 MIN_SEARCH_STR = 2
+
+PAGINATE_PAGE = 8
 
 
 def admin_permissions(function):
@@ -178,8 +180,9 @@ def logout():
 
 
 @app.route('/issuespage', methods=['GET', 'POST'])
+@app.route('/issuespage/<int:num_page>', methods=['GET', 'POST'])
 @admin_permissions
-def issues_page():
+def issues_page(num_page=1):
     """Issues page route."""
     form = SearchIssuesForm(request.args, meta={'csrf': False})
     condition = None
@@ -208,15 +211,17 @@ def issues_page():
         issues = db.session.query(
             Category.category, Issue, User.alias).filter(and_(
                 Issue.user_id == User.id, Issue.category_id == Category.id,
-                condition)).order_by(order).all()
+                condition)).order_by(order).paginate(
+                    per_page=PAGINATE_PAGE, page=num_page, error_out=True)
 
     else:
         issues = db.session.query(
             Category.category, Issue, User.alias).filter(and_(
                 Issue.user_id == User.id, Issue.category_id == Category.id)).order_by(
-                    Issue.title).all()
+                    Issue.id).paginate(per_page=PAGINATE_PAGE, page=num_page, error_out=True)
 
-    return render_template('issues_page.html', issues=issues, form=form)
+    return render_template('issues_page.html', issues=issues, form=form,
+                           get="?" + urlencode(request.args))
 
 
 @app.route('/issuemodify/<int:issue_id>', methods=['GET', 'POST'])
