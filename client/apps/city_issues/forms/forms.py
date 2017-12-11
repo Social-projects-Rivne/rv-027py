@@ -7,7 +7,6 @@ from city_issues.models.users import User
 
 
 class IssueForm(forms.ModelForm):
-
     class Meta:
         model = Issues
         fields = ['description', 'category',
@@ -81,11 +80,13 @@ class IssueFilter(forms.Form):
     """Issue filter form on map."""
     date_from = forms.DateField(
         required=False,
-        widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}))
+        widget=forms.DateInput(
+            attrs={'type': 'date', 'class': 'form-control'}))
 
     date_to = forms.DateField(
         required=False,
-        widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}))
+        widget=forms.DateInput(
+            attrs={'type': 'date', 'class': 'form-control'}))
 
     show_closed = forms.BooleanField(
         required=False,
@@ -104,11 +105,12 @@ class IssueFilter(forms.Form):
             'class': 'form-control',
             'placeholder': 'Max length 20 chars',
         }),
-        required=False,)
+        required=False, )
 
 
 class EditUserForm(forms.ModelForm):
     """Edit user form"""
+
     class Meta:
         model = User
         fields = ['name', 'alias', 'email']
@@ -159,8 +161,9 @@ class EditUserForm(forms.ModelForm):
 
         user = User.objects.get(id=self.instance.id)
 
-        if self.check_current_password(user, current_password):
-            self.check_new_passwords(current_password, new_password, confirm_password)
+        if current_password or new_password or confirm_password:
+            self.check_passwords(user, current_password, new_password,
+                                 confirm_password)
 
         return cleaned_data
 
@@ -168,19 +171,25 @@ class EditUserForm(forms.ModelForm):
         if not user.check_password(current_password):
             self._errors['Current password'] = self.error_class(
                 ['Incorrect current password'])
+            del self.cleaned_data['confirm_password']
             return False
         else:
             return True
 
-    def check_new_passwords(self, current_password, new_password, confirm_password):
-        if not current_password and new_password and confirm_password:
-            self._errors['Current password'] = self.error_class(
-                ['Current password is empty'])
+    def check_passwords(self, user, current_password, new_password,
+                        confirm_password):
+        if not self.check_current_password(user, current_password):
+            return None
 
-        if not (confirm_password or new_password) or (new_password != confirm_password):
+        if (confirm_password or new_password) and (
+                new_password != confirm_password):
             self._errors['Confirm password'] = self.error_class(
                 ['Passwords do not match.'])
             del self.cleaned_data['confirm_password']
+
+        if not new_password and not confirm_password and self.check_current_password(user, current_password):
+            self._errors['New password, confirm password'] = self.error_class(
+                ['Fields is required'])
 
 
 class IssueSearchForm(forms.Form):
@@ -205,5 +214,4 @@ class IssueSearchForm(forms.Form):
 
 
 class IssueFormEdit(IssueForm):
-
     files = None
