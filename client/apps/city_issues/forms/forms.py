@@ -165,7 +165,8 @@ class IssueSearchForm(forms.Form):
         required=False)
     order_by = forms.CharField(
         widget=forms.HiddenInput(),
-        required=False)
+        required=False,
+        initial='title')
     reverse = forms.CharField(
         widget=forms.HiddenInput(),
         required=False)
