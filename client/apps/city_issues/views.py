@@ -13,7 +13,8 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import update_session_auth_hash
 from django.core import serializers
-from django.http import JsonResponse, HttpResponse, Http404
+from django.core.exceptions import PermissionDenied
+from django.http import JsonResponse, HttpResponse
 from django.shortcuts import redirect, render
 from django.utils.timezone import make_aware
 from django.views import View
@@ -150,6 +151,7 @@ def get_issue_data(request, issue_id):
 
     attachments_query = list(
         Attachments.objects.filter(issue=issue_id).values())
+
     images_urls = [item['image_url'] for item in attachments_query]
     checked_img_urls = []
 
@@ -157,7 +159,7 @@ def get_issue_data(request, issue_id):
         if img and os.path.isfile(os.path.join(settings.MEDIA_ROOT, img)):
             checked_img_urls.append(img)
 
-    issue_obj = Issues.objects.filter(pk=issue_id)
+    issue_obj = Issues.objects.filter(pk=issue_id).select_related("category")
     unpacked_issue_obj = issue_obj[0]
 
     issue_is_editable = False
@@ -167,7 +169,19 @@ def get_issue_data(request, issue_id):
             (unpacked_issue_obj.user_id == request.user.id)):
         issue_is_editable = True
 
-    issue_query = list(issue_obj.values())
+    issue_query = list(issue_obj.values(
+        "title",
+        "user",
+        "category",
+        "location_lat",
+        "location_lon",
+        "status",
+        "description",
+        "open_date",
+        "close_date",
+        "delete_date",
+        "category__category",))
+
     issue_dict = issue_query[0]
     issue_dict['images_urls'] = checked_img_urls
     issue_dict['editable'] = issue_is_editable
@@ -200,10 +214,16 @@ def get_all_issues_data(request):
 
         kwargs = {"close_date__isnull": (show_opened_issue)}
 
-        if map_date_from and map_date_to:
+        date_from = make_aware(datetime(1970, 1, 1,))
+        print date_from
+        date_to = make_aware(datetime.now())
+
+        if map_date_from:
             date_from = make_aware(datetime.combine(map_date_from, time.min))
+        if map_date_to:
             date_to = make_aware(datetime.combine(map_date_to, time.max))
-            kwargs["open_date__range"] = (date_from, date_to)
+
+        kwargs["open_date__range"] = (date_from, date_to)
 
         if category:
             kwargs['category'] = category
@@ -277,7 +297,7 @@ class UpdateIssue(UpdateView):
                 (self.request.user.role.id in (ROLE_ADMIN, ROLE_MODERATOR)) or
                 (obj.user == self.request.user)):
             return super(UpdateIssue, self).dispatch(request, *args, **kwargs)
-        raise Http404("You are not allowed to edit this issue")
+        raise PermissionDenied("You are not allowed to edit this issue")
 
 
 class CommentIssues(LoginRequiredMixin, CreateView):

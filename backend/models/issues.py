@@ -38,7 +38,7 @@ class IssueHistory(db.Model):
     user_id = db.Column(db.ForeignKey(u'users.id'))
     issue_id = db.Column(db.ForeignKey(u'issues.id'), index=True)
     status_id = db.Column(db.ForeignKey(u'statuses.id'), index=True)
-    transaction_date = db.Column(db.TIMESTAMP)
+    transaction_date = db.Column(db.TIMESTAMP(timezone=True))
 
     issue = db.relationship(u'Issue')
     status = db.relationship(u'Status')
@@ -59,9 +59,9 @@ class Issue(db.Model):
     location_lon = db.Column(db.Float)
     status = db.Column(db.Text)
     description = db.Column(db.Text)
-    open_date = db.Column(db.TIMESTAMP)
-    close_date = db.Column(db.TIMESTAMP)
-    delete_date = db.Column(db.TIMESTAMP)
+    open_date = db.Column(db.TIMESTAMP(timezone=True))
+    close_date = db.Column(db.TIMESTAMP(timezone=True))
+    delete_date = db.Column(db.TIMESTAMP(timezone=True))
 
     category = db.relationship(u'Category')
     user = db.relationship(u'User')
@@ -98,7 +98,7 @@ class Comments(db.Model):
     __tablename__ = 'comments'
     id = db.Column(db.Integer, primary_key=True)
     comment = db.Column(db.Text)
-    date_public = db.Column(db.TIMESTAMP)
+    date_public = db.Column(db.TIMESTAMP(timezone=True))
     user_id = db.Column(db.ForeignKey(u'users.id'))
     issue_id = db.Column(db.ForeignKey(u'issues.id'), index=True)
 
@@ -121,8 +121,10 @@ def get_all_issue_history(issue_id):
         Comments.issue_id == issue_id).order_by(Comments.date_public).all()
     list_history = []
     for histor in history:
-        list_history.append(['change_status', histor.status.status, histor.user.alias, histor.transaction_date.strftime('%Y-%m-%d %H:%M')])
+        list_history.append(['change_status', histor.status.status,
+                             histor.user.alias, histor.transaction_date.strftime('%Y-%m-%d %H:%M')])
     for comment in comments:
-        list_history.append(['add_comment', comment.user.alias, comment.comment, comment.date_public.strftime('%Y-%m-%d %H:%M')])
+        list_history.append(['add_comment', comment.user.alias,
+                             comment.comment, comment.date_public.strftime('%Y-%m-%d %H:%M')])
     list_history.sort(key=lambda history: history[3])
     return list_history
