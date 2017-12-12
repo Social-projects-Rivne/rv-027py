@@ -217,8 +217,7 @@ def issues_page(num_page=1):
     else:
         issues = db.session.query(
             Category.category, Issue, User.alias).filter(and_(
-                Issue.user_id == User.id, Issue.category_id == Category.id)).order_by(
-                    Issue.id).paginate(per_page=PAGINATE_PAGE, page=num_page, error_out=True)
+                Issue.user_id == User.id, Issue.category_id == Category.id)).order_by(order).paginate(per_page=PAGINATE_PAGE, page=num_page, error_out=True)
 
     return render_template('issues_page.html', issues=issues, form=form,
                            get="?" + urlencode(request.args))
