@@ -36,18 +36,21 @@ function IssueMap(elementId) {
 
 
   IssueMap.prototype.iconCreate = function(category, status) {
-    var underscoredStatusShadow = status.replace(/ /g, '_');
+    var underscoredStatusShadow = '/static/city_issues/img/status_' + status.replace(/ /g, '_') + '.png';
+    if (status == "new" || status == "open") {
+      underscoredStatusShadow = "/static/city_issues/img/marker-shadow.png";
+    }
     var MarkerIcon = L.Icon.extend({
     options: {
         customId: "",
         customStatus: "",
         iconUrl: '/static/city_issues/img/category_' + category + '_marker-icon.png',
-        shadowUrl: '/static/city_issues/img/status_' + underscoredStatusShadow + '.png',
+        shadowUrl: underscoredStatusShadow,
         iconSize: [30, 30],
         iconAnchor: [0, 0],
         popupAnchor: [1, -34],
-        shadowSize: [38, 38],
-        shadowAnchor: [4, 4],
+        shadowSize: [40, 40],
+        shadowAnchor: [5, 5],
     }});
 
     return new MarkerIcon();
@@ -68,13 +71,16 @@ function IssueMap(elementId) {
     
     jsonData.forEach(function(key) {
       var issue = JSON.parse(key);
-      var underscoredStatus = issue.fields.status.replace(/ /g, '_');
+      var underscoredStatus = '/static/city_issues/img/status_' + issue.fields.status.replace(/ /g, '_') + '.png';
+      if (issue.fields.status == "new" || issue.fields.status == "open") {
+        underscoredStatus = "/static/city_issues/img/marker-shadow.png";
+      }
       var marker = L.marker(
         [issue.fields.location_lat, issue.fields.location_lon],
         {icon: current.iconCreate(issue.fields.category, issue.fields.status),
          title: issue.fields.title,
          customId: issue.pk,
-         customStatus: '/static/city_issues/img/status_' + underscoredStatus + '.png',
+         customStatus: underscoredStatus,
        });
 
       marker.on("click", function(event){
@@ -185,17 +191,64 @@ function IssueDescription(mapId, issueContainerId, issueCloseId) {
       current.issue_box.style.display = "none";
       current.markerObject._shadow.src = current.markerObject.options.customStatus;
     }
+  };
 
+
+  IssueDescription.prototype.insertComments = function(jsonData) {
+    var commentsList = document.querySelector("#issue_comments");
+    commentsList.innerHTML = "";
+    for (var i = 0; i < jsonData.length; i++) {
+      var item = JSON.parse(jsonData[i]);
+      var comment = document.createElement('li');
+      comment.innerHTML = item.date_public.slice(0,19) + " " + item.user__alias  + " comments: " +  item.comment;
+      commentsList.appendChild(comment);
+    }
+  };
+
+  IssueDescription.prototype.sendComment = function(data,issue_id) {
+    var xml = new XMLHttpRequest();
+    xml.open("POST", "/postcomment/" + issue_id + "/");
+    xml.onload = function() {
+      var response = JSON.parse(xml.responseText).slice(1,-1).replace(/}, {/g,'}}, {{').split('}, {'); 
+      current.insertComments(response);
+    };
+    xml.send(data);
+  };
+
+
+
+  IssueDescription.prototype.commentsHandler = function(event) {
+    event.preventDefault();
+    var comment = document.querySelector("#id_comment").value;
+    var csrf = document.querySelector("#issue_comments-form input[name=csrfmiddlewaretoken]").value;
+    var issue_id = event.target.getAttribute("data-id");
+    if (comment.length > 0) {
+      var formData = new FormData();
+      formData.append("comment", comment);
+      formData.append("csrfmiddlewaretoken", csrf);
+      current.sendComment(formData, issue_id);
+    }
+    
   };
 
   IssueDescription.prototype.addHandler = function() {
     document.addEventListener('click', current.closeIssueDescriptionHandler);
     document.addEventListener('click', current.closeHandler);
+    document.querySelector("#issue_comments-form-btn").addEventListener('click', current.commentsHandler);
   };
 
 
   IssueDescription.prototype.insertIssueData = function(jsonData, issue_id) {
     current.issue_box.style.display = 'block';
+    document.querySelector("#issue_comments-form-btn").setAttribute("data-id", issue_id);
+    var commentsList = document.querySelector("#issue_comments");
+    commentsList.innerHTML = '';
+    for (var i = 0; i < jsonData.comments.length; i++) {
+      var comment = document.createElement('li');
+      comment.innerHTML = jsonData.comments[i].date_public.slice(0,19) + " " + jsonData.comments[i].user__alias  + " comments: " +  jsonData.comments[i].comment;
+      commentsList.appendChild(comment);
+    }
+    document.querySelector("#issue_all-comments").href = "/issue-comment/" + issue_id + "/";
     document.querySelector(".issue_title").innerHTML = jsonData.title;
     document.querySelector(".issue_description").innerHTML = jsonData.description;
     document.querySelector("#issue_category").innerHTML = jsonData.category__category;

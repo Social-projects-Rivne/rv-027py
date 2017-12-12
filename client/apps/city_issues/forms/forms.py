@@ -2,7 +2,7 @@
 from django import forms
 from django.core.validators import MaxValueValidator, MinValueValidator
 
-from city_issues.models.issues import Issues, Category
+from city_issues.models.issues import Issues, Category, Comments
 from city_issues.models.users import User
 
 
@@ -177,3 +177,17 @@ class IssueSearchForm(forms.Form):
 class IssueFormEdit(IssueForm):
 
     files = None
+
+
+class CommentsOnMapForm(forms.Form):
+    """Map comments form."""
+
+    comment = forms.CharField(
+        required=False,
+        min_length=1,
+        max_length=350,
+        widget=forms.Textarea(attrs={'rows': 2}))
+
+    class Meta:
+        model = Comments
+        fields = ['comment']

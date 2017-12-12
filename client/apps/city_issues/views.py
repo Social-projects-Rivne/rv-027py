@@ -25,7 +25,7 @@ from django.urls import reverse
 
 from city_issues.models import Attachments, Issues, IssueHistory, User, Comments
 from city_issues.forms.forms import EditIssue, IssueFilter, IssueForm, \
-    IssueFormEdit, IssueSearchForm, EditUserForm
+    IssueFormEdit, IssueSearchForm, EditUserForm, CommentsOnMapForm
 from city_issues.mixins import LoginRequiredMixin
 
 
@@ -143,7 +143,8 @@ class IssueCreate(CreateView):
 def map_page_view(request):
     """Map page"""
     form = IssueFilter()
-    return render(request, 'map_page.html', {'form': form})
+    comment_form = CommentsOnMapForm()
+    return render(request, 'map_page.html', {'form': form, 'comment_form': comment_form})
 
 
 def get_issue_data(request, issue_id):
@@ -151,6 +152,14 @@ def get_issue_data(request, issue_id):
 
     attachments_query = list(
         Attachments.objects.filter(issue=issue_id).values())
+    comments_query = list(
+        Comments.objects.filter(issue=issue_id).select_related("user").order_by('date_public').values(
+            "user__alias",
+            "comment",
+            "date_public",
+        ))[::-1][:3]
+    for comment in comments_query:
+        comment['date_public'] = convert_date(comment['date_public'])
 
     images_urls = [item['image_url'] for item in attachments_query]
     checked_img_urls = []
@@ -185,6 +194,7 @@ def get_issue_data(request, issue_id):
     issue_dict = issue_query[0]
     issue_dict['images_urls'] = checked_img_urls
     issue_dict['editable'] = issue_is_editable
+    issue_dict['comments'] = comments_query
 
     issue_dict['open_date'] = convert_date(issue_dict['open_date'])
     issue_dict['close_date'] = convert_date(issue_dict['close_date'])
@@ -242,7 +252,7 @@ def get_all_issues_data(request):
 def convert_date(obj):
     """Converts data field from database to json acceptable format"""
     if isinstance(obj, (date, datetime)):
-        return obj.isoformat()
+        return obj.isoformat(" ")
     return obj
 
 
@@ -322,3 +332,25 @@ class CommentIssues(LoginRequiredMixin, CreateView):
 
     def form_invalid(self, form):
         return super(CommentIssues, self).form_invalid(form)
+
+
+def post_comment(request, issue_id):
+    form = CommentsOnMapForm(request.POST)
+    if form.is_valid():
+        comment = Comments()
+        comment.comment = form.cleaned_data.get('comment')
+        comment.user = request.user
+        comment.issue = Issues.objects.get(pk=issue_id)
+        comment.date_public = datetime.now()
+        comment.save()
+
+        comments_query = list(
+            Comments.objects.filter(issue=issue_id).select_related("user").order_by('date_public').values(
+                "user__alias",
+                "comment",
+                "date_public",
+            ))[::-1][:3]
+        for comment in comments_query:
+            comment['date_public'] = convert_date(comment['date_public'])
+        data = json.dumps(comments_query)
+    return JsonResponse(data, safe=False)
