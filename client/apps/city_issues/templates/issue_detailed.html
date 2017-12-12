@@ -41,10 +41,23 @@
                 </tr>
               </tbody>
         </table>
-           <div class="navbar-form navbar-left">
-                    <a href="{% url 'issue-comment' object.pk %}" type="button" class="btn btn-md btn-info">
-                        <span class="glyphicon glyphicon-plus"></span> Add Comments
-                    </a>
+           <div class="row">
+                <h3>Comments: </h3>
+                {% for com in  object.comments_set.all %}
+                    <h5>User {{ com.user.name }} {{ com.date_public }}</h5>
+                    <p style="text-indent:20px;">{{ com.comment }}</p>
+                {% endfor %}
+             <form action="{% url 'issue-comment' object.pk %}" method="POST">
+                {% csrf_token %}
+                 <div class="col-md-6">
+                 <label for={{ form.comment.id_for_label }}>Comment:</label>
+                <textarea type="text" class="form-control"
+                          rows="5" name="{{ form.comment.name }}" maxlength="400"
+                          id={{ form.comment.id_for_label }}></textarea>
+                     <br>
+                 <input type='submit' class="btn btn-primary" value='Comment' name="Comment"/>
+             </div>
+             </form>
                 </div>
       </div>
     </div>

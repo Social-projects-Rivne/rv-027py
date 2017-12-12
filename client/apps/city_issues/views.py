@@ -302,13 +302,13 @@ class UpdateIssue(UpdateView):
 
 class CommentIssues(LoginRequiredMixin, CreateView):
     """Comment issue"""
-    template_name = 'comment_issue.html'
+    template_name = 'issue_detailed.html'
     model = Comments
     fields = ['comment']
 
     def get_context_data(self, **kwargs):
         context = super(CommentIssues, self).get_context_data(**kwargs)
-        context['issue'] = Issues.objects.get(pk=self.kwargs['pk'])
+        context['object'] = Issues.objects.get(pk=self.kwargs['pk'])
         return context
 
     def form_valid(self, form):
