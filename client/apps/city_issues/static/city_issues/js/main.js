@@ -5,6 +5,7 @@ function IssueMap(elementId) {
   this.map = L.map(elementId);
   this.issueDescriptionBox = new IssueDescription("mapid", "issue_container", "issue_close");
   this.issueDescriptionBox.addHandler();
+  this.currentMarker = undefined;
 
   IssueMap.prototype.setFilterFromBtn = function(filterFormBtnId) {
     current.filterFormBtn = document.querySelector(filterFormBtnId);
@@ -34,16 +35,19 @@ function IssueMap(elementId) {
   };
 
 
-  IssueMap.prototype.iconCreate = function(category) {
+  IssueMap.prototype.iconCreate = function(category, status) {
+    var underscoredStatusShadow = status.replace(/ /g, '_');
     var MarkerIcon = L.Icon.extend({
     options: {
         customId: "",
+        customStatus: "",
         iconUrl: '/static/city_issues/img/category_' + category + '_marker-icon.png',
-        shadowUrl: '/static/city_issues/img/marker-shadow.png',
+        shadowUrl: '/static/city_issues/img/status_' + underscoredStatusShadow + '.png',
         iconSize: [30, 30],
-        iconAnchor: [8, 30],
+        iconAnchor: [0, 0],
         popupAnchor: [1, -34],
-        shadowSize: [30, 30]
+        shadowSize: [38, 38],
+        shadowAnchor: [4, 4],
     }});
 
     return new MarkerIcon();
@@ -64,15 +68,30 @@ function IssueMap(elementId) {
     
     jsonData.forEach(function(key) {
       var issue = JSON.parse(key);
+      var underscoredStatus = issue.fields.status.replace(/ /g, '_');
       var marker = L.marker(
         [issue.fields.location_lat, issue.fields.location_lon],
-        {icon: current.iconCreate(issue.fields.category),
+        {icon: current.iconCreate(issue.fields.category, issue.fields.status),
          title: issue.fields.title,
          customId: issue.pk,
+         customStatus: '/static/city_issues/img/status_' + underscoredStatus + '.png',
        });
 
       marker.on("click", function(event){
         current.showIssueDetails(this.options.customId, event);
+        if (!current.currentMarker) {
+          current.currentMarker = this;
+          }
+
+        if (this !== current.currentMarker) {
+            if (current.currentMarker._shadow !== null) {
+                current.currentMarker._shadow.src = current.currentMarker.options.customStatus;
+            }
+            current.currentMarker = this;
+          }
+        
+        this._shadow.src ='/static/city_issues/img/icon_active.png';
+        current.issueDescriptionBox.loadCurrentMarkerObject(this);
       });
 
       current.markers.addLayer(marker);
@@ -149,16 +168,24 @@ function IssueDescription(mapId, issueContainerId, issueCloseId) {
   this.issueCloseId = issueCloseId;
   this.issue_box = document.getElementById(issueContainerId);
 
+  IssueDescription.prototype.loadCurrentMarkerObject = function(obj) {
+    current.markerObject = obj;
+  };
+
   IssueDescription.prototype.closeIssueDescriptionHandler = function(event) {
       if (event.target.id == "mapid" && current.issue_box.style.display == "block") {
         current.issue_box.style.display = 'none';
+        current.markerObject._shadow.src = current.markerObject.options.customStatus;
       }
+      
   };
 
   IssueDescription.prototype.closeHandler = function(event) {
     if (event.target.id == current.issueCloseId) {
       current.issue_box.style.display = "none";
+      current.markerObject._shadow.src = current.markerObject.options.customStatus;
     }
+
   };
 
   IssueDescription.prototype.addHandler = function() {
