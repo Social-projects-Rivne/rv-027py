@@ -23,6 +23,9 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import UpdateView
 from django.urls import reverse
 
+from imagekit import ImageSpec
+from imagekit.processors import ResizeToFill
+
 from city_issues.models import Attachments, Issues, IssueHistory, User, Comments
 from city_issues.forms.forms import EditIssue, IssueFilter, IssueForm, \
     IssueFormEdit, IssueSearchForm, EditUserForm
@@ -112,6 +115,8 @@ class IssueCreate(CreateView):
                 attachment.issue = issue
                 attachment.image_url = issue_file
                 attachment.save()
+                folder = issue.title
+                # self.create_thumbnail(os.path.join('uploads', folder, issue_file.name))
 
     def save_issue_history(self, issue, user):
         issue_history = IssueHistory()
@@ -119,6 +124,13 @@ class IssueCreate(CreateView):
         issue_history.user = user
         issue_history.save()
 
+    def create_thumbnail(self, issue_file):
+        source_file  =  open(issue_file) 
+        image_generator = ImageSpec(processors=[ResizeToFill(100, 50)],
+                                    format='JPEG',
+                                    options={'quality': 60},
+                                    source=source_file)
+        result = image_generator.generate()
 
 def map_page_view(request):
     """Map page"""
