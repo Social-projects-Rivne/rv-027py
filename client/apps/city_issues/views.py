@@ -16,6 +16,7 @@ from django.core import serializers
 from django.core.exceptions import PermissionDenied
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import redirect, render
+from django.utils.html import escape
 from django.utils.timezone import make_aware
 from django.views import View
 from django.views.generic import CreateView, FormView, ListView, TemplateView
@@ -335,22 +336,25 @@ class CommentIssues(LoginRequiredMixin, CreateView):
 
 
 def post_comment(request, issue_id):
-    form = CommentsOnMapForm(request.POST)
-    if form.is_valid():
-        comment = Comments()
-        comment.comment = form.cleaned_data.get('comment')
-        comment.user = request.user
-        comment.issue = Issues.objects.get(pk=issue_id)
-        comment.date_public = datetime.now()
-        comment.save()
+    if hasattr(request.user, 'role'):
+        form = CommentsOnMapForm(request.POST)
+        if form.is_valid():
+            comment = Comments()
+            comment.comment = escape(form.cleaned_data.get('comment'))
+            comment.user = request.user
+            comment.issue = Issues.objects.get(pk=issue_id)
+            comment.date_public = datetime.now()
+            comment.save()
 
-        comments_query = list(
-            Comments.objects.filter(issue=issue_id).select_related("user").order_by('date_public').values(
-                "user__alias",
-                "comment",
-                "date_public",
-            ))[::-1][:3]
-        for comment in comments_query:
-            comment['date_public'] = convert_date(comment['date_public'])
-        data = json.dumps(comments_query)
-    return JsonResponse(data, safe=False)
+            comments_query = list(
+                Comments.objects.filter(issue=issue_id).select_related("user").order_by('date_public').values(
+                    "user__alias",
+                    "comment",
+                    "date_public",
+                ))[::-1][:3]
+            for comment in comments_query:
+                comment['date_public'] = convert_date(comment['date_public'])
+            data = json.dumps(comments_query)
+        return JsonResponse(data, safe=False)
+
+    raise PermissionDenied("You are not allowed to comment without login")

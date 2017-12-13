@@ -71,6 +71,7 @@
 			<h4>Last three comments:</h4>
 			<a href="" id="issue_all-comments">Click to see all comments</a>
 			<ul id="issue_comments" class="issue_comments"></ul>
+			{% if user.is_authenticated %}
 			<div class="issue_comments-form" id="issue_comments-form">
 				{% csrf_token %}
                 {% for field in comment_form %}
@@ -80,6 +81,7 @@
                 {% endfor %}
                 <input id="issue_comments-form-btn"  class="btn btn-success" type="submit" value="Comment" />
 			</div>
+			{% endif %}
 		</div>
 	</div>
 

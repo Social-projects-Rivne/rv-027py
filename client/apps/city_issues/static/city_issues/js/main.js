@@ -47,10 +47,10 @@ function IssueMap(elementId) {
         iconUrl: '/static/city_issues/img/category_' + category + '_marker-icon.png',
         shadowUrl: underscoredStatusShadow,
         iconSize: [30, 30],
-        iconAnchor: [0, 0],
+        iconAnchor: [5, 35],
         popupAnchor: [1, -34],
         shadowSize: [40, 40],
-        shadowAnchor: [5, 5],
+        shadowAnchor: [10, 40],
     }});
 
     return new MarkerIcon();
@@ -234,13 +234,19 @@ function IssueDescription(mapId, issueContainerId, issueCloseId) {
   IssueDescription.prototype.addHandler = function() {
     document.addEventListener('click', current.closeIssueDescriptionHandler);
     document.addEventListener('click', current.closeHandler);
-    document.querySelector("#issue_comments-form-btn").addEventListener('click', current.commentsHandler);
+    if ( document.querySelector("#issue_comments-form-btn")) {
+      document.querySelector("#issue_comments-form-btn").addEventListener('click', current.commentsHandler);
+    }
+    
   };
 
 
   IssueDescription.prototype.insertIssueData = function(jsonData, issue_id) {
     current.issue_box.style.display = 'block';
-    document.querySelector("#issue_comments-form-btn").setAttribute("data-id", issue_id);
+    if (document.querySelector("#issue_comments-form-btn")) {
+      document.querySelector("#issue_comments-form-btn").setAttribute("data-id", issue_id);
+    }
+    
     var commentsList = document.querySelector("#issue_comments");
     commentsList.innerHTML = '';
     for (var i = 0; i < jsonData.comments.length; i++) {
@@ -323,7 +329,6 @@ function placeFilter() {
   filterForm.style.top = (leafletControlsCoordinatse.bottom + 5) + "px";
   filterForm.style.left = (leafletControlsCoordinatse.left + 5) + "px";
 }
-
 
 issueMap = new IssueMap("mapid");
 issueMap.setFilterFromBtn("#issue_filter-form-btn");
