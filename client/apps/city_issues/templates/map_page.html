@@ -41,11 +41,22 @@
 			<p id="message_box" class="message_box"></p>
 			    {% csrf_token %}
                 {% for field in form %}
-                <div class="form-group">
-                	{{field.errors}}
-                	{{field.label_tag}}
-                    {{field}}
-                </div>
+
+	                {% if field.auto_id == "id_category" %}
+	                </div>
+	                {% endif %}
+
+	                <div class="form-group">
+	                	{{field.errors}}
+	                	{{field.label_tag}}
+	                    {{field}}
+	                </div>
+
+	                {% if field.auto_id == "id_date_to" %}
+	                <p><strong>Status:</strong></p>
+	                <div class="form-group--checkbox">
+	                {% endif %}
+				
                 {% endfor %}
 			    <input id="issue_filter-form-btn"  class="btn btn-success" type="submit" value="Show" />
 			    <button id="issue_filter-form-close-btn" class="btn btn-danger">Close</button>

@@ -87,8 +87,32 @@ class IssueFilter(forms.Form):
         required=False,
         widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}))
 
+    show_open = forms.BooleanField(
+        label="Open",
+        required=False,
+        initial=True,
+        widget=forms.CheckboxInput())
+
     show_closed = forms.BooleanField(
-        label="Closed only",
+        label="Closed",
+        required=False,
+        initial=False,
+        widget=forms.CheckboxInput())
+
+    show_new = forms.BooleanField(
+        label="New",
+        required=False,
+        initial=False,
+        widget=forms.CheckboxInput())
+
+    show_on_moderation = forms.BooleanField(
+        label="On moderation",
+        required=False,
+        initial=False,
+        widget=forms.CheckboxInput())
+
+    show_deleted = forms.BooleanField(
+        label="Deleted",
         required=False,
         initial=False,
         widget=forms.CheckboxInput())

@@ -37,7 +37,7 @@ function IssueMap(elementId) {
 
   IssueMap.prototype.iconCreate = function(category, status) {
     var underscoredStatusShadow = '/static/city_issues/img/status_' + status.replace(/ /g, '_') + '.png';
-    if (status == "new" || status == "open") {
+    if (status == "open") {
       underscoredStatusShadow = "/static/city_issues/img/marker-shadow.png";
     }
     var MarkerIcon = L.Icon.extend({
@@ -72,7 +72,7 @@ function IssueMap(elementId) {
     jsonData.forEach(function(key) {
       var issue = JSON.parse(key);
       var underscoredStatus = '/static/city_issues/img/status_' + issue.fields.status.replace(/ /g, '_') + '.png';
-      if (issue.fields.status == "new" || issue.fields.status == "open") {
+      if (issue.fields.status == "open") {
         underscoredStatus = "/static/city_issues/img/marker-shadow.png";
       }
       var marker = L.marker(
@@ -111,7 +111,21 @@ function IssueMap(elementId) {
     event.preventDefault();
     var dateFromValue = document.querySelector("#id_date_from").value;
     var dateToValue = document.querySelector("#id_date_to").value;
-    var showClosedValue = document.querySelector("#id_show_closed").checked;
+    var statusRawArr = [
+      document.querySelector("#id_show_closed"),
+      document.querySelector("#id_show_open"),
+      document.querySelector("#id_show_new"),
+      document.querySelector("#id_show_on_moderation"),
+      document.querySelector("#id_show_deleted")
+    ];
+    var statusArr = [];
+
+    statusRawArr.forEach(function(element) {
+      if (element && element.checked) {
+        statusArr.push(element.name.slice(5).replace(/_/g, " "));
+      }
+    });
+
     var categoryValue = document.querySelector("#id_category").value;
     var searchValue = document.querySelector("#id_search").value;
      
@@ -121,7 +135,7 @@ function IssueMap(elementId) {
       "filter=" + "True" + "&" +
       "date_from=" + dateFromValue + "&" + 
       "date_to=" + dateToValue + "&" + 
-      "show_closed=" + showClosedValue + "&" + 
+      "status_arr=" + statusArr + "&" + 
       "category=" + categoryValue + "&" +
       "search=" +  searchValue
       );
@@ -181,7 +195,10 @@ function IssueDescription(mapId, issueContainerId, issueCloseId) {
   IssueDescription.prototype.closeIssueDescriptionHandler = function(event) {
       if (event.target.id == "mapid" && current.issue_box.style.display == "block") {
         current.issue_box.style.display = 'none';
-        current.markerObject._shadow.src = current.markerObject.options.customStatus;
+        if (current.markerObject._shadow) {
+          current.markerObject._shadow.src = current.markerObject.options.customStatus;
+        }
+        
       }
       
   };
