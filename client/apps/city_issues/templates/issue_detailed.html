@@ -13,36 +13,40 @@
 
 {% block content %}
 
-    <ul class="product-list-vertical">
-
-        <li>
-
-            <a href="#" class="product-photo">
-                <img src="../static/images/avatar.png" height="160" />
-            </a>
-
-            <div class="product-details">
-                <p class="product-price">{{ object.status }}</p>
-                <h4>Title: {{ object.title }}</h4>
-                <h4>User: {{ object.user }}</h4>
-                <h4>Category: {{ object.category}}</h4>
-                <h5>Open date: {{ object.open_date}}</h5>
-                <h5>Close date: {{ object.close_date}}</h5>
-                <h5>Latitude: {{ object.location_lat}}</h5>
-                <h5>Longitude: {{ object.location_lon}}</h5>
-
-
-                <p class="product-description">{{ object.description}}</p>
-
-                 <div class="navbar-form navbar-left" style="padding-left: 0;">
-                    <a href="{% url 'issue-comment' object.pk %}" type="button" class="btn btn-md btn-info">
-                        <span class="glyphicon glyphicon-plus"></span> Add Comments
-                    </a>
-                </div>
+<div class="container">
+    <div class="row">
+        {% for image in attachment_list  %}
+            <div class="col-sm-2">
+            {% if image.image_url %}
+                <img src="{{ image.image_url.url }}" alt="..." class="img-thumbnail">
+            {% else %}
+                <img src="{% static "city_issues/img/no-image.png" %}" alt="..." class="img-thumbnail">
+            {% endif %}
             </div>
-
-        </li>
-
-    </ul>
+        {% endfor %}
+        {% if not attachment_list %}
+            <div class="col-sm-2">
+                <img src="{% static "city_issues/img/no-image.png" %}" alt="..." class="img-thumbnail">
+            </div>
+        {% endif %}
+            <ul class="product-list-vertical">
+                <div class="col-sm-7">
+                    <li>
+                        <div class="product-details">
+                            <p class="product-price">{{ issue.status }}</p>
+                            <h4>Title: {{ issue.title }}</h4>
+                            <h4>User: {{ issue.user }}</h4>
+                            <h4>Category: {{ issue.category }}</h4>
+                            <h5>Open date: {{ issue.open_date }}</h5>
+                            <h5>Close date: {{ issue.close_date }}</h5>
+                            <h5>Latitude: {{ issue.location_lat }}</h5>
+                            <h5>Longitude: {{ issue.location_lon }}</h5>
+                            <p class="product-description">{{ issue.description }}</p>
+                        </div>
+                    </li>
+                </div>
+            </ul>
+    </div>
+</div>
 
 {% endblock content %}

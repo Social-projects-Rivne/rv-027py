@@ -258,14 +258,19 @@ class CheckIssues(ListView, FormView):
         return context
 
 
-class DetailedIssue(DetailView):
+class DetailedIssue(ListView):
     """Detailed issue"""
     template_name = 'issue_detailed.html'
-    model = Issues
+    context_object_name = 'attachment_list'
 
-    # def get_queryset(self):
-    #     self.attachment = get_object_or_404(Attachments, id=self.kwargs['pk'])
-    #     return Attachments.objects.filter(image_url=self.attachment)
+    def get_queryset(self):
+        self.issue = get_object_or_404(Issues, pk=self.kwargs['pk'])
+        return Attachments.objects.filter(issue=self.issue)
+
+    def get_context_data(self, **kwargs):
+        context = super(DetailedIssue, self).get_context_data(**kwargs)
+        context['issue'] = self.issue
+        return context
 
 
 class UpdateIssue(UpdateView):
