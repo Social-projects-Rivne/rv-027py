@@ -16,7 +16,6 @@ from django.core import serializers
 from django.core.exceptions import PermissionDenied
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import redirect, render
-from django.utils.html import escape
 from django.utils.timezone import make_aware
 from django.views import View
 from django.views.generic import CreateView, FormView, ListView, TemplateView
@@ -266,7 +265,7 @@ def post_comment(request, issue_id):
         form = CommentsOnMapForm(request.POST)
         if form.is_valid():
             comment = Comments()
-            comment.comment = escape(form.cleaned_data.get('comment'))
+            comment.comment = form.cleaned_data.get('comment')
             comment.user = request.user
             comment.issue = Issues.objects.get(pk=issue_id)
             comment.date_public = datetime.now()

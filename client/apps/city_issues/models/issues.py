@@ -236,5 +236,5 @@ class Comments(models.Model):
                 "user__alias",
                 "comment",
                 "date_public",
-            ))[::-1][:3]
+            ))[::-1]
         return comments_query

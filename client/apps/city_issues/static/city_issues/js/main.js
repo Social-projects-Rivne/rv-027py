@@ -211,14 +211,31 @@ function IssueDescription(mapId, issueContainerId, issueCloseId) {
   };
 
 
-  IssueDescription.prototype.insertComments = function(jsonData) {
+  IssueDescription.prototype.insertComments = function(jsonData, key) {
     var commentsList = document.querySelector("#issue_comments");
     commentsList.innerHTML = "";
     for (var i = 0; i < jsonData.length; i++) {
-      var item = JSON.parse(jsonData[i]);
-      var comment = document.createElement('li');
-      comment.innerHTML = item.date_public.slice(0,19) + " " + item.user__alias  + " comments: " +  item.comment;
-      commentsList.appendChild(comment);
+      var item = key ? jsonData[i] : JSON.parse(jsonData[i]);
+      var commentBox = document.createElement('li');
+      var commentHeader = document.createElement('div');
+      var commentText = document.createElement('p');
+      var commentAuthor = document.createElement('span');
+
+      commentBox.classList.add("issue_comment-box");
+
+      commentHeader.classList.add("issue_comment-header");
+      commentHeader.appendChild(document.createTextNode(item.date_public.slice(0,16) + " "));
+
+      commentAuthor.appendChild(document.createTextNode(item.user__alias));
+      commentAuthor.classList.add("issue_comment-author");
+
+      commentText.appendChild(document.createTextNode(item.comment));
+      commentText.classList.add("issue_comment-text");
+
+      commentHeader.appendChild(commentAuthor);
+      commentBox.appendChild(commentHeader);
+      commentBox.appendChild(commentText);
+      commentsList.appendChild(commentBox);
     }
   };
 
@@ -237,6 +254,7 @@ function IssueDescription(mapId, issueContainerId, issueCloseId) {
   IssueDescription.prototype.commentsHandler = function(event) {
     event.preventDefault();
     var comment = document.querySelector("#id_comment").value;
+
     var csrf = document.querySelector("#issue_comments-form input[name=csrfmiddlewaretoken]").value;
     var issue_id = event.target.getAttribute("data-id");
     if (comment.length > 0) {
@@ -263,15 +281,8 @@ function IssueDescription(mapId, issueContainerId, issueCloseId) {
     if (document.querySelector("#issue_comments-form-btn")) {
       document.querySelector("#issue_comments-form-btn").setAttribute("data-id", issue_id);
     }
-    
-    var commentsList = document.querySelector("#issue_comments");
-    commentsList.innerHTML = '';
-    for (var i = 0; i < jsonData.comments.length; i++) {
-      var comment = document.createElement('li');
-      comment.innerHTML = jsonData.comments[i].date_public.slice(0,19) + " " + jsonData.comments[i].user__alias  + " comments: " +  jsonData.comments[i].comment;
-      commentsList.appendChild(comment);
-    }
-    document.querySelector("#issue_all-comments").href = "/issue-comment/" + issue_id + "/";
+    current.insertComments(jsonData.comments, true);
+
     document.querySelector(".issue_title").innerHTML = jsonData.title;
     document.querySelector(".issue_description").innerHTML = jsonData.description;
     document.querySelector("#issue_category").innerHTML = jsonData.category__category;
