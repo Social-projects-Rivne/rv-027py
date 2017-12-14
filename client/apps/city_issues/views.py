@@ -325,7 +325,7 @@ def delete_attachment(request):
 
     return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 
-  
+
 def post_comment(request, issue_id):
     if hasattr(request.user, 'role'):
         form = CommentsOnMapForm(request.POST)
