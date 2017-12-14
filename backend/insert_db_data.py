@@ -26,6 +26,7 @@ status1 = Status(status="new")
 status2 = Status(status="on moderation")
 status3 = Status(status="open")
 status4 = Status(status="closed")
+status5 = Status(status="deleted")
 
 user1 = User(name='Bob', alias='Bobby', email='bob@gmail.com',
              password='crypto', role_id='1')
@@ -48,7 +49,7 @@ issue4 = Issue(title='Stolen car wheels', user_id='1', category_id='1', location
                location_lon='26.25116586685181', description='My car wheels have been stolen by some bastards ', status='open',
                open_date='2017/11/18')
 issue5 = Issue(title='Heavy traffic', user_id='2', category_id='1', location_lat='50.61320139365915',
-               location_lon='26.239514350891117', description='All cars are here, because Soborna street is closed', status='open',
+               location_lon='26.239514350891117', description='All cars are here, because Soborna street is closed', status='closed',
                open_date='2017/11/19', close_date='2017/11/25')
 issue6 = Issue(title='No electricity', user_id='3', category_id='2', location_lat='50.6250186130551',
                location_lon='26.253225803375248', description='There is no electricity in that place after storm', status='open',
@@ -129,7 +130,7 @@ def db_insert_data():
     """This function insert database data"""
     db.session.add_all([role, role1, role2,
                         category, category1, category2, category3,
-                        status1, status2, status3, status4,
+                        status1, status2, status3, status4, status5,
                         user1, user2, user3,
                         issue1, issue2, issue3,
                         issue4, issue5, issue6,

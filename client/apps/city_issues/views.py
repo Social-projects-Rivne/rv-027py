@@ -16,6 +16,7 @@ from django.core import serializers
 from django.core.exceptions import PermissionDenied
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import redirect, render
+from django.utils.html import escape
 from django.utils.timezone import make_aware
 from django.views import View
 from django.views.generic import CreateView, FormView, ListView, TemplateView
@@ -28,13 +29,19 @@ from imagekit.processors import ResizeToFill
 
 from city_issues.models import Attachments, Issues, IssueHistory, User, Comments
 from city_issues.forms.forms import EditIssue, IssueFilter, IssueForm, \
-    IssueFormEdit, IssueSearchForm, EditUserForm
+    IssueFormEdit, IssueSearchForm, EditUserForm, CommentsOnMapForm
 from city_issues.mixins import LoginRequiredMixin
 
 
 ROLE_ADMIN = 1
 ROLE_MODERATOR = 2
 ROLE_USER = 3
+
+
+class Thumbnail(ImageSpec):
+    processors = [ResizeToFill(100, 100)]
+    format = 'JPEG'
+    options = {'quality': 60}
 
 
 class HomePageView(TemplateView):
@@ -115,8 +122,7 @@ class IssueCreate(CreateView):
                 attachment.issue = issue
                 attachment.image_url = issue_file
                 attachment.save()
-                folder = issue.title
-                # self.create_thumbnail(os.path.join('uploads', folder, issue_file.name))
+                self.create_thumbnail(issue_file, issue.title, issue_file.name)
 
     def save_issue_history(self, issue, user):
         issue_history = IssueHistory()
@@ -124,18 +130,19 @@ class IssueCreate(CreateView):
         issue_history.user = user
         issue_history.save()
 
-    def create_thumbnail(self, issue_file):
-        source_file  =  open(issue_file) 
-        image_generator = ImageSpec(processors=[ResizeToFill(100, 50)],
-                                    format='JPEG',
-                                    options={'quality': 60},
-                                    source=source_file)
+    def create_thumbnail(self, issue_file, title, name):
+        image_generator = Thumbnail(source=issue_file)
         result = image_generator.generate()
+        filename = "-".join(["thumb", name])
+        thumb_file = open(os.path.join(settings.MEDIA_ROOT, 'uploads', title, filename), 'w')
+        thumb_file.write(result.read())
+        thumb_file.close()
 
 def map_page_view(request):
     """Map page"""
     form = IssueFilter()
-    return render(request, 'map_page.html', {'form': form})
+    comment_form = CommentsOnMapForm()
+    return render(request, 'map_page.html', {'form': form, 'comment_form': comment_form})
 
 
 def get_issue_data(request, issue_id):
@@ -143,6 +150,14 @@ def get_issue_data(request, issue_id):
 
     attachments_query = list(
         Attachments.objects.filter(issue=issue_id).values())
+    comments_query = list(
+        Comments.objects.filter(issue=issue_id).select_related("user").order_by('date_public').values(
+            "user__alias",
+            "comment",
+            "date_public",
+        ))[::-1][:3]
+    for comment in comments_query:
+        comment['date_public'] = convert_date(comment['date_public'])
 
     images_urls = [item['image_url'] for item in attachments_query]
     checked_img_urls = []
@@ -177,6 +192,7 @@ def get_issue_data(request, issue_id):
     issue_dict = issue_query[0]
     issue_dict['images_urls'] = checked_img_urls
     issue_dict['editable'] = issue_is_editable
+    issue_dict['comments'] = comments_query
 
     issue_dict['open_date'] = convert_date(issue_dict['open_date'])
     issue_dict['close_date'] = convert_date(issue_dict['close_date'])
@@ -234,7 +250,7 @@ def get_all_issues_data(request):
 def convert_date(obj):
     """Converts data field from database to json acceptable format"""
     if isinstance(obj, (date, datetime)):
-        return obj.isoformat()
+        return obj.isoformat(" ")
     return obj
 
 
@@ -315,3 +331,28 @@ class CommentIssues(LoginRequiredMixin, CreateView):
 
     def form_invalid(self, form):
         return super(CommentIssues, self).form_invalid(form)
+
+
+def post_comment(request, issue_id):
+    if hasattr(request.user, 'role'):
+        form = CommentsOnMapForm(request.POST)
+        if form.is_valid():
+            comment = Comments()
+            comment.comment = escape(form.cleaned_data.get('comment'))
+            comment.user = request.user
+            comment.issue = Issues.objects.get(pk=issue_id)
+            comment.date_public = datetime.now()
+            comment.save()
+
+            comments_query = list(
+                Comments.objects.filter(issue=issue_id).select_related("user").order_by('date_public').values(
+                    "user__alias",
+                    "comment",
+                    "date_public",
+                ))[::-1][:3]
+            for comment in comments_query:
+                comment['date_public'] = convert_date(comment['date_public'])
+            data = json.dumps(comments_query)
+        return JsonResponse(data, safe=False)
+
+    raise PermissionDenied("You are not allowed to comment without login")

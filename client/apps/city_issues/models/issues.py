@@ -14,14 +14,13 @@ class Attachments(models.Model):
     """
 
     def get_file_path(self, filename):
-        # pylint: disable=no-member
         folder = self.issue.title
-        # pylint: enable=no-member
         return os.path.join('uploads', folder, filename)
 
     issue = models.ForeignKey('Issues', models.DO_NOTHING,
                               blank=True, null=True)
-    image_url = models.ImageField(blank=True, null=True, upload_to=get_file_path)
+    image_url = models.ImageField(
+        blank=True, null=True, upload_to=get_file_path)
 
     class Meta:
         app_label = 'city_issues'

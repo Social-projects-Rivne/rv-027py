@@ -67,6 +67,22 @@
 			<div class="btn btn-danger" id="issue_close">Close</div>
 			<a href="" class="btn btn-primary" id="issue_edit" data-url="{% url 'edit_issue' 1 %}">Edit</a>
 		</div>
+		<div class="issue_comments-box" id="issue_comments-box">
+			<h4>Last three comments:</h4>
+			<a href="" id="issue_all-comments">Click to see all comments</a>
+			<ul id="issue_comments" class="issue_comments"></ul>
+			{% if user.is_authenticated %}
+			<div class="issue_comments-form" id="issue_comments-form">
+				{% csrf_token %}
+                {% for field in comment_form %}
+                	{{field.errors}}
+                	{{field.label_tag}}
+                    {{field}}
+                {% endfor %}
+                <input id="issue_comments-form-btn"  class="btn btn-success" type="submit" value="Comment" />
+			</div>
+			{% endif %}
+		</div>
 	</div>
 
 	<template id="bootstrap_carousel">
