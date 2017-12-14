@@ -168,7 +168,7 @@ def get_all_issues_data(request):
     all_issues = Issues()
     role_based_query = all_issues.get_role_based_query(request)
     role_based_query_default_show = role_based_query.filter(
-        status__in=["open"])
+        status__in=["open", "new", "on moderation"])
 
     data = serializers.serialize(
         "json",

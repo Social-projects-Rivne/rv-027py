@@ -102,13 +102,13 @@ class IssueFilter(forms.Form):
     show_new = forms.BooleanField(
         label="New",
         required=False,
-        initial=False,
+        initial=True,
         widget=forms.CheckboxInput())
 
     show_on_moderation = forms.BooleanField(
         label="On moderation",
         required=False,
-        initial=False,
+        initial=True,
         widget=forms.CheckboxInput())
 
     show_deleted = forms.BooleanField(
