@@ -23,7 +23,7 @@ from django.views.generic import RedirectView
 from city_issues.views import (
     CheckIssues, DetailedIssue, get_all_issues_data, get_issue_data,
     HomePageView, map_page_view, IssueCreate, UserProfileView, UpdateIssue,
-    CommentIssues)
+    CommentIssues, post_comment)
 
 
 urlpatterns = [
@@ -31,6 +31,7 @@ urlpatterns = [
     url(r'^issues/$', CheckIssues.as_view(), name='issues'),
     url(r'^issue/(?P<pk>\d+)/$', DetailedIssue.as_view(), name='issue'),
     url(r'^issue-comment/(?P<pk>[0-9]+)/$', CommentIssues.as_view(), name='issue-comment'),
+    url(r'^postcomment/(?P<issue_id>[0-9]+)/$', post_comment, name='post-comment'),
 
     url(r'^map/$', map_page_view, name='map'),
     url(r'^map/getissuebyid/(?P<issue_id>[0-9]+)$',

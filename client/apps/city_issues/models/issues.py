@@ -21,7 +21,8 @@ class Attachments(models.Model):
 
     issue = models.ForeignKey('Issues', models.DO_NOTHING,
                               blank=True, null=True)
-    image_url = models.ImageField(blank=True, null=True, upload_to=get_file_path)
+    image_url = models.ImageField(
+        blank=True, null=True, upload_to=get_file_path)
 
     class Meta:
         app_label = 'city_issues'
