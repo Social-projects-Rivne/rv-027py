@@ -19,6 +19,16 @@ class Attachments(models.Model):
         # pylint: enable=no-member
         return os.path.join('uploads', folder, filename)
 
+    def delete(self, *args, **kwargs):
+        files_in_dir = Attachments.objects.filter(issue_id=self.issue_id).count()
+        storage, path = self.image_url.storage, self.image_url.path
+        super(Attachments, self).delete(*args, **kwargs)
+        directory_path = os.path.abspath(os.path.join(path, os.pardir))
+
+        storage.delete(path)
+        if files_in_dir == 1:
+            os.rmdir(directory_path)
+
     issue = models.ForeignKey('Issues', models.DO_NOTHING,
                               blank=True, null=True)
     image_url = models.ImageField(blank=True, null=True, upload_to=get_file_path)
@@ -98,6 +108,9 @@ class Issues(models.Model):
         app_label = 'city_issues'
         managed = False
         db_table = 'issues'
+
+    def get_attachments(self):
+        return Attachments.objects.filter(issue=self.id)
 
 
 class Comments(models.Model):
