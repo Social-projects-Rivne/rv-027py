@@ -16,7 +16,6 @@ from django.core import serializers
 from django.core.exceptions import PermissionDenied
 from django.http import JsonResponse, HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect, render
-from django.utils.html import escape
 from django.utils.timezone import make_aware
 from django.views import View
 from django.views.generic import CreateView, FormView, ListView, TemplateView
@@ -124,117 +123,43 @@ class IssueCreate(CreateView):
 def map_page_view(request):
     """Map page"""
     form = IssueFilter()
+    if request.user.is_anonymous():
+        form.fields.pop('show_deleted')
+        form.fields.pop('show_on_moderation')
+        form.fields.pop('show_new')
+
+    if request.user.is_authenticated() and request.user.role.id not in (ROLE_ADMIN, ROLE_MODERATOR):
+        form.fields.pop('show_deleted')
+
     comment_form = CommentsOnMapForm()
     return render(request, 'map_page.html', {'form': form, 'comment_form': comment_form})
 
 
 def get_issue_data(request, issue_id):
     """Returns single issue record as json"""
-
-    attachments_query = list(
-        Attachments.objects.filter(issue=issue_id).values())
-    comments_query = list(
-        Comments.objects.filter(issue=issue_id).select_related("user").order_by('date_public').values(
-            "user__alias",
-            "comment",
-            "date_public",
-        ))[::-1][:3]
-    for comment in comments_query:
-        comment['date_public'] = convert_date(comment['date_public'])
-
-    images_urls = [item['image_url'] for item in attachments_query]
-    checked_img_urls = []
-
-    for img in images_urls:
-        if img and os.path.isfile(os.path.join(settings.MEDIA_ROOT, img)):
-            checked_img_urls.append(img)
-
-    issue_obj = Issues.objects.filter(pk=issue_id).select_related("category")
-    unpacked_issue_obj = issue_obj[0]
-
-    issue_is_editable = False
-
-    if hasattr(request.user, 'role') and (
-            (request.user.role.id in (ROLE_ADMIN, ROLE_MODERATOR)) or
-            (unpacked_issue_obj.user_id == request.user.id)):
-        issue_is_editable = True
-
-    issue_query = list(issue_obj.values(
-        "title",
-        "user",
-        "category",
-        "location_lat",
-        "location_lon",
-        "status",
-        "description",
-        "open_date",
-        "close_date",
-        "delete_date",
-        "category__category",))
-
-    issue_dict = issue_query[0]
-    issue_dict['images_urls'] = checked_img_urls
-    issue_dict['editable'] = issue_is_editable
-    issue_dict['comments'] = comments_query
-
-    issue_dict['open_date'] = convert_date(issue_dict['open_date'])
-    issue_dict['close_date'] = convert_date(issue_dict['close_date'])
-    issue_dict['delete_date'] = convert_date(issue_dict['delete_date'])
-
-    data = json.dumps(issue_query)
+    single_issue = Issues()
+    data = json.dumps(single_issue.get_issue_data_by_id(request, issue_id))
     return JsonResponse(data, safe=False)
 
 
 def get_all_issues_data(request):
     """Returns all issues records as json with possible filter."""
+    all_issues = Issues()
+    role_based_query = all_issues.get_role_based_query(request)
+    role_based_query_default_show = role_based_query.filter(
+        status__in=["open", "new", "on moderation"])
+
     data = serializers.serialize(
         "json",
-        Issues.objects.filter(close_date__isnull=True))
+        role_based_query_default_show)
 
     form = IssueFilter(request.GET)
 
     if form.is_valid() and form.data.get('filter'):
-
-        map_date_from = form.cleaned_data.get('date_from')
-        map_date_to = form.cleaned_data.get('date_to')
-        show_closed = form.cleaned_data.get('show_closed')
-        category = form.data.get('category')
-        search = form.cleaned_data.get('search')
-
-        show_opened_issue = not show_closed
-
-        kwargs = {"close_date__isnull": (show_opened_issue)}
-
-        date_from = make_aware(datetime(1970, 1, 1,))
-        print date_from
-        date_to = make_aware(datetime.now())
-
-        if map_date_from:
-            date_from = make_aware(datetime.combine(map_date_from, time.min))
-        if map_date_to:
-            date_to = make_aware(datetime.combine(map_date_to, time.max))
-
-        kwargs["open_date__range"] = (date_from, date_to)
-
-        if category:
-            kwargs['category'] = category
-
-        query = Issues.objects.filter(**kwargs)
-
-        if search:
-            query = Issues.objects.filter(**kwargs).filter(
-                Q(title__icontains=search) | Q(description__icontains=search))
-
+        query = all_issues.issue_filter(form, role_based_query)
         data = serializers.serialize("json", query)
 
     return JsonResponse(data, safe=False)
-
-
-def convert_date(obj):
-    """Converts data field from database to json acceptable format"""
-    if isinstance(obj, (date, datetime)):
-        return obj.isoformat(" ")
-    return obj
 
 
 class CheckIssues(ListView, FormView):
@@ -331,21 +256,25 @@ def post_comment(request, issue_id):
         form = CommentsOnMapForm(request.POST)
         if form.is_valid():
             comment = Comments()
-            comment.comment = escape(form.cleaned_data.get('comment'))
+            comment.comment = form.cleaned_data.get('comment')
             comment.user = request.user
             comment.issue = Issues.objects.get(pk=issue_id)
             comment.date_public = datetime.now()
             comment.save()
 
-            comments_query = list(
-                Comments.objects.filter(issue=issue_id).select_related("user").order_by('date_public').values(
-                    "user__alias",
-                    "comment",
-                    "date_public",
-                ))[::-1][:3]
+            comments_list = Comments()
+            comments_query = comments_list.get_comments(issue_id)
+
             for comment in comments_query:
                 comment['date_public'] = convert_date(comment['date_public'])
             data = json.dumps(comments_query)
         return JsonResponse(data, safe=False)
 
     raise PermissionDenied("You are not allowed to comment without login")
+
+
+def convert_date(obj):
+    """Converts data field from database to json acceptable format"""
+    if isinstance(obj, (date, datetime)):
+        return obj.isoformat(str(" "))
+    return obj

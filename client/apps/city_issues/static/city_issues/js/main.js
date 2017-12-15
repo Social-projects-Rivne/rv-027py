@@ -37,7 +37,7 @@ function IssueMap(elementId) {
 
   IssueMap.prototype.iconCreate = function(category, status) {
     var underscoredStatusShadow = '/static/city_issues/img/status_' + status.replace(/ /g, '_') + '.png';
-    if (status == "new" || status == "open") {
+    if (status == "open") {
       underscoredStatusShadow = "/static/city_issues/img/marker-shadow.png";
     }
     var MarkerIcon = L.Icon.extend({
@@ -72,7 +72,7 @@ function IssueMap(elementId) {
     jsonData.forEach(function(key) {
       var issue = JSON.parse(key);
       var underscoredStatus = '/static/city_issues/img/status_' + issue.fields.status.replace(/ /g, '_') + '.png';
-      if (issue.fields.status == "new" || issue.fields.status == "open") {
+      if (issue.fields.status == "open") {
         underscoredStatus = "/static/city_issues/img/marker-shadow.png";
       }
       var marker = L.marker(
@@ -111,7 +111,21 @@ function IssueMap(elementId) {
     event.preventDefault();
     var dateFromValue = document.querySelector("#id_date_from").value;
     var dateToValue = document.querySelector("#id_date_to").value;
-    var showClosedValue = document.querySelector("#id_show_closed").checked;
+    var statusRawArr = [
+      document.querySelector("#id_show_closed"),
+      document.querySelector("#id_show_open"),
+      document.querySelector("#id_show_new"),
+      document.querySelector("#id_show_on_moderation"),
+      document.querySelector("#id_show_deleted")
+    ];
+    var statusArr = [];
+
+    statusRawArr.forEach(function(element) {
+      if (element && element.checked) {
+        statusArr.push(element.name.slice(5).replace(/_/g, " "));
+      }
+    });
+
     var categoryValue = document.querySelector("#id_category").value;
     var searchValue = document.querySelector("#id_search").value;
      
@@ -121,7 +135,7 @@ function IssueMap(elementId) {
       "filter=" + "True" + "&" +
       "date_from=" + dateFromValue + "&" + 
       "date_to=" + dateToValue + "&" + 
-      "show_closed=" + showClosedValue + "&" + 
+      "status_arr=" + statusArr + "&" + 
       "category=" + categoryValue + "&" +
       "search=" +  searchValue
       );
@@ -181,7 +195,10 @@ function IssueDescription(mapId, issueContainerId, issueCloseId) {
   IssueDescription.prototype.closeIssueDescriptionHandler = function(event) {
       if (event.target.id == "mapid" && current.issue_box.style.display == "block") {
         current.issue_box.style.display = 'none';
-        current.markerObject._shadow.src = current.markerObject.options.customStatus;
+        if (current.markerObject._shadow) {
+          current.markerObject._shadow.src = current.markerObject.options.customStatus;
+        }
+        
       }
       
   };
@@ -194,15 +211,33 @@ function IssueDescription(mapId, issueContainerId, issueCloseId) {
   };
 
 
-  IssueDescription.prototype.insertComments = function(jsonData) {
+  IssueDescription.prototype.insertComments = function(jsonData, key) {
     var commentsList = document.querySelector("#issue_comments");
     commentsList.innerHTML = "";
     for (var i = 0; i < jsonData.length; i++) {
-      var item = JSON.parse(jsonData[i]);
-      var comment = document.createElement('li');
-      comment.innerHTML = item.date_public.slice(0,19) + " " + item.user__alias  + " comments: " +  item.comment;
-      commentsList.appendChild(comment);
+      var item = key ? jsonData[i] : JSON.parse(jsonData[i]);
+      var commentBox = document.createElement('li');
+      var commentHeader = document.createElement('div');
+      var commentText = document.createElement('p');
+      var commentAuthor = document.createElement('span');
+
+      commentBox.classList.add("issue_comment-box");
+
+      commentHeader.classList.add("issue_comment-header");
+      commentHeader.appendChild(document.createTextNode(item.date_public.slice(0,16) + " "));
+
+      commentAuthor.appendChild(document.createTextNode(item.user__alias));
+      commentAuthor.classList.add("issue_comment-author");
+
+      commentText.appendChild(document.createTextNode(item.comment));
+      commentText.classList.add("issue_comment-text");
+
+      commentHeader.appendChild(commentAuthor);
+      commentBox.appendChild(commentHeader);
+      commentBox.appendChild(commentText);
+      commentsList.appendChild(commentBox);
     }
+    scrollToBottom("issue_comments");
   };
 
   IssueDescription.prototype.sendComment = function(data,issue_id) {
@@ -220,6 +255,7 @@ function IssueDescription(mapId, issueContainerId, issueCloseId) {
   IssueDescription.prototype.commentsHandler = function(event) {
     event.preventDefault();
     var comment = document.querySelector("#id_comment").value;
+
     var csrf = document.querySelector("#issue_comments-form input[name=csrfmiddlewaretoken]").value;
     var issue_id = event.target.getAttribute("data-id");
     if (comment.length > 0) {
@@ -246,15 +282,8 @@ function IssueDescription(mapId, issueContainerId, issueCloseId) {
     if (document.querySelector("#issue_comments-form-btn")) {
       document.querySelector("#issue_comments-form-btn").setAttribute("data-id", issue_id);
     }
-    
-    var commentsList = document.querySelector("#issue_comments");
-    commentsList.innerHTML = '';
-    for (var i = 0; i < jsonData.comments.length; i++) {
-      var comment = document.createElement('li');
-      comment.innerHTML = jsonData.comments[i].date_public.slice(0,19) + " " + jsonData.comments[i].user__alias  + " comments: " +  jsonData.comments[i].comment;
-      commentsList.appendChild(comment);
-    }
-    document.querySelector("#issue_all-comments").href = "/issue-comment/" + issue_id + "/";
+    current.insertComments(jsonData.comments, true);
+
     document.querySelector(".issue_title").innerHTML = jsonData.title;
     document.querySelector(".issue_description").innerHTML = jsonData.description;
     document.querySelector("#issue_category").innerHTML = jsonData.category__category;
@@ -328,6 +357,11 @@ function placeFilter() {
   leafletControlsCoordinatse = leafletControls.getBoundingClientRect();
   filterForm.style.top = (leafletControlsCoordinatse.bottom + 5) + "px";
   filterForm.style.left = (leafletControlsCoordinatse.left + 5) + "px";
+}
+
+function scrollToBottom(elementId){
+   var element = document.getElementById(elementId);
+   element.scrollTop = element.scrollHeight - element.clientHeight;
 }
 
 issueMap = new IssueMap("mapid");

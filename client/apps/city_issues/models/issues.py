@@ -5,7 +5,16 @@ from __future__ import unicode_literals
 
 import os
 import time
+from datetime import date, datetime, time
+
+from django.conf import settings
 from django.db import models
+from django.db.models import Q
+from django.utils.timezone import make_aware
+
+ROLE_ADMIN = 1
+ROLE_MODERATOR = 2
+ROLE_USER = 3
 
 
 class Attachments(models.Model):
@@ -113,6 +122,109 @@ class Issues(models.Model):
 
     def get_attachments(self):
         return Attachments.objects.filter(issue=self.id)
+      
+    def get_role_based_query(self, request):
+        """Return issues based on role and author."""
+        if request.user.is_anonymous():
+            query = Issues.objects.filter(status__in=["open", "closed"])
+        if request.user.is_authenticated() and request.user.role.id not in (ROLE_ADMIN, ROLE_MODERATOR):
+            query = Issues.objects.filter(
+                Q(status__in=["open", "closed"]) | Q(user=request.user.id)).exclude(status="deleted")
+        if request.user.is_authenticated() and request.user.role.id in (ROLE_ADMIN, ROLE_MODERATOR):
+            query = Issues.objects.all()
+        return query
+
+    def issue_filter(self, form, role_based_query):
+        """Filter issue by form data."""
+        kwargs = {}
+        map_date_from = form.cleaned_data.get('date_from')
+        map_date_to = form.cleaned_data.get('date_to')
+        status_arr = form.data.get('status_arr').split(",")
+        category = form.data.get('category')
+        search = form.cleaned_data.get('search')
+
+        if status_arr:
+            kwargs["status__in"] = status_arr
+
+        date_from = make_aware(datetime(1970, 1, 1,))
+        date_to = make_aware(datetime.now())
+
+        if map_date_from:
+            date_from = make_aware(
+                datetime.combine(map_date_from, time.min))
+        if map_date_to:
+            date_to = make_aware(datetime.combine(map_date_to, time.max))
+
+        kwargs["open_date__range"] = (date_from, date_to)
+
+        if category:
+            kwargs['category'] = category
+
+        query = role_based_query.filter(**kwargs)
+
+        if search:
+            query = role_based_query.filter(**kwargs).filter(
+                Q(title__icontains=search) | Q(description__icontains=search))
+        return query
+
+    def get_issue_data_by_id(self, request, issue_id):
+        """Get single issue data."""
+        attachments_query = list(
+            Attachments.objects.filter(issue=issue_id).values())
+
+        comments_list = Comments()
+        comments_query = comments_list.get_comments(issue_id)
+        for comment in comments_query:
+            comment['date_public'] = self.convert_date(comment['date_public'])
+
+        images_urls = [item['image_url'] for item in attachments_query]
+        checked_img_urls = []
+
+        for img in images_urls:
+            if img and os.path.isfile(os.path.join(settings.MEDIA_ROOT, img)):
+                checked_img_urls.append(img)
+
+        issue_obj = Issues.objects.filter(
+            pk=issue_id).select_related("category")
+        unpacked_issue_obj = issue_obj[0]
+
+        issue_is_editable = False
+
+        if hasattr(request.user, 'role') and (
+                (request.user.role.id in (ROLE_ADMIN, ROLE_MODERATOR)) or
+                (unpacked_issue_obj.user_id == request.user.id)):
+            issue_is_editable = True
+
+        issue_query = list(issue_obj.values(
+            "title",
+            "user",
+            "category",
+            "location_lat",
+            "location_lon",
+            "status",
+            "description",
+            "open_date",
+            "close_date",
+            "delete_date",
+            "category__category",))
+
+        issue_dict = issue_query[0]
+        issue_dict['images_urls'] = checked_img_urls
+        issue_dict['editable'] = issue_is_editable
+        issue_dict['comments'] = comments_query
+
+        issue_dict['open_date'] = self.convert_date(issue_dict['open_date'])
+        issue_dict['close_date'] = self.convert_date(issue_dict['close_date'])
+        issue_dict['delete_date'] = self.convert_date(
+            issue_dict['delete_date'])
+
+        return issue_query
+
+    def convert_date(self, obj):
+        """Converts data field from database to json acceptable format"""
+        if isinstance(obj, (date, datetime)):
+            return obj.isoformat(str(" "))
+        return obj
 
 
 class Comments(models.Model):
@@ -130,3 +242,13 @@ class Comments(models.Model):
         app_label = 'city_issues'
         managed = False
         db_table = 'comments'
+
+    def get_comments(self, issue_id):
+        """Gets last three comments."""
+        comments_query = list(
+            Comments.objects.filter(issue=issue_id).select_related("user").order_by('date_public').values(
+                "user__alias",
+                "comment",
+                "date_public",
+            ))
+        return comments_query

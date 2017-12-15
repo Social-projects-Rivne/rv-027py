@@ -26,7 +26,7 @@
                 <th></th>
                 <th></th>
             </tr>
-            {% for user, role in users %}
+            {% for user, role in users.items %}
                 <tr>
                     <td>{{ user.id }}</td>
                     <td>{{ user.name }}</td>
@@ -53,6 +53,25 @@
             {% endfor %}
         </table>
     </div>
+
+    {% if users.pages > 1 %}
+  <div class="text-center">
+    {% if users.has_prev %}
+        <a class="btn" href="{{ url_for('user_page', num_page=users.prev_num)+ get  }}"><< </a>
+    {% endif %}
+    {% for page in users.iter_pages() %}
+        {% if page == users.page %}
+            <a class="btn btn-primary" >{{ page }}</a>
+        {% else %}
+            <a class="btn" href="{{ url_for('user_page', num_page=page )+ get }}">{% if not page %}...{%else%} {{ page }} {% endif %}</a>
+        {% endif %}
+    {% endfor %}
+    {% if users.has_next %}
+        <a class="btn" href="{{ url_for('user_page', num_page=users.next_num)+ get  }}">>></a>
+    {% endif %}
+  </div>
+{%endif%}
+
     <a href="{{ url_for('user_add') }}" class="btn btn-success">Add new user</a>
 
     <div class="modal fade" id="deletion" role="dialog">

@@ -56,17 +56,17 @@
 {% if issues.pages > 1 %}
   <div class="text-center">
     {% if issues.has_prev %}
-        <a class="btn btn-primary" href="{{ url_for('issues_page', num_page=issues.prev_num)+ get  }}"><< </a>
+        <a class="btn" href="{{ url_for('issues_page', num_page=issues.prev_num)+ get  }}"><< </a>
     {% endif %}
     {% for page in issues.iter_pages() %}
         {% if page == issues.page %}
-            <a class="btn btn-success" >{{ page }}</a>
+            <a class="btn btn-primary" >{{ page }}</a>
         {% else %}
-            <a class="btn btn-primary" href="{{ url_for('issues_page', num_page=page )+ get }}">{{ page }}</a>
+            <a class="btn" href="{{ url_for('issues_page', num_page=page )+ get }}">{% if not page %}...{%else%} {{ page }} {% endif %}</a>
         {% endif %}
     {% endfor %}
     {% if issues.has_next %}
-        <a class="btn btn-primary" href="{{ url_for('issues_page', num_page=issues.next_num)+ get  }}">>></a>
+        <a class="btn" href="{{ url_for('issues_page', num_page=issues.next_num)+ get  }}">>></a>
     {% endif %}
   </div>
 {%endif%}

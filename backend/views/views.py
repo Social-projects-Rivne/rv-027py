@@ -45,8 +45,9 @@ def admin():
 
 
 @app.route('/userpage', methods=['GET', 'POST'])
+@app.route('/userpage/<int:num_page>', methods=['GET', 'POST'])
 @admin_permissions
-def user_page():
+def user_page(num_page=1):
     """Page with list of users route."""
     form = SearchUserForm(request.args, meta={'csrf': False})
     msg = False
@@ -65,15 +66,19 @@ def user_page():
         order = order_list[order_by]
 
         search_users = db.session.query(User, Role).filter(and_(
-            User.role_id == Role.id, condition)).order_by(order).all()
+            User.role_id == Role.id, condition)).order_by(order).paginate(
+                per_page=PAGINATE_PAGE, page=num_page, error_out=True)
 
         if msg:
             flash("Search string is too small")
-        return render_template('user_page.html', form=form, users=search_users)
+        return render_template('user_page.html', form=form, users=search_users,
+                               get="?" + urlencode(request.args))
     else:
         users = db.session.query(User, Role).filter(
-            User.role_id == Role.id).order_by(User.id).all()
-        return render_template('user_page.html', form=form, users=users)
+            User.role_id == Role.id).order_by(User.id).paginate(
+                per_page=PAGINATE_PAGE, page=num_page, error_out=True)
+        return render_template('user_page.html', form=form, users=users,
+                               get="?" + urlencode(request.args))
 
 
 @app.route('/useradd', methods=['GET', 'POST'])
@@ -217,7 +222,8 @@ def issues_page(num_page=1):
     else:
         issues = db.session.query(
             Category.category, Issue, User.alias).filter(and_(
-                Issue.user_id == User.id, Issue.category_id == Category.id)).order_by(order).paginate(per_page=PAGINATE_PAGE, page=num_page, error_out=True)
+                Issue.user_id == User.id, Issue.category_id == Category.id)).order_by(
+                    order).paginate(per_page=PAGINATE_PAGE, page=num_page, error_out=True)
 
     return render_template('issues_page.html', issues=issues, form=form,
                            get="?" + urlencode(request.args))
