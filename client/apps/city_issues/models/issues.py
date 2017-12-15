@@ -122,7 +122,7 @@ class Issues(models.Model):
 
     def get_attachments(self):
         return Attachments.objects.filter(issue=self.id)
-      
+
     def get_role_based_query(self, request):
         """Return issues based on role and author."""
         if request.user.is_anonymous():
