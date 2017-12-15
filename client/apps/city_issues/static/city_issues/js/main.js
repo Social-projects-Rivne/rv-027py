@@ -237,6 +237,7 @@ function IssueDescription(mapId, issueContainerId, issueCloseId) {
       commentBox.appendChild(commentText);
       commentsList.appendChild(commentBox);
     }
+    scrollToBottom("issue_comments");
   };
 
   IssueDescription.prototype.sendComment = function(data,issue_id) {
@@ -356,6 +357,11 @@ function placeFilter() {
   leafletControlsCoordinatse = leafletControls.getBoundingClientRect();
   filterForm.style.top = (leafletControlsCoordinatse.bottom + 5) + "px";
   filterForm.style.left = (leafletControlsCoordinatse.left + 5) + "px";
+}
+
+function scrollToBottom(elementId){
+   var element = document.getElementById(elementId);
+   element.scrollTop = element.scrollHeight - element.clientHeight;
 }
 
 issueMap = new IssueMap("mapid");
