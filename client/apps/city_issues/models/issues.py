@@ -20,7 +20,6 @@ class Attachments(models.Model):
         return os.path.join('uploads', folder, filename)
 
     def delete(self, *args, **kwargs):
-        files_in_dir = Attachments.objects.filter(issue_id=self.issue_id).count()
         # pylint: disable=no-member
         storage, path = self.image_url.storage, self.image_url.path
         # pylint: enable=no-member
@@ -28,7 +27,7 @@ class Attachments(models.Model):
         directory_path = os.path.abspath(os.path.join(path, os.pardir))
 
         storage.delete(path)
-        if files_in_dir == 1:
+        if not os.listdir(directory_path):
             os.rmdir(directory_path)
 
     issue = models.ForeignKey('Issues', models.DO_NOTHING,
