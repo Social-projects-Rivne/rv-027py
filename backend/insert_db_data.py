@@ -91,7 +91,7 @@ issue18 = Issue(title='Poor puppies', user_id='3', category_id='4', location_lat
                 location_lon='26.20951652526856', description='We have four puppies to your lonely heart', status='new',
                 open_date='2017/12/03')
 issue19 = Issue(title='Ugly hounds', user_id='1', category_id='4', location_lat='50.634083729153225',
-                location_lon='26.263289451599125', description='Beware, its dangerous to go there', status='on moderation',
+                location_lon='26.263289451599125', description='Beware, its dangerous to go there', status='deleted',
                 open_date='2017/12/04')
 
 
