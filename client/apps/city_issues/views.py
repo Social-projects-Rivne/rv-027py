@@ -24,24 +24,17 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import UpdateView
 from django.urls import reverse
 
-from imagekit import ImageSpec
-from imagekit.processors import ResizeToFill
 
 from city_issues.models import Attachments, Issues, IssueHistory, User, Comments
 from city_issues.forms.forms import EditIssue, IssueFilter, IssueForm, \
     IssueFormEdit, IssueSearchForm, EditUserForm, CommentsOnMapForm
 from city_issues.mixins import LoginRequiredMixin
+from city_issues.thumbnails import create_thumbnail
 
 
 ROLE_ADMIN = 1
 ROLE_MODERATOR = 2
 ROLE_USER = 3
-
-
-class Thumbnail(ImageSpec):
-    processors = [ResizeToFill(100, 100)]
-    format = 'JPEG'
-    options = {'quality': 60}
 
 
 class HomePageView(TemplateView):
@@ -122,7 +115,7 @@ class IssueCreate(CreateView):
                 attachment.issue = issue
                 attachment.image_url = issue_file
                 attachment.save()
-                self.create_thumbnail(issue_file, issue.title, issue_file.name)
+                create_thumbnail(issue_file, issue.title, issue_file.name)
 
     def save_issue_history(self, issue, user):
         issue_history = IssueHistory()
@@ -130,13 +123,6 @@ class IssueCreate(CreateView):
         issue_history.user = user
         issue_history.save()
 
-    def create_thumbnail(self, issue_file, title, name):
-        image_generator = Thumbnail(source=issue_file)
-        result = image_generator.generate()
-        filename = "-".join(["thumb", name])
-        thumb_file = open(os.path.join(settings.MEDIA_ROOT, 'uploads', title, filename), 'w')
-        thumb_file.write(result.read())
-        thumb_file.close()
 
 def map_page_view(request):
     """Map page"""
