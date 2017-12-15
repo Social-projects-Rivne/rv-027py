@@ -21,7 +21,9 @@ class Attachments(models.Model):
 
     def delete(self, *args, **kwargs):
         files_in_dir = Attachments.objects.filter(issue_id=self.issue_id).count()
+        # pylint: disable=no-member
         storage, path = self.image_url.storage, self.image_url.path
+        # pylint: enable=no-member
         super(Attachments, self).delete(*args, **kwargs)
         directory_path = os.path.abspath(os.path.join(path, os.pardir))
 
