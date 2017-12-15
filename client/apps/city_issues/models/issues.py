@@ -28,6 +28,17 @@ class Attachments(models.Model):
         # pylint: enable=no-member
         return os.path.join('uploads', folder, filename)
 
+    def delete(self, *args, **kwargs):
+        # pylint: disable=no-member
+        storage, path = self.image_url.storage, self.image_url.path
+        # pylint: enable=no-member
+        super(Attachments, self).delete(*args, **kwargs)
+        directory_path = os.path.abspath(os.path.join(path, os.pardir))
+
+        storage.delete(path)
+        if not os.listdir(directory_path):
+            os.rmdir(directory_path)
+
     issue = models.ForeignKey('Issues', models.DO_NOTHING,
                               blank=True, null=True)
     image_url = models.ImageField(
@@ -108,6 +119,9 @@ class Issues(models.Model):
         app_label = 'city_issues'
         managed = False
         db_table = 'issues'
+
+    def get_attachments(self):
+        return Attachments.objects.filter(issue=self.id)
 
     def get_role_based_query(self, request):
         """Return issues based on role and author."""

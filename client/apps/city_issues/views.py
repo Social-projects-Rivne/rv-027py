@@ -14,7 +14,7 @@ from django.contrib import messages
 from django.contrib.auth import update_session_auth_hash
 from django.core import serializers
 from django.core.exceptions import PermissionDenied
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse, HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect, render
 from django.utils.timezone import make_aware
 from django.views import View
@@ -239,6 +239,16 @@ class CommentIssues(LoginRequiredMixin, CreateView):
 
     def form_invalid(self, form):
         return super(CommentIssues, self).form_invalid(form)
+
+
+def delete_attachment(request):
+    attachment_id = request.POST.get('attachment-id')
+    attachment = Attachments.objects.get(id=attachment_id)
+    attachment.delete()
+
+    messages.success(request, 'Attachment successfully deleted')
+
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 
 
 def post_comment(request, issue_id):

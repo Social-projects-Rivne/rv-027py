@@ -71,3 +71,35 @@
   content:"*";
   color:red;
 }
+
+.images {
+    margin-top: 15px;
+}
+
+.imgs {
+    max-width: 300px;
+    max-height: 350px;
+    display: flex;
+    margin-bottom: 10px;
+}
+
+.del-img {
+    color: red;
+    font-size: 25px;
+    float: right;
+    display: block;
+    width: 250px;
+    margin-bottom: -19px;
+    position: relative;
+    bottom: 10px;
+    cursor: pointer;
+}
+
+.del-img:hover{
+  text-decoration: none;
+  color: red;
+}
+
+.modal-body h3{
+  text-align: center;
+}
