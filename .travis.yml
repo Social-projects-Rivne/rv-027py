@@ -4,7 +4,7 @@ python:
 install:
   - pip install -r requirements.txt
   - pip install pycodestyle
-  - pip install pylint
+  - pip install pylint==1.7.4
 
 jobs:
   include:
