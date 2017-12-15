@@ -27,6 +27,7 @@ from city_issues.models import Attachments, Issues, IssueHistory, User, Comments
 from city_issues.forms.forms import EditIssue, IssueFilter, IssueForm, \
     IssueFormEdit, IssueSearchForm, EditUserForm, CommentsOnMapForm
 from city_issues.mixins import LoginRequiredMixin
+from city_issues.thumbnails import create_thumbnail
 
 
 ROLE_ADMIN = 1
@@ -112,6 +113,7 @@ class IssueCreate(CreateView):
                 attachment.issue = issue
                 attachment.image_url = issue_file
                 attachment.save()
+                create_thumbnail(issue_file, issue.title, issue_file.name)
 
     def save_issue_history(self, issue, user):
         issue_history = IssueHistory()
