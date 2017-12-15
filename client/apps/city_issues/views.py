@@ -24,7 +24,6 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import UpdateView
 from django.urls import reverse
 
-
 from city_issues.models import Attachments, Issues, IssueHistory, User, Comments
 from city_issues.forms.forms import EditIssue, IssueFilter, IssueForm, \
     IssueFormEdit, IssueSearchForm, EditUserForm, CommentsOnMapForm
