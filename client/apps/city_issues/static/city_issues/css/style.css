@@ -32,6 +32,24 @@
 	height: 100%;
 }
 
+.issue_img-box-close-btn {
+	position: absolute;
+	top: 4px;
+	right: 4px;
+
+	display: block;
+	width: 25px;
+	height: 25px;
+
+	background-image: url("/static/city_issues/img/close_cross.png");
+	background-size: contain;
+	background-repeat: no-repeat;
+		
+	cursor: pointer;
+	z-index: 1999;
+	
+}
+
 
 #carousel-example-generic img {
 	height: 100%;
@@ -153,10 +171,6 @@
 	font-weight: bold;
 }
 
-.issue_comment-box:nth-of-type(2n) .issue_comment-header {
-	text-align: right;
-}
-
 .issue_comment-author {
 	color: red;
 }
@@ -174,11 +188,6 @@
 	white-space: pre-wrap;
 }
 
-.issue_comment-box:nth-of-type(2n) .issue_comment-text {
-	color: #fff;
-	background-color: #6495ED;
-}
-
 .issue_comment-text::before {
 	content: "";
 	position: absolute;
@@ -194,9 +203,50 @@
     border-color: transparent transparent #eee transparent;
 }
 
-
-.issue_comment-box:nth-of-type(2n) .issue_comment-text::before {
-	left: 85%;
-	border-color: transparent transparent #6495ED transparent;
+.issue_comments-form-btn {
+	margin-top: 5px;
+	margin-bottom: 10px;
 }
 
+.issue_buttons-box a {
+	margin-bottom: 3px;
+}
+
+.issue_action-hide {
+	display: none;
+}
+
+.modal-dialog.modal-width{
+	width: 250px;
+}
+
+.form-group--checkbox label[for=id_show_open] {
+	text-shadow: 0 0 1px #222;
+}
+
+.form-group--checkbox label[for=id_show_new] {
+	color: blue;
+}
+
+.form-group--checkbox label[for=id_show_on_moderation] {
+	color: orange;
+}
+
+.form-group--checkbox label[for=id_show_pending_close] {
+	color: red;
+}
+
+.form-group--checkbox label[for=id_show_closed] {
+	color: gray;
+}
+
+.form-group--checkbox label[for=id_show_deleted] {
+	color: black;
+}
+
+.wrapper ul.messages {
+	top: 15px;
+	right: 25%;
+
+	background-color: transparent;
+}

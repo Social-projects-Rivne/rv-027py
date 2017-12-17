@@ -27,6 +27,7 @@ status2 = Status(status="on moderation")
 status3 = Status(status="open")
 status4 = Status(status="closed")
 status5 = Status(status="deleted")
+status5 = Status(status="pending close")
 
 user1 = User(name='Bob', alias='Bobby', email='bob@gmail.com',
              password='crypto', role_id='1')

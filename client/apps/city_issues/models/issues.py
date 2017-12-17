@@ -72,6 +72,9 @@ class Statuses(models.Model):
     """
     status = models.TextField(blank=True, null=True)
 
+    def __unicode__(self):
+        return u'{0}'.format(self.status)
+
     class Meta:
         app_label = 'city_issues'
         managed = False
@@ -188,12 +191,7 @@ class Issues(models.Model):
             pk=issue_id).select_related("category")
         unpacked_issue_obj = issue_obj[0]
 
-        issue_is_editable = False
-
-        if hasattr(request.user, 'role') and (
-                (request.user.role.id in (ROLE_ADMIN, ROLE_MODERATOR)) or
-                (unpacked_issue_obj.user_id == request.user.id)):
-            issue_is_editable = True
+        list_of_actions = self.get_actions_list(request, issue_id)
 
         issue_query = list(issue_obj.values(
             "title",
@@ -210,7 +208,7 @@ class Issues(models.Model):
 
         issue_dict = issue_query[0]
         issue_dict['images_urls'] = checked_img_urls
-        issue_dict['editable'] = issue_is_editable
+        issue_dict['list_of_actions'] = list_of_actions
         issue_dict['comments'] = comments_query
 
         issue_dict['open_date'] = self.convert_date(issue_dict['open_date'])
@@ -219,6 +217,36 @@ class Issues(models.Model):
             issue_dict['delete_date'])
 
         return issue_query
+
+    def get_actions_list(self, request, issue_id):
+        """Return list of allowed actions with issue."""
+        list_of_actions = []
+
+        if request.user.is_authenticated():
+            unpacked_issue_obj = Issues.objects.filter(pk=issue_id)[0]
+            if (request.user.role.id in (ROLE_ADMIN, ROLE_MODERATOR) or
+                (unpacked_issue_obj.user_id == request.user.id and
+                 unpacked_issue_obj.status in ('new', 'on moderation'))):
+                list_of_actions.append("edit")
+
+            if (request.user.role.id not in (ROLE_ADMIN, ROLE_MODERATOR) and
+                    unpacked_issue_obj.user_id == request.user.id and
+                    unpacked_issue_obj.status == 'open'):
+                list_of_actions.append("pending close")
+
+            if (request.user.role.id in (ROLE_ADMIN, ROLE_MODERATOR) and
+                    unpacked_issue_obj.status in ('new', 'on moderation')):
+                list_of_actions.append("open")
+
+            if (request.user.role.id in (ROLE_ADMIN, ROLE_MODERATOR) and
+                    unpacked_issue_obj.status in ('open', 'pending close')):
+                list_of_actions.append("closed")
+
+            if (request.user.role.id in (ROLE_ADMIN, ROLE_MODERATOR) and
+                    unpacked_issue_obj.status != 'deleted'):
+                list_of_actions.append("deleted")
+
+        return list_of_actions
 
     def convert_date(self, obj):
         """Converts data field from database to json acceptable format"""
@@ -236,6 +264,7 @@ class Comments(models.Model):
     issue = models.ForeignKey('Issues', models.DO_NOTHING)
     comment = models.TextField(max_length=400, null=False, blank=False)
     date_public = models.DateTimeField(auto_now_add=True)
+    internal = models.BooleanField(default=False)
 
     class Meta:
         """..."""
@@ -250,5 +279,5 @@ class Comments(models.Model):
                 "user__alias",
                 "comment",
                 "date_public",
-            ))
+            )[::-1])
         return comments_query

@@ -2,11 +2,12 @@
 from django import forms
 from django.core.validators import MaxValueValidator, MinValueValidator
 
-from city_issues.models.issues import Issues, Category, Comments
+from city_issues.models.issues import Issues, Category, Comments, Statuses
 from city_issues.models.users import User
 
 
 class IssueForm(forms.ModelForm):
+
     class Meta:
         model = Issues
         fields = ['description', 'category',
@@ -110,6 +111,12 @@ class IssueFilter(forms.Form):
         label="On moderation",
         required=False,
         initial=True,
+        widget=forms.CheckboxInput())
+
+    show_pending_close = forms.BooleanField(
+        label="Pending close",
+        required=False,
+        initial=False,
         widget=forms.CheckboxInput())
 
     show_deleted = forms.BooleanField(
@@ -240,13 +247,37 @@ class IssueSearchForm(forms.Form):
 
 
 class IssueFormEdit(IssueForm):
-    files = None
+
+    status = forms.ChoiceField(
+        choices=(
+            ("new", "new"),
+            ("on moderation", "on moderation"),
+            ("open", "open"),
+            ("pending close", "pending close"),
+            ("closed", "closed"),
+            ("deleted", "deleted")),
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+
+    class Meta:
+        model = Issues
+        fields = ['description', 'category',
+                  'location_lat', 'location_lon', 'title', 'status']
+
+
+class IssueFormEditWithoutStatus(IssueForm):
+
+    class Meta:
+        model = Issues
+        fields = ['description', 'category',
+                  'location_lat', 'location_lon', 'title', ]
 
 
 class CommentsOnMapForm(forms.Form):
     """Map comments form."""
 
     comment = forms.CharField(
+        label='',
         required=False,
         min_length=1,
         max_length=350,
