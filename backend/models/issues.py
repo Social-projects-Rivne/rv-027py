@@ -131,6 +131,7 @@ def get_all_issue_history(issue_id):
     list_history.sort(key=lambda history: history[3])
     return list_history
 
+
 def get_all_thumbnails(issue_id):
     """Method return thumbnails url"""
     attachments = db.session.query(
