@@ -32,6 +32,24 @@
 	height: 100%;
 }
 
+.issue_img-box-close-btn {
+	position: absolute;
+	top: 4px;
+	right: 4px;
+
+	display: block;
+	width: 25px;
+	height: 25px;
+
+	background-image: url("/static/city_issues/img/close_cross.png");
+	background-size: contain;
+	background-repeat: no-repeat;
+		
+	cursor: pointer;
+	z-index: 1999;
+	
+}
+
 
 #carousel-example-generic img {
 	height: 100%;
@@ -153,12 +171,71 @@
 	font-weight: bold;
 }
 
-.issue_comment-box:nth-of-type(2n) .issue_comment-header {
-	text-align: right;
-}
-
 .issue_comment-author {
 	color: red;
+}
+
+
+
+.issue_comments-form-btn {
+	margin-top: 5px;
+	margin-bottom: 10px;
+}
+
+.issue_buttons-box a {
+	margin-bottom: 3px;
+}
+
+.issue_action-hide {
+	display: none;
+}
+
+.modal-dialog.modal-width{
+	width: 250px;
+}
+
+.form-group--checkbox label[for=id_show_open] {
+	text-shadow: 0 0 1px #222;
+}
+
+.form-group--checkbox label[for=id_show_new] {
+	color: blue;
+}
+
+.form-group--checkbox label[for=id_show_on_moderation] {
+	color: orange;
+}
+
+.form-group--checkbox label[for=id_show_pending_close] {
+	color: red;
+}
+
+.form-group--checkbox label[for=id_show_closed] {
+	color: gray;
+}
+
+.form-group--checkbox label[for=id_show_deleted] {
+	color: black;
+}
+
+.wrapper ul.messages {
+	top: 15px;
+	right: 25%;
+
+	background-color: transparent;
+}
+
+.comments-status-buttons {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.comments-status-buttons li {
+	display: inline-block;
+	vertical-align: top;
+	
+	margin-right: 10px;
 }
 
 .issue_comment-text {
@@ -172,11 +249,6 @@
 	border-radius: 5px;
 
 	white-space: pre-wrap;
-}
-
-.issue_comment-box:nth-of-type(2n) .issue_comment-text {
-	color: #fff;
-	background-color: #6495ED;
 }
 
 .issue_comment-text::before {
@@ -195,8 +267,66 @@
 }
 
 
-.issue_comment-box:nth-of-type(2n) .issue_comment-text::before {
-	left: 85%;
-	border-color: transparent transparent #6495ED transparent;
+.issue_comment-text--private {
+	background-color: #66ccff;
 }
 
+.issue_comment-text--private::before {
+	content: "";
+	position: absolute;
+	top: -9px;
+	left: 10%;
+
+	display: inline-block;
+	width: 0;
+	height: 0;
+	
+	border-style: solid;
+    border-width: 0 8px 10px 8px;
+	border-color: transparent transparent #66ccff transparent;
+}
+
+.issue_comment-text--internal {
+	background-color: #ffcc99;
+}
+
+.issue_comment-text--internal::before {
+	content: "";
+	position: absolute;
+	top: -9px;
+	left: 10%;
+
+	display: inline-block;
+	width: 0;
+	height: 0;
+	
+	border-style: solid;
+    border-width: 0 8px 10px 8px;
+	border-color: transparent transparent #ffcc99 transparent;
+}
+
+.comments-status-buttons label[for=id_status_1] {
+	color: #66ccff;
+}
+
+.comments-status-buttons label[for=id_status_2] {
+	color: #ffcc99;
+}
+
+.issue_comments-form textarea{
+	box-sizing: border-box;
+	padding: 10px;
+
+	border: none;
+	border-radius: 5px;
+	
+	background-color: #eee;
+}
+
+.issue_comments-form textarea.textarea--private{
+	background-color: #66ccff;
+}
+
+.issue_comments-form textarea.textarea--internal{
+	background-color: #ffcc99;
+}

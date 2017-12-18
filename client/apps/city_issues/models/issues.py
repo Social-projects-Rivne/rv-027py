@@ -72,6 +72,9 @@ class Statuses(models.Model):
     """
     status = models.TextField(blank=True, null=True)
 
+    def __unicode__(self):
+        return u'{0}'.format(self.status)
+
     class Meta:
         app_label = 'city_issues'
         managed = False
@@ -169,13 +172,14 @@ class Issues(models.Model):
 
     def get_issue_data_by_id(self, request, issue_id):
         """Get single issue data."""
+        dict_of_actions = self.get_actions_list(request, issue_id)
+
         attachments_query = list(
             Attachments.objects.filter(issue=issue_id).values())
 
         comments_list = Comments()
-        comments_query = comments_list.get_comments(issue_id)
-        for comment in comments_query:
-            comment['date_public'] = self.convert_date(comment['date_public'])
+        comments_query = comments_list.get_comments(
+            issue_id, dict_of_actions['list_of_comments_statuses'])
 
         images_urls = [item['image_url'] for item in attachments_query]
         checked_img_urls = []
@@ -187,13 +191,6 @@ class Issues(models.Model):
         issue_obj = Issues.objects.filter(
             pk=issue_id).select_related("category")
         unpacked_issue_obj = issue_obj[0]
-
-        issue_is_editable = False
-
-        if hasattr(request.user, 'role') and (
-                (request.user.role.id in (ROLE_ADMIN, ROLE_MODERATOR)) or
-                (unpacked_issue_obj.user_id == request.user.id)):
-            issue_is_editable = True
 
         issue_query = list(issue_obj.values(
             "title",
@@ -210,21 +207,58 @@ class Issues(models.Model):
 
         issue_dict = issue_query[0]
         issue_dict['images_urls'] = checked_img_urls
-        issue_dict['editable'] = issue_is_editable
+        issue_dict['dict_of_actions'] = dict_of_actions
         issue_dict['comments'] = comments_query
 
-        issue_dict['open_date'] = self.convert_date(issue_dict['open_date'])
-        issue_dict['close_date'] = self.convert_date(issue_dict['close_date'])
-        issue_dict['delete_date'] = self.convert_date(
+        issue_dict['open_date'] = convert_date(issue_dict['open_date'])
+        issue_dict['close_date'] = convert_date(issue_dict['close_date'])
+        issue_dict['delete_date'] = convert_date(
             issue_dict['delete_date'])
 
         return issue_query
 
-    def convert_date(self, obj):
-        """Converts data field from database to json acceptable format"""
-        if isinstance(obj, (date, datetime)):
-            return obj.isoformat(str(" "))
-        return obj
+    def get_actions_list(self, request, issue_id):
+        """Return list of allowed actions with issue."""
+        list_of_comments_statuses = ['public']
+        list_of_actions = []
+
+        if request.user.is_authenticated():
+
+            issue = Issues.objects.get(pk=issue_id)
+
+            user_is_admin_or_moderator = request.user.role.id in (
+                ROLE_ADMIN, ROLE_MODERATOR)
+
+            user_is_issue_owner = (issue.user_id == request.user.id)
+
+            if user_is_admin_or_moderator:
+                list_of_actions.append('edit')
+                list_of_comments_statuses.append('private')
+                list_of_comments_statuses.append('internal')
+
+                if issue.status in ('new', 'on moderation'):
+                    list_of_actions.append("open")
+
+                if issue.status in ('open', 'pending close'):
+                    list_of_actions.append("closed")
+
+                if issue.status != 'deleted':
+                    list_of_actions.append("deleted")
+            else:
+                if user_is_issue_owner:
+                    list_of_comments_statuses.append('private')
+
+                    if issue.status in ('new', 'on moderation'):
+                        list_of_actions.append("edit")
+                    if issue.status == 'open':
+                        list_of_actions.append("pending close")
+
+        dict_of_actions = {
+            'list_of_comments_statuses': list_of_comments_statuses,
+            'list_of_actions': list_of_actions
+        }
+
+        return dict_of_actions
 
 
 class Comments(models.Model):
@@ -236,6 +270,7 @@ class Comments(models.Model):
     issue = models.ForeignKey('Issues', models.DO_NOTHING)
     comment = models.TextField(max_length=400, null=False, blank=False)
     date_public = models.DateTimeField(auto_now_add=True)
+    status = models.TextField(null=False)
 
     class Meta:
         """..."""
@@ -243,12 +278,28 @@ class Comments(models.Model):
         managed = False
         db_table = 'comments'
 
-    def get_comments(self, issue_id):
+    def get_comments(self, issue_id, allowed_statuses_to_return):
         """Gets last three comments."""
+        kwargs = {
+            'issue': issue_id,
+            'status__in': allowed_statuses_to_return,
+        }
         comments_query = list(
-            Comments.objects.filter(issue=issue_id).select_related("user").order_by('date_public').values(
+            Comments.objects.filter(**kwargs).select_related("user").order_by('date_public').values(
                 "user__alias",
                 "comment",
                 "date_public",
-            ))
+                "status",
+            )[::-1])
+
+        for comment in comments_query:
+            comment['date_public'] = convert_date(comment['date_public'])
+
         return comments_query
+
+
+def convert_date(obj):
+    """Converts data field from database to json acceptable format"""
+    if isinstance(obj, (date, datetime)):
+        return obj.isoformat(str(" "))
+    return obj

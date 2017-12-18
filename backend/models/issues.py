@@ -101,6 +101,7 @@ class Comments(db.Model):
     date_public = db.Column(db.TIMESTAMP(timezone=True))
     user_id = db.Column(db.ForeignKey(u'users.id'))
     issue_id = db.Column(db.ForeignKey(u'issues.id'), index=True)
+    status = db.Column(db.Text)
 
     issue = db.relationship(u'Issue')
     user = db.relationship(u'User')

@@ -18,6 +18,9 @@ function IssueMap() {
     this.map.on('click', ($.proxy(this.getLocation, this)));
     this.marker.on('dragend', ($.proxy(this.getDragLocation, this)));
     $('a.del-img').on('click', ($.proxy(this.onDeleteImage, this)));
+    $('#issue_form-submit').on('click', function() {
+        localStorage.setItem('updateStatus', $("#id_status").val());
+    });
 
 }
 

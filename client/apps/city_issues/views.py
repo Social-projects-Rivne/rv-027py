@@ -8,6 +8,7 @@ import os.path
 from datetime import date, datetime, time
 import operator
 
+from django import forms
 from django.db.models import Q
 from django.conf import settings
 from django.contrib import messages
@@ -24,8 +25,9 @@ from django.views.generic.edit import UpdateView
 from django.urls import reverse
 
 from city_issues.models import Attachments, Issues, IssueHistory, User, Comments
-from city_issues.forms.forms import EditIssue, IssueFilter, IssueForm, \
-    IssueFormEdit, IssueSearchForm, EditUserForm, CommentsOnMapForm
+from city_issues.forms.forms import (EditIssue, IssueFilter, IssueForm,
+                                     IssueFormEdit, IssueSearchForm, EditUserForm, CommentsOnMapForm,
+                                     IssueFormEditWithoutStatus)
 from city_issues.mixins import LoginRequiredMixin
 from city_issues.thumbnails import create_thumbnail
 
@@ -129,6 +131,7 @@ def map_page_view(request):
         form.fields.pop('show_deleted')
         form.fields.pop('show_on_moderation')
         form.fields.pop('show_new')
+        form.fields.pop('show_pending_close')
 
     if request.user.is_authenticated() and request.user.role.id not in (ROLE_ADMIN, ROLE_MODERATOR):
         form.fields.pop('show_deleted')
@@ -203,7 +206,7 @@ class DetailedIssue(DetailView):
     model = Issues
 
 
-class UpdateIssue(UpdateView):
+class UpdateIssue(IssueCreate, UpdateView):
     """Edit issue from map."""
     model = Issues
     form_class = IssueFormEdit
@@ -212,9 +215,11 @@ class UpdateIssue(UpdateView):
 
     def dispatch(self, request, *args, **kwargs):
         obj = self.get_object()
-        if hasattr(self.request.user, 'role') and (
+        if request.user.is_authenticated() and (
                 (self.request.user.role.id in (ROLE_ADMIN, ROLE_MODERATOR)) or
                 (obj.user == self.request.user)):
+            if self.request.user.role.id not in (ROLE_ADMIN, ROLE_MODERATOR):
+                self.form_class = IssueFormEditWithoutStatus
             return super(UpdateIssue, self).dispatch(request, *args, **kwargs)
         raise PermissionDenied("You are not allowed to edit this issue")
 
@@ -254,29 +259,44 @@ def delete_attachment(request):
 
 
 def post_comment(request, issue_id):
-    if hasattr(request.user, 'role'):
+    if request.user.is_authenticated():
         form = CommentsOnMapForm(request.POST)
+
         if form.is_valid():
-            comment = Comments()
-            comment.comment = form.cleaned_data.get('comment')
-            comment.user = request.user
-            comment.issue = Issues.objects.get(pk=issue_id)
-            comment.date_public = datetime.now()
-            comment.save()
+            issue = Issues()
+            list_of_comments_statuses = issue.get_actions_list(
+                request, issue_id)['list_of_comments_statuses']
+            comment_form_status = form.cleaned_data.get('status')
+            if comment_form_status and comment_form_status in list_of_comments_statuses:
+                comment = Comments()
+                comment.comment = form.cleaned_data.get('comment')
+                comment.user = request.user
+                comment.status = comment_form_status
+                comment.issue = Issues.objects.get(pk=issue_id)
+                comment.date_public = datetime.now()
+                comment.save()
 
-            comments_list = Comments()
-            comments_query = comments_list.get_comments(issue_id)
+                comments_list = Comments()
+                comments_query = comments_list.get_comments(
+                    issue_id, list_of_comments_statuses)
 
-            for comment in comments_query:
-                comment['date_public'] = convert_date(comment['date_public'])
-            data = json.dumps(comments_query)
-        return JsonResponse(data, safe=False)
+                data = json.dumps(comments_query)
+                return JsonResponse(data, safe=False)
 
     raise PermissionDenied("You are not allowed to comment without login")
 
 
-def convert_date(obj):
-    """Converts data field from database to json acceptable format"""
-    if isinstance(obj, (date, datetime)):
-        return obj.isoformat(str(" "))
-    return obj
+def issue_action(request, issue_id):
+    """Makes actions with issues"""
+    if request.user.is_authenticated():
+        issue = Issues()
+        list_of_actions = issue.get_actions_list(
+            request, issue_id)['list_of_actions']
+        action = request.POST.get('action')
+        if action and action in list_of_actions:
+            changing_issue = Issues.objects.get(pk=issue_id)
+            changing_issue.status = action
+            changing_issue.save()
+            return JsonResponse({'result': 'success'}, safe=False)
+
+    raise PermissionDenied("You are not allowed to change issue")

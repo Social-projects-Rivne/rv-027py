@@ -27,6 +27,7 @@ status2 = Status(status="on moderation")
 status3 = Status(status="open")
 status4 = Status(status="closed")
 status5 = Status(status="deleted")
+status6 = Status(status="pending close")
 
 user1 = User(name='Bob', alias='Bobby', email='bob@gmail.com',
              password='crypto', role_id='1')
@@ -116,21 +117,23 @@ issueHistory7 = IssueHistory(user_id='3', issue_id='3', status_id='4',
                              transaction_date='2017/11/17')
 
 
-comment1 = Comments(user_id='1', issue_id='1', date_public='2017/09/26', comment='Vestibulum et scelerisque felis. Nunc elementum commodo enim non maximus. Vestibulum sed molestie sem. Maecenas aliquam at eros at mattis. Maecenas vitae suscipit turpis, at iaculis sem. Donec sagittis mauris sapien.                       Duis ultricies odio ac libero tincidunt convallis eget non dui. Quisque condimentum vel justo eget ultrices. In efficitur laoreet velit. ')
-comment2 = Comments(user_id='2', issue_id='1', date_public='2017/10/10', comment='Nunc elementum commodo enim non maximus. Vestibulum sed molestie sem. Maecenas aliquam at eros at mattis. Maecenas vitae suscipit turpis, at iaculis sem. Donec sagittis mauris sapien. Duis ultricies odio ac libero                          tincidunt convallis eget non dui. Quisque condimentum vel justo eget ultrices. In efficitur laoreet velit. ')
-comment3 = Comments(user_id='3', issue_id='1', date_public='2017/11/06',
-                    comment='Maecenas vitae suscipit turpis, at iaculis sem. Donec sagittis mauris sapien. Duis ultricies odio ac libero tincidunt convallis eget non dui. Quisque condimentum vel justo eget ultrices. In efficitur laoreet velit. ')
+comment1 = Comments(user_id='1', issue_id='1',
+                    date_public='2017/09/26', comment='some data6', status='public')
+comment2 = Comments(user_id='2', issue_id='1',
+                    date_public='2017/10/10', comment='some data2', status='public')
+comment3 = Comments(user_id='3', issue_id='1',
+                    date_public='2017/11/06', comment='some data3', status='private')
 comment4 = Comments(user_id='2', issue_id='3', date_public='2017/10/16',
-                    comment='Vivamus mauris massa, ullamcorper vel faucibus vitae, mollis at dolor. Vivamus fringilla ex ac pretium rhoncus. Integer dictum ligula est, vitae dictum metus condimentum tempus.')
+                    comment='some data4', status='internal')
 comment5 = Comments(user_id='3', issue_id='3', date_public='2017/10/16',
-                    comment='Sed bibendum arcu eu nisi vestibulum, consectetur hendrerit mi pharetra. Vivamus mauris massa, ullamcorper vel faucibus vitae, mollis at dolor. Vivamus fringilla ex ac pretium rhoncus. Integer dictum ligula est, vitae                     dictum metus condimentum tempus.')
+                    comment='some data5', status='internal')
 
 
 def db_insert_data():
     """This function insert database data"""
     db.session.add_all([role, role1, role2,
                         category, category1, category2, category3,
-                        status1, status2, status3, status4, status5,
+                        status1, status2, status3, status4, status5, status6,
                         user1, user2, user3,
                         issue1, issue2, issue3,
                         issue4, issue5, issue6,
