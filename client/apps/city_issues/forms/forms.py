@@ -283,6 +283,18 @@ class CommentsOnMapForm(forms.Form):
         max_length=350,
         widget=forms.Textarea(attrs={'rows': 2}))
 
+    status = forms.ChoiceField(
+        label='',
+        required=True,
+        initial="public",
+        choices=(
+            ("public", "public"),
+            ("private", "private"),
+            ("internal", "internal")),
+        widget=forms.RadioSelect(
+            attrs={'class': 'comments-status-buttons'})
+    )
+
     class Meta:
         model = Comments
         fields = ['comment']

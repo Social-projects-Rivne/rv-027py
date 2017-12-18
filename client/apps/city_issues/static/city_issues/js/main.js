@@ -207,21 +207,45 @@ function IssueDescription(mapObject, mapId, issueContainerId, issueCloseId) {
     'closed' : document.querySelector(".issue_action[data-action=closed]"),
     'deleted' : document.querySelector(".issue_action[data-action=deleted]"),
   };
+  this.commentStatusButtons = ((document.querySelector("#issue_comments-form")) ? 
+  {
+    'public' : document.querySelector("#id_status_0").parentElement,
+    'private' : document.querySelector("#id_status_1").parentElement,
+    'internal' : document.querySelector("#id_status_2").parentElement,
+  } : undefined);
 
   IssueDescription.prototype.loadCurrentMarkerObject = function(obj) {
     current.markerObject = obj;
   };
 
-  IssueDescription.prototype.removeActionsButtons = function() {
-    for (var key in current.actionButtons) {
-        current.actionButtons[key].style.display = "none";
+  IssueDescription.prototype.removeActionsElements = function(dict) {
+    if (dict) {
+      for (var key in dict) {
+        dict[key].style.display = "none";
       }
+    }
+
   };
 
   IssueDescription.prototype.listenActionsButtons = function(event){
     if (event.target.dataset.target == "#action_modal") {
       current.issueId = event.target.getAttribute("data-id");
       current.issueAction = event.target.getAttribute("data-action");
+    }
+  };
+
+  IssueDescription.prototype.paintCommnetsInput = function() {
+    if(document.querySelector('#id_status')) {
+      var checkedElement = document.querySelector('#id_status input:checked');
+      var commentsInput = document.querySelector('.issue_comments-form textarea');
+      if (commentsInput.classList.length > 0) {
+        commentsInput.classList.forEach(function(className) {
+          if (className.indexOf('textarea--') !== -1) {
+            commentsInput.classList.remove(className);
+          }
+        });
+      }
+    commentsInput.classList.add("textarea--" + checkedElement.value);
     }
   };
 
@@ -241,7 +265,6 @@ function IssueDescription(mapObject, mapId, issueContainerId, issueCloseId) {
     if (event.target.id == current.issueCloseId || (event.target.id == "mapid" && current.issue_box.style.display == "block")) {
       current.issue_box.style.display = "none";
 
-      current.removeActionsButtons();
 
       if (current.markerObject._shadow) {
             current.markerObject._shadow.src = current.markerObject.options.customStatus;
@@ -270,6 +293,7 @@ function IssueDescription(mapObject, mapId, issueContainerId, issueCloseId) {
 
       commentText.appendChild(document.createTextNode(item.comment));
       commentText.classList.add("issue_comment-text");
+      commentText.classList.add("issue_comment-text--" + item.status);
 
       commentHeader.appendChild(commentAuthor);
       commentBox.appendChild(commentHeader);
@@ -281,10 +305,14 @@ function IssueDescription(mapObject, mapId, issueContainerId, issueCloseId) {
   IssueDescription.prototype.sendComment = function(data,issue_id) {
     var xml = new XMLHttpRequest();
     xml.open("POST", "/postcomment/" + issue_id + "/");
+
     xml.onload = function() {
-      var response = JSON.parse(xml.responseText).slice(1,-1).replace(/}, {/g,'}}, {{').split('}, {'); 
-      current.insertComments(response);
+      if (xml.status === 200) {
+        var response = JSON.parse(xml.responseText).slice(1,-1).replace(/}, {/g,'}}, {{').split('}, {'); 
+        current.insertComments(response);
+      }
     };
+
     xml.send(data);
   };
 
@@ -305,12 +333,13 @@ function IssueDescription(mapObject, mapId, issueContainerId, issueCloseId) {
   IssueDescription.prototype.commentsHandler = function(event) {
     event.preventDefault();
     var comment = document.querySelector("#id_comment").value;
-
+    var commentStatus = document.querySelector("#id_status input:checked").value;
     var csrf = document.querySelector("#issue_comments-form input[name=csrfmiddlewaretoken]").value;
     var issue_id = event.target.getAttribute("data-id");
     if (comment.length > 0) {
       var formData = new FormData();
       formData.append("comment", comment);
+      formData.append("status", commentStatus);
       formData.append("csrfmiddlewaretoken", csrf);
       current.sendComment(formData, issue_id);
     }
@@ -323,16 +352,35 @@ function IssueDescription(mapObject, mapId, issueContainerId, issueCloseId) {
     }
     document.querySelector("#issue_buttons-box").addEventListener("click", current.listenActionsButtons);
     document.querySelector("#issue_action-send").addEventListener("click", current.sendActionData);
+    if ( document.querySelector("#id_status")) {
+      document.querySelector("#id_status").addEventListener('click', current.paintCommnetsInput);
+    }
   };
+
 
   IssueDescription.prototype.insertIssueData = function(jsonData, issue_id) {
     current.issue_box.style.display = 'block';
-    current.removeActionsButtons();
-    jsonData.list_of_actions.forEach(function(button) {
+    current.removeActionsElements(current.actionButtons);
+    jsonData.dict_of_actions.list_of_actions.forEach(function(button) {
       current.actionButtons[button].style.display = "inline-block";
       current.actionButtons[button].style.verticalAlign = "top";
       current.actionButtons[button].setAttribute("data-id", issue_id);
     });
+
+    current.removeActionsElements(current.commentStatusButtons);
+    commentsButtonsNumber =  jsonData.dict_of_actions.list_of_comments_statuses.length;
+    if (current.commentStatusButtons && commentsButtonsNumber > 1) {
+      jsonData.dict_of_actions.list_of_comments_statuses.forEach(function(button) {
+        current.commentStatusButtons[button].style.display = "inline-block";
+        current.commentStatusButtons[button].style.verticalAlign = "top";
+      });      
+    } else if (current.commentStatusButtons && commentsButtonsNumber === 1) {
+      button = jsonData.dict_of_actions.list_of_comments_statuses[0];
+        current.commentStatusButtons[button].type = 'hidden';
+        current.commentStatusButtons[button].firstElementChild.checked = true;
+    }
+    current.paintCommnetsInput();
+
     if (document.querySelector("#issue_comments-form-btn")) {
       document.querySelector("#issue_comments-form-btn").setAttribute("data-id", issue_id);
     }
@@ -410,20 +458,21 @@ function placeFilter() {
   filterForm.style.left = (leafletControlsCoordinatse.left + 5) + "px";
 }
 
-issueMap = new IssueMap("mapid");
-issueMap.setFilterFromBtn("#issue_filter-form-btn");
-issueMap.setFilterFromCloseBtn("#issue_filter-form-close-btn");
-issueMap.setFilterFromShowBtn("#issue_filter-form-show-btn");
-issueMap.setViewPoint(50.621945, 26.249314, 16);
-issueMap.addMapLayer(
-  'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', 
-  19, 
-  '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>');
-issueMap.filterHandler();
-issueMap.addHandler();
+$(document).ready(function() {
+  issueMap = new IssueMap("mapid");
+  issueMap.setFilterFromBtn("#issue_filter-form-btn");
+  issueMap.setFilterFromCloseBtn("#issue_filter-form-close-btn");
+  issueMap.setFilterFromShowBtn("#issue_filter-form-show-btn");
+  issueMap.setViewPoint(50.621945, 26.249314, 16);
+  issueMap.addMapLayer(
+    'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', 
+    19, 
+    '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>');
+  issueMap.filterHandler();
+  issueMap.addHandler();
 
-insertTemplate("#message_box", "#message_list");
-placeFilter();
-
+  insertTemplate("#message_box", "#message_list");
+  placeFilter();
+});
 })();
 
