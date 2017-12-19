@@ -1,6 +1,8 @@
 """This module creates Issues model."""
 # pylint: disable=too-few-public-methods
 
+import os
+
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.sql.functions import func
 
@@ -129,3 +131,15 @@ def get_all_issue_history(issue_id):
                              comment.comment, comment.date_public.strftime('%Y-%m-%d %H:%M')])
     list_history.sort(key=lambda history: history[3])
     return list_history
+
+
+def get_all_thumbnails(issue_id):
+    """Method return thumbnails url"""
+    attachments = db.session.query(
+        Attachment).filter(Attachment.issue_id == issue_id).all()
+    url_thumbnail = []
+    for attachment in attachments:
+        head, tail = os.path.split(attachment.image_url)
+        tail = '-'.join(['thumb', tail])
+        url_thumbnail.append(os.path.join(head, tail))
+    return url_thumbnail

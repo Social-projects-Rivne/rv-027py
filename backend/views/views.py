@@ -2,15 +2,14 @@
 from functools import wraps
 from urllib import urlencode
 
-from flask import flash, redirect, request, render_template, session, url_for
+from flask import (current_app, flash, redirect, request, render_template,
+                   send_from_directory, session, url_for)
 from sqlalchemy import and_
 
 from backend.app import app, db
-
 from backend.forms.forms import (IssueForm, LoginForm, SearchUserForm,
                                  SearchIssuesForm, UserForm, UserAddForm)
-
-from backend.models.issues import Attachment, Category, get_all_issue_history, Issue
+from backend.models.issues import Category, get_all_issue_history, get_all_thumbnails, Issue
 from backend.models.users import Role, User, user_search
 
 
@@ -268,10 +267,17 @@ def restore_issue(issue_id):
     return redirect(url_for('issues_page'))
 
 
+@app.route('/media/<path:url>')
+def media_dir(url):
+    return send_from_directory(current_app.config['MEDIA_FOLDER'], url)
+
+
 @app.route('/issue/<int:issue_id>', methods=['GET'])
 @admin_permissions
 def issue_info(issue_id):
     """Route for issue page"""
     issue_one = db.session.query(Issue).get(issue_id)
     list_history = get_all_issue_history(issue_id)
-    return render_template('issue.html', issue=issue_one, list_history=list_history)
+    url_thumbnails = get_all_thumbnails(issue_id)
+    return render_template('issue.html', issue=issue_one, list_history=list_history,
+                           url_thumbnails=url_thumbnails)

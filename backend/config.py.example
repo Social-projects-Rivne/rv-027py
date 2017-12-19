@@ -21,6 +21,9 @@ class Config(object):
     # password hashing rounds
     BCRYPT_LOG_ROUNDS = 14
 
+    MEDIA_FOLDER = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                                'client', 'apps', 'city_issues', 'media')
+
 
 class ProductionConfig(Config):
     DEBUG = False

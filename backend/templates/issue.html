@@ -39,6 +39,14 @@
                 <dd> {{ issue.status }} </dd>
         </dl> 
         <hr>
+        <div class="row">
+        {% for url in url_thumbnails %}
+            <div class="col-md-3">
+                <img src="{{url_for('media_dir', url=url)}}" vspace="10px">
+            </div>
+        {% endfor %}
+        </div>
+        <hr>
         <ul>
             {% for history in list_history%}
               {% if history[0] == 'change_status' %}
