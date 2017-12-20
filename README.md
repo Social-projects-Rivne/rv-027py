@@ -1,6 +1,6 @@
 ### Installing required libs and frameworks
 ```
-pip install -r requirements.txt
+pip install -r requirements.txt or requirements/dev.txt
 ```
 ### Configuration
 ```
