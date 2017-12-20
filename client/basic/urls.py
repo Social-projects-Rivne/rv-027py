@@ -23,7 +23,7 @@ from django.views.generic import RedirectView
 from city_issues.views import (
     CheckIssues, DetailedIssue, delete_attachment, get_all_issues_data, get_issue_data,
     HomePageView, map_page_view, IssueCreate, UserProfileView, UpdateIssue,
-    CommentIssues, post_comment, issue_action)
+    CommentIssues, post_comment, issue_action, comment_delete, comment_restore)
 
 
 urlpatterns = [
@@ -34,6 +34,8 @@ urlpatterns = [
     url(r'^delete-attachment/$', delete_attachment, name='delete-attachment'),
     url(r'^postcomment/(?P<issue_id>[0-9]+)/$', post_comment, name='post-comment'),
     url(r'^issueaction/(?P<issue_id>[0-9]+)/$', issue_action, name='issue-action'),
+    url(r'^deletecomment/(?P<issue_id>[0-9]+)/(?P<comment_id>[0-9]+)/$', comment_delete, name='comment-delete'),
+    url(r'^restorecomment/(?P<issue_id>[0-9]+)/(?P<comment_id>[0-9]+)/$', comment_restore, name='comment-restore'),
 
     url(r'^map/$', map_page_view, name='map'),
     url(r'^map/getissuebyid/(?P<issue_id>[0-9]+)$',

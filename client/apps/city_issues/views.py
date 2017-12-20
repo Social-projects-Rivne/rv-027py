@@ -300,3 +300,27 @@ def issue_action(request, issue_id):
             return JsonResponse({'result': 'success'}, safe=False)
 
     raise PermissionDenied("You are not allowed to change issue")
+
+
+def comment_delete(request, issue_id, comment_id):
+    if request.user.is_authenticated() and request.user.role.id in (
+            ROLE_ADMIN, ROLE_MODERATOR):
+        comment = Comments.objects.get(pk=comment_id)
+        comment.pre_deletion_status = comment.status
+        comment.status = "deleted"
+        comment.save()
+        return redirect(reverse('issue-comment', args=[issue_id]))
+    raise PermissionDenied("You are not allowed to delete comments")
+
+
+def comment_restore(request, issue_id, comment_id):
+    if request.user.is_authenticated() and request.user.role.id in (
+            ROLE_ADMIN, ROLE_MODERATOR):
+        comment = Comments.objects.get(pk=comment_id)
+
+        comment.status = 'public'
+        if comment.pre_deletion_status:
+            comment.status = comment.pre_deletion_status
+        comment.save()
+        return redirect(reverse('issue-comment', args=[issue_id]))
+    raise PermissionDenied("You are not allowed to delete comments")
