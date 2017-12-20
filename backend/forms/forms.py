@@ -173,7 +173,10 @@ class IssueForm(BaseForm):
             ('new', 'new'),
             ('on moderation', 'on moderation'),
             ('open', 'open'),
-            ('closed', 'closed')
+            ('closed', 'closed'),
+            ('deleted', 'deleted'),
+            ('pending close', 'pending close'),
+
         ],
         validators=[DataRequired()]
     )
@@ -208,7 +211,8 @@ class IssueForm(BaseForm):
         choices=[
             ('1', 'road accident'),
             ('2', 'infrastructure accident'),
-            ('3', 'another accident')
+            ('3', 'another accident'),
+            ('4', 'accident with animals')
         ],
         validators=[DataRequired()]
     )
