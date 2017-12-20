@@ -1,7 +1,8 @@
 import os
 import urllib2
 import zipfile
-from config import Config
+# pylint: disable=no-name-in-module,import-error
+from backend.config import Config
 
 
 def download_attachments(url, zip_file_name):
