@@ -1,12 +1,13 @@
 """This module generates routes for admin panel"""
 from functools import wraps
 from urllib import urlencode
+from flask_mail import Mail, Message
 
 from flask import (current_app, flash, redirect, request, render_template,
                    send_from_directory, session, url_for)
 from sqlalchemy import and_
 
-from backend.app import app, db
+from backend.app import app, db, mail
 from backend.forms.forms import (IssueForm, LoginForm, SearchUserForm,
                                  SearchIssuesForm, UserForm, UserAddForm)
 from backend.models.issues import Category, get_all_issue_history, get_all_thumbnails, Issue
@@ -96,7 +97,21 @@ def user_add():
         newuser.password = form.password.data
         db.session.add(newuser)
         db.session.commit()
-        flash("User added", category="success")
+        password = form.password.data
+        subject = "Add User"
+        msg = Message(app.config['ADMIN_MAIL_SUBJECT_PREFIX'] + ' ' + subject, sender=app.config['ADMIN_MAIL_SENDER'],
+                      recipients=[newuser.email])
+        msg.body = """
+                              From: %s to <%s>
+                              Email: %s
+                              Name: %s
+                              Alias: %s
+                              Password: %s
+                              """ % (
+            app.config['ADMIN_MAIL_SUBJECT_PREFIX'], newuser.email, newuser.email, newuser.name,
+            newuser.alias, password)
+        mail.send(msg)
+        flash("User added and notification", category="success")
         return redirect(url_for('user_page'))
 
     return render_template('user_add.html', form=form, route_to=route_to)

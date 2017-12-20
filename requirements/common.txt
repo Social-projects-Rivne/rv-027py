@@ -1,4 +1,6 @@
+# =============
 # Django
+# =============
 django-bootstrap3==9.1.0
 django-imagekit==4.0.2
 django-registration-redux==1.8
@@ -7,7 +9,9 @@ olefile==0.44
 passlib==1.7.1
 Pillow==4.3.0
 pytz==2017.3
+# ==============
 # Flask
+# ==============
 alembic==0.9.6
 bcrypt==3.1.4
 blinker==1.4
