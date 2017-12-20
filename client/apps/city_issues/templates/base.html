@@ -55,6 +55,15 @@
                 <a href="{% url "map" %}"
                    class="navbar-text navbar-right">Map</a>
             {% endif %}
+            {% if user.is_staff or user.is_superuser %}
+                <div class="navbar-form navbar-left">
+                    <a href="" type="button" class="btn btn-md btn-info">
+                        <span class="glyphicon glyphicon-cog"></span> Moderator panel
+                    </a>
+                </div>
+            {% else %}
+            {% endif %}
+
         </div><!-- /.navbar-collapse -->
     </div><!-- /.container-fluid -->
 </nav>
