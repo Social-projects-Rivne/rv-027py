@@ -99,7 +99,7 @@ def user_add():
         flash("User added")
         return redirect(url_for('user_page'))
 
-    return render_template('user_modify.html', form=form, route_to=route_to)
+    return render_template('user_add.html', form=form, route_to=route_to)
 
 
 @app.route('/usermodify/<int:users_id>', methods=['GET', 'POST'])
