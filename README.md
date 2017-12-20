@@ -41,3 +41,7 @@ fill it up with your database credentials.
 ```
 python client/manage.py runserver
 ```
+### Mail settings
+
+on your google account enable settings (https://goo.gl/Lm1dm8)
+
