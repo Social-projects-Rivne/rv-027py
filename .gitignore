@@ -99,15 +99,3 @@ ENV/
 
 # mypy
 .mypy_cache/
-
-users/config.py
-flask
-
-#configuration file
-backend/config.py
-
-#JetBrains IDE
-/.idea
-
-#Migrations files
-/backend/migrations
