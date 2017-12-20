@@ -189,6 +189,7 @@ class IssueForm(BaseForm):
 
     location_lat = FloatField(
         'location lat',
+        render_kw={'readonly': True},
         validators=[
             DataRequired(),
         ]
@@ -196,6 +197,7 @@ class IssueForm(BaseForm):
 
     location_lon = FloatField(
         'location lot',
+        render_kw={'readonly': True},
         validators=[
             DataRequired(),
         ]
