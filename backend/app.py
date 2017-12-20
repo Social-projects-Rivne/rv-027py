@@ -16,6 +16,7 @@ CSRFProtect(app)
 from backend.create_database import db_create
 from backend.drop_database import db_drop
 from backend.insert_db_data import db_insert_data
+from backend.dowload_attachments import download_and_extract_attachments
 # pylint: disable=unused-import
 from backend.views import views
 
@@ -36,3 +37,9 @@ def dropdb():
 def insertdata():
     """Inserting data into database"""
     db_insert_data()
+
+
+@app.cli.command()
+def download_and_extract_images():
+    """Download and extract images from Google Drive"""
+    download_and_extract_attachments()
