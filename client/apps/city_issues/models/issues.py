@@ -271,6 +271,7 @@ class Comments(models.Model):
     comment = models.TextField(max_length=400, null=False, blank=False)
     date_public = models.DateTimeField(auto_now_add=True)
     status = models.TextField(null=False)
+    pre_deletion_status = models.TextField()
 
     class Meta:
         """..."""
