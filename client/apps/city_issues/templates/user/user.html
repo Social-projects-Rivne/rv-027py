@@ -30,7 +30,7 @@
             </div>
             <div class="panel panel-info">
                 <div class="panel-heading">
-                    <h3 class="panel-title">{{ user.name }}</h3>
+                    <h3 class="panel-title">{{ user.name|default_if_none:"Name is not defined" }}</h3>
                     <a type="button" class="btn btn-sm btn-primary pull-right user_message">
                         <i class="glyphicon glyphicon-envelope"></i>
                     </a>
@@ -45,7 +45,7 @@
                                 <tbody>
                                 <tr>
                                     <td>Alias:</td>
-                                    <td>{{ user.alias }}</td>
+                                    <td>{{ user.alias|default_if_none:"Alias is not defined" }}</td>
                                 </tr>
                                 <tr>
                                     <td>Role:</td>
@@ -66,15 +66,12 @@
                         <a href="#" class="btn btn-sm btn-warning" title="edit" data-toggle="modal" data-target="#edit-user-modal">
                             <i class="glyphicon glyphicon-edit"></i>
                         </a>
-                    <a href="{% url 'map' %}" class="btn btn-sm btn-danger">
-                        <i class="glyphicon glyphicon-remove"></i>
-                    </a>
                     </span>
                 </div>
             </div>
         </div>
         <div class="width">
-            <h2>Added issus</h2>
+            <h2>Added issues</h2>
 
             <table id="user_issues" class="display" width="100%" cellspacing="0">
                 <thead>
@@ -106,15 +103,14 @@
                         <td>{{ issue.title }}</td>
                         <td>{{ issue.category.category }}</td>
                         <td>{{ issue.status }}</td>
-                        <td>{{ issue.open_date }}</td>
-                        <td>{{ issue.close_date }}</td>
+                        <td>{{ issue.open_date|date:"d/m/y" }}</td>
+                        <td>{{ issue.close_date|default_if_none:"" }}</td>
                         <td>
                            <a href="{% url 'edit_issue' issue.id %}"
                               class="btn btn-sm btn-info">
                                <span class="glyphicon glyphicon-edit"></span>
                                edit
                            </a>
-                        </a>
                         </td>
                     </tr>
                 {% endfor %}
@@ -135,10 +131,6 @@
         <form action="{% url 'user_profile'  %}" method="post">
             {% csrf_token %}
             <div class="modal-body">
-{#                <div class="form-group required">#}
-{#                    <label for="id_name" class="control-label">New name</label>#}
-{#                    {{ form.name }}#}
-{#                </div>#}
                   {{ form.as_p }}
             </div>
             <div class="modal-footer">
@@ -159,8 +151,15 @@
     {% load static %}
     <script type="text/javascript" src="{% static "js/general.js" %}"></script>
     <script>
-        $(document).ready(function () {
+        $(document).ready(function ()
+        {
             $('#user_issues').DataTable();
+            var isError = '{{ has_error }}';
+
+            if (isError === 'error')
+            {
+             $('#edit-user-modal').modal('show');
+            }
         });
     </script>
 {% endblock extra_js %}

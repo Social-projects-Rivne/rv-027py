@@ -13,12 +13,12 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import update_session_auth_hash
 from django.core import serializers
-from django.http import JsonResponse, HttpResponse, Http404
+from django.core.exceptions import PermissionDenied
+from django.http import JsonResponse, HttpResponse
 from django.shortcuts import redirect, render, get_object_or_404
 from django.utils.timezone import make_aware
 from django.views import View
 from django.views.generic import CreateView, FormView, ListView, TemplateView
-from django.views.generic.detail import DetailView
 from django.views.generic.edit import UpdateView
 from django.urls import reverse
 
@@ -61,40 +61,20 @@ class UserProfileView(View):
         form = EditUserForm(data=request.POST, instance=request.user)
 
         if form.is_valid():
-            if self.is_not_empty_passwords(form.cleaned_data) and self.check_passwords(user, form.cleaned_data):
-
-                user.set_password(form.cleaned_data['confirm_password'])
-
             user.name = form.cleaned_data['name']
             user.alias = form.cleaned_data['alias']
             user.email = form.cleaned_data['email']
+            user.set_password(form.cleaned_data['confirm_password'])
             user.save()
             update_session_auth_hash(request, user)
             messages.success(request, 'Changes successfully saved')
 
         else:
             messages.error(request, form.errors)
+            return render(request, self.template_name,
+                          {'form': form, 'has_error': 'error'})
 
         return redirect(self.success_url)
-
-    def check_passwords(self, user, form_data):
-        if not user.check_password(form_data['current_password']):
-            messages.error(self.request, 'Wrong current password')
-            return redirect(self.success_url)
-
-        elif not form_data['new_password'] == form_data['confirm_password']:
-            messages.error(
-                self.request, "New and confirm password don't match")
-            return redirect(self.success_url)
-
-        else:
-            return True
-
-    def is_not_empty_passwords(self, data):
-        if data['current_password'] == '' and data['new_password'] == '' and data['confirm_password'] == '':
-            return False
-        else:
-            return True
 
 
 class IssueCreate(CreateView):
@@ -150,6 +130,7 @@ def get_issue_data(request, issue_id):
 
     attachments_query = list(
         Attachments.objects.filter(issue=issue_id).values())
+
     images_urls = [item['image_url'] for item in attachments_query]
     checked_img_urls = []
 
@@ -157,7 +138,7 @@ def get_issue_data(request, issue_id):
         if img and os.path.isfile(os.path.join(settings.MEDIA_ROOT, img)):
             checked_img_urls.append(img)
 
-    issue_obj = Issues.objects.filter(pk=issue_id)
+    issue_obj = Issues.objects.filter(pk=issue_id).select_related("category")
     unpacked_issue_obj = issue_obj[0]
 
     issue_is_editable = False
@@ -167,7 +148,19 @@ def get_issue_data(request, issue_id):
             (unpacked_issue_obj.user_id == request.user.id)):
         issue_is_editable = True
 
-    issue_query = list(issue_obj.values())
+    issue_query = list(issue_obj.values(
+        "title",
+        "user",
+        "category",
+        "location_lat",
+        "location_lon",
+        "status",
+        "description",
+        "open_date",
+        "close_date",
+        "delete_date",
+        "category__category",))
+
     issue_dict = issue_query[0]
     issue_dict['images_urls'] = checked_img_urls
     issue_dict['editable'] = issue_is_editable
@@ -200,10 +193,16 @@ def get_all_issues_data(request):
 
         kwargs = {"close_date__isnull": (show_opened_issue)}
 
-        if map_date_from and map_date_to:
+        date_from = make_aware(datetime(1970, 1, 1,))
+        print date_from
+        date_to = make_aware(datetime.now())
+
+        if map_date_from:
             date_from = make_aware(datetime.combine(map_date_from, time.min))
+        if map_date_to:
             date_to = make_aware(datetime.combine(map_date_to, time.max))
-            kwargs["open_date__range"] = (date_from, date_to)
+
+        kwargs["open_date__range"] = (date_from, date_to)
 
         if category:
             kwargs['category'] = category
@@ -232,13 +231,14 @@ class CheckIssues(ListView, FormView):
     template_name = 'issues_list.html'
     model = Issues
     context_object_name = 'issues_list'
-    paginate_by = 4
+    paginate_by = 8
 
     def get_queryset(self):
         """Adds sorting"""
         queryset = super(CheckIssues, self).get_queryset()
-        order_by = self.request.GET.get('order_by', 'title')
+        order_by = self.request.GET.get('order_by')
         search = self.request.GET.get('search')
+
         if search:
             query_list = search.split()
             queryset = queryset.filter(
@@ -258,21 +258,6 @@ class CheckIssues(ListView, FormView):
         return context
 
 
-class DetailedIssue(ListView):
-    """Detailed issue"""
-    template_name = 'issue_detailed.html'
-    context_object_name = 'attachment_list'
-
-    def get_queryset(self):
-        self.issue = get_object_or_404(Issues, pk=self.kwargs['pk'])
-        return Attachments.objects.filter(issue=self.issue)
-
-    def get_context_data(self, **kwargs):
-        context = super(DetailedIssue, self).get_context_data(**kwargs)
-        context['issue'] = self.issue
-        return context
-
-
 class UpdateIssue(UpdateView):
     """Edit issue from map."""
     model = Issues
@@ -286,18 +271,23 @@ class UpdateIssue(UpdateView):
                 (self.request.user.role.id in (ROLE_ADMIN, ROLE_MODERATOR)) or
                 (obj.user == self.request.user)):
             return super(UpdateIssue, self).dispatch(request, *args, **kwargs)
-        raise Http404("You are not allowed to edit this issue")
+        raise PermissionDenied("You are not allowed to edit this issue")
 
 
 class CommentIssues(LoginRequiredMixin, CreateView):
     """Comment issue"""
-    template_name = 'comment_issue.html'
-    model = Comments
+    template_name = 'issue_detailed.html'
     fields = ['comment']
+
+    def get_queryset(self):
+        self.issue = get_object_or_404(Issues, pk=self.kwargs['pk'])
+        return Comments.objects.filter(issue=self.issue)
 
     def get_context_data(self, **kwargs):
         context = super(CommentIssues, self).get_context_data(**kwargs)
-        context['issue'] = Issues.objects.get(pk=self.kwargs['pk'])
+        context['object'] = Issues.objects.get(pk=self.kwargs['pk'])
+        context['issue'] = self.issue
+        context['attachment_list'] = Attachments.objects.filter(issue=self.issue)
         return context
 
     def form_valid(self, form):

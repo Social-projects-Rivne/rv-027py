@@ -12,8 +12,9 @@
     height: 50px;
 }
 
-.panel-title{
-  display: contents;
+.user_message{
+    position: relative;
+    bottom: 20px;
 }
 
 .dataTable > thead > tr > th[class*="sort"]:after{

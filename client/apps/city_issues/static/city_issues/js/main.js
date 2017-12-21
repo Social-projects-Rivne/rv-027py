@@ -3,6 +3,9 @@
 function IssueMap(elementId) {
   var current = this;
   this.map = L.map(elementId);
+  this.issueDescriptionBox = new IssueDescription("mapid", "issue_container", "issue_close");
+  this.issueDescriptionBox.addHandler();
+  this.currentMarker = undefined;
 
   IssueMap.prototype.setFilterFromBtn = function(filterFormBtnId) {
     current.filterFormBtn = document.querySelector(filterFormBtnId);
@@ -17,10 +20,6 @@ function IssueMap(elementId) {
   };
    
   
-  IssueMap.prototype.getMap = function() {
-    return this.map;
-  };
-
   IssueMap.prototype.setViewPoint = function(latitude, longitude, scale) {
     if (localStorage.getItem('lat') && localStorage.getItem('lng')) {
        this.map.setView([localStorage.getItem('lat'), localStorage.getItem('lng')], scale);
@@ -36,36 +35,67 @@ function IssueMap(elementId) {
   };
 
 
-  IssueMap.prototype.iconCreate = function(category) {
-    return new L.Icon({
-      iconUrl: '/static/city_issues/img/category_' + category + '_marker-icon.png',
-      shadowUrl: '/static/city_issues/img/marker-shadow.png',
-      iconSize: [41, 41],
-      iconAnchor: [12, 41],
-      popupAnchor: [1, -34],
-      shadowSize: [41, 41]
-    });
+  IssueMap.prototype.iconCreate = function(category, status) {
+    var underscoredStatusShadow = status.replace(/ /g, '_');
+    var MarkerIcon = L.Icon.extend({
+    options: {
+        customId: "",
+        customStatus: "",
+        iconUrl: '/static/city_issues/img/category_' + category + '_marker-icon.png',
+        shadowUrl: '/static/city_issues/img/status_' + underscoredStatusShadow + '.png',
+        iconSize: [30, 30],
+        iconAnchor: [0, 0],
+        popupAnchor: [1, -34],
+        shadowSize: [38, 38],
+        shadowAnchor: [4, 4],
+    }});
+
+    return new MarkerIcon();
+  };
+
+  IssueMap.prototype.showIssueDetails = function(issueId, event) {
+    localStorage.setItem('lat', event.latlng.lat);
+    localStorage.setItem('lng', event.latlng.lng);
+    current.issueDescriptionBox.getIssueById(issueId);
   };
 
   IssueMap.prototype.insertAllMarkers = function(jsonData) {
     if (current.markers) {
-      current.getMap().removeLayer(current.markers);
+      current.map.removeLayer(current.markers);
     }
 
-    current.markers = new L.FeatureGroup();
+    current.markers = L.markerClusterGroup();
     
     jsonData.forEach(function(key) {
       var issue = JSON.parse(key);
-
+      var underscoredStatus = issue.fields.status.replace(/ /g, '_');
       var marker = L.marker(
         [issue.fields.location_lat, issue.fields.location_lon],
-        {icon: current.iconCreate(issue.fields.category), title: issue.fields.title});
+        {icon: current.iconCreate(issue.fields.category, issue.fields.status),
+         title: issue.fields.title,
+         customId: issue.pk,
+         customStatus: '/static/city_issues/img/status_' + underscoredStatus + '.png',
+       });
+
+      marker.on("click", function(event){
+        current.showIssueDetails(this.options.customId, event);
+        if (!current.currentMarker) {
+          current.currentMarker = this;
+          }
+
+        if (this !== current.currentMarker) {
+            if (current.currentMarker._shadow !== null) {
+                current.currentMarker._shadow.src = current.currentMarker.options.customStatus;
+            }
+            current.currentMarker = this;
+          }
+        
+        this._shadow.src ='/static/city_issues/img/icon_active.png';
+        current.issueDescriptionBox.loadCurrentMarkerObject(this);
+      });
 
       current.markers.addLayer(marker);
-      current.getMap().addLayer(current.markers);
-
-      marker._icon.id = "issue_primary-id" + issue.pk;
-
+      current.map.addLayer(current.markers);
     });
 
 
@@ -78,32 +108,20 @@ function IssueMap(elementId) {
     var showClosedValue = document.querySelector("#id_show_closed").checked;
     var categoryValue = document.querySelector("#id_category").value;
     var searchValue = document.querySelector("#id_search").value;
-    
-    if ((dateFromValue && dateToValue) || (!dateFromValue && !dateToValue)) {
-      document.querySelector("#message_box").style.display = "none";
-      current.getMarkers(
-        "getissuesall/?" +
-        "filter=" + "True" + "&" +
-        "date_from=" + dateFromValue + "&" + 
-        "date_to=" + dateToValue + "&" + 
-        "show_closed=" + showClosedValue + "&" + 
-        "category=" + categoryValue + "&" +
-        "search=" +  searchValue
-        );
-    } else {
-      document.querySelector("#message_box").style.display = "block";
-      document.querySelector("#message_box li").innerHTML = "Enter two dates or none.";
-    }
+     
+    document.querySelector("#message_box").style.display = "none";
+    current.getMarkers(
+      "getissuesall/?" +
+      "filter=" + "True" + "&" +
+      "date_from=" + dateFromValue + "&" + 
+      "date_to=" + dateToValue + "&" + 
+      "show_closed=" + showClosedValue + "&" + 
+      "category=" + categoryValue + "&" +
+      "search=" +  searchValue
+      );
     
   };
 
-  IssueMap.prototype.mapCoordinatesHandler = function(event) {
-    if (event.originalEvent.target.classList.contains("leaflet-marker-icon")) {
-      localStorage.setItem('lat', event.latlng.lat);
-      localStorage.setItem('lng', event.latlng.lng);
-    }
-   
-  };
 
   IssueMap.prototype.filterCloseHandler = function(event) {
     document.querySelector("#issue_form-container").style.display = "none";
@@ -117,7 +135,6 @@ function IssueMap(elementId) {
 
   IssueMap.prototype.addHandler = function() {
     current.filterFormBtn.addEventListener('click', current.filterHandler);
-    current.map.on('click', current.mapCoordinatesHandler);
     current.filterFormCloseBtnId.addEventListener('click', current.filterCloseHandler);
     current.filterFormShowBtnId.addEventListener('click', current.filterShowHandler);
   };
@@ -129,7 +146,7 @@ function IssueMap(elementId) {
     xml.onload = function(){
       if (xml.responseText == "\"[]\"") {
         if (current.markers) {
-          current.getMap().removeLayer(current.markers);
+          current.map.removeLayer(current.markers);
         }
         document.querySelector("#message_box").style.display = "block";
         document.querySelector("#message_box li").innerHTML = "No data for that filter choice.";
@@ -151,34 +168,37 @@ function IssueDescription(mapId, issueContainerId, issueCloseId) {
   this.issueCloseId = issueCloseId;
   this.issue_box = document.getElementById(issueContainerId);
 
-  IssueDescription.prototype.markerHandler = function(event) {
-    if (event.target.id.slice(0,16) == "issue_primary-id") {
-    current.getIssueById(event.target.id.slice(16));
-    current.issue_box.style.display = 'block';
-      } 
-    else {
+  IssueDescription.prototype.loadCurrentMarkerObject = function(obj) {
+    current.markerObject = obj;
+  };
+
+  IssueDescription.prototype.closeIssueDescriptionHandler = function(event) {
       if (event.target.id == "mapid" && current.issue_box.style.display == "block") {
         current.issue_box.style.display = 'none';
+        current.markerObject._shadow.src = current.markerObject.options.customStatus;
       }
-    }
+      
   };
 
   IssueDescription.prototype.closeHandler = function(event) {
     if (event.target.id == current.issueCloseId) {
       current.issue_box.style.display = "none";
+      current.markerObject._shadow.src = current.markerObject.options.customStatus;
     }
+
   };
 
   IssueDescription.prototype.addHandler = function() {
-    document.addEventListener('click', current.markerHandler);
+    document.addEventListener('click', current.closeIssueDescriptionHandler);
     document.addEventListener('click', current.closeHandler);
   };
 
 
-  IssueDescription.prototype.insertIssueData = function(jsonData) {
+  IssueDescription.prototype.insertIssueData = function(jsonData, issue_id) {
     current.issue_box.style.display = 'block';
     document.querySelector(".issue_title").innerHTML = jsonData.title;
     document.querySelector(".issue_description").innerHTML = jsonData.description;
+    document.querySelector("#issue_category").innerHTML = jsonData.category__category;
     var imgBox = document.querySelector(".issue_img-box");
     imgBox.innerHTML = "";
     if (jsonData.images_urls.length > 0) {
@@ -192,7 +212,7 @@ function IssueDescription(mapId, issueContainerId, issueCloseId) {
     }
     var editBtn = document.getElementById("issue_edit");
     var dataUrl =  editBtn.getAttribute("data-url").slice(0,-1);
-    editBtn.setAttribute("href", dataUrl + jsonData.id);
+    editBtn.setAttribute("href", dataUrl + issue_id);
     editBtn.style.display = "none";
     if (jsonData.editable) {
       editBtn.style.display = "inline-block";
@@ -207,7 +227,7 @@ function IssueDescription(mapId, issueContainerId, issueCloseId) {
     xml.send();
     xml.onload = function(){
       var response = JSON.parse(JSON.parse(xml.responseText).slice(1,-1));
-      current.insertIssueData(response);
+      current.insertIssueData(response, issue_id);
     };
   };
 
@@ -242,6 +262,15 @@ function insertTemplate(parentId, templateId) {
   }
 }
 
+function placeFilter() {
+  var leafletControls = document.querySelector(".leaflet-top.leaflet-left");
+  var filterForm = document.querySelector("#issue_form-box");
+
+  leafletControlsCoordinatse = leafletControls.getBoundingClientRect();
+  filterForm.style.top = (leafletControlsCoordinatse.bottom + 5) + "px";
+  filterForm.style.left = (leafletControlsCoordinatse.left + 5) + "px";
+}
+
 
 issueMap = new IssueMap("mapid");
 issueMap.setFilterFromBtn("#issue_filter-form-btn");
@@ -254,9 +283,9 @@ issueMap.addMapLayer(
   '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>');
 issueMap.getMarkers("getissuesall/");
 issueMap.addHandler();
-issueDescription = new IssueDescription("mapid", "issue_container", "issue_close");
-issueDescription.addHandler();
+
 insertTemplate("#message_box", "#message_list");
+placeFilter();
 
 })();
 
