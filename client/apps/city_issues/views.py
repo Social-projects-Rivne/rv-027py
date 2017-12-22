@@ -29,7 +29,7 @@ from django.urls import reverse
 from city_issues.models import Attachments, Issues, IssueHistory, User, Comments, Category
 from city_issues.forms.forms import (EditIssue, IssueFilter, IssueForm,
                                      IssueFormEdit, IssueSearchForm, EditUserForm, CommentsOnMapForm,
-                                     IssueFormEditWithoutStatus, ModEditForm, ModCommentForm)
+                                     IssueFormEditWithoutStatus, ModEditForm)
 from city_issues.mixins import LoginRequiredMixin
 from city_issues.thumbnails import create_thumbnail
 
