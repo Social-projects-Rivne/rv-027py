@@ -15,7 +15,6 @@ CSRFProtect(app)
 mail = Mail(app)
 
 
-
 from backend.create_database import db_create
 from backend.drop_database import db_drop
 from backend.insert_db_data import db_insert_data
