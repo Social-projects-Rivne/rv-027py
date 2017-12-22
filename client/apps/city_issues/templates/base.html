@@ -57,10 +57,9 @@
             {% endif %}
             {% if user.is_staff or user.is_superuser %}
                 <div class="navbar-form navbar-left">
-                    <a href="" type="button" class="btn btn-md btn-info">
-                        <span class="glyphicon glyphicon-cog"></span> Moderator panel
-                    </a>
-                </div>
+                <a href="{% url 'modpanel' %}" type="button" class="btn btn-md btn-info">
+                    Moderator panel
+                </a>
             {% else %}
             {% endif %}
 
