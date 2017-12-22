@@ -77,6 +77,49 @@ class EditIssue(forms.ModelForm):
                   'location_lon', 'description']
 
 
+class ModEditForm(forms.ModelForm):
+    """Form edit issue for moderator"""
+
+    class Meta:
+        model = Issues
+        fields = ['title', 'description', 'category',
+                  'location_lat', 'location_lon', 'status']
+
+    title = forms.CharField(
+        max_length=35,
+        min_length=3,
+        widget=forms.TextInput(attrs={'class': 'form-control'}),
+    )
+
+    description = forms.CharField(
+        max_length=350,
+        min_length=5,
+        widget=forms.Textarea(attrs={'class': 'form-control', 'rows': '5'}),
+    )
+
+    location_lat = forms.FloatField(
+        widget=forms.TextInput(
+            attrs={'class': 'form-control', 'readonly': 'readonly'}),
+    )
+
+    location_lon = forms.FloatField(
+        widget=forms.TextInput(
+            attrs={'class': 'form-control', 'readonly': 'readonly'}),
+    )
+
+    category = forms.ModelChoiceField(
+        queryset=Category.objects.all(),
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        empty_label=None
+    )
+
+    status = forms.ModelChoiceField(
+        queryset=Statuses.objects.all(),
+        empty_label=None,
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+
+
 class IssueFilter(forms.Form):
     """Issue filter form on map."""
     date_from = forms.DateField(
