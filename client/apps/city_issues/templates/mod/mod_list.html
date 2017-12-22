@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% load bootstrap3%}
+
+{% block meta_title %}Moderation Panel{% endblock meta_title %}
+
+{% block content %}
+
+<div class="container">
+    <div class="row">
+        <div class="page-header text-center">
+          <h1><small>{{ title }}</small></h1>
+<form action="{% url 'modpanel' %}" class="navbar-form navbar-center" method="get">
+    <div class="input-group">
+        <input id="search" name="q" type="text" class="form-control" placeholder="Search">
+        <span class="input-group-btn">
+            <button type="submit" class="btn btn-default">{% bootstrap_icon 'search' %}</button>
+        </span>
+    </div>
+</form>
+
+        </div>
+    </div>
+
+<div class="table-responsive">
+            <table class="table table-hover">
+                <tr>
+                    <th>Title</th>
+                    <th>Status</th>
+                    <th>User</th>
+                    <th>Category</th>
+                    <th>Open date</th>
+                    <th>Delete date</th>
+                    <th></th>
+                    <th></th>
+                </tr>
+                {% for issue in issues_list %}
+                    <tr>
+                        <td><a href='{{ issue.get_absolute_url }}'>{{ issue.title }}</a></td>
+                        <td>{{ issue.status }}</td>
+                        <td>{{ issue.user }}</td>
+                        <td>{{ issue.category }}</td>
+                        <td>{{ issue.open_date }}</td>
+                        <td>{{ issue.delete_date }}</td>
+                        <td><a href='{{ issue.get_absolute_url }}' class="btn btn-md btn-info">
+                            <span class="glyphicon glyphicon-cog"></span></a></td>
+                        {% if not issue.delete_date %}
+                            <td><a class="btn btn-danger"  href="{% url "delete_issue" issue.id%}"><span class="glyphicon glyphicon-trash"></span></a></td>
+                        {% else %}
+                            <td>
+                                <a class="btn btn-success" href="{% url "restore_issue" issue.id%}"><span class="glyphicon glyphicon-refresh"></span></a>
+                            </td>
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+
+            </table>
+        </div>
+
+{% bootstrap_pagination issues_list url=last_query %}
+
+</div>
+
+{% endblock content %}
