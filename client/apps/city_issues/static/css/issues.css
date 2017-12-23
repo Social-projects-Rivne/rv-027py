@@ -103,3 +103,7 @@
 .modal-body h3{
   text-align: center;
 }
+
+.status {
+    min-width: 80px;
+}
