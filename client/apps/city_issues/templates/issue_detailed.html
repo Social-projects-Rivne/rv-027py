@@ -48,7 +48,7 @@
                       <tr>
                         <td>
                           <h5>User {{ com.user.name }} {{ com.date_public }}</h5>
-                          <p style="text-indent:20px;">{{ com.comment }}</p>
+                          <p style="text-indent:20px;">{{ com.comment|linebreaksbr }}</p>
                         </td>
                         <td>
                           {%if user.is_authenticated and user.role.id == 1 or user.role.id == 2  %}
