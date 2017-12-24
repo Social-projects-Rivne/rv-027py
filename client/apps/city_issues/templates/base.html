@@ -47,9 +47,9 @@
                         href="{% url 'user_profile' %}">{{ user.email }}</a></p>
             {% else %}
                 <a href="{% url "accounts:auth_login" %}"
-                   class="navbar-text navbar-right">Log in</a>
-                <a href="{% url "accounts:registration_register" %}"
                    class="navbar-text navbar-right">Sign in</a>
+                <a href="{% url "accounts:registration_register" %}"
+                   class="navbar-text navbar-right">Sign up</a>
                 <a href="{% url "issues" %}"
                    class="navbar-text navbar-right">All Issues</a>
                 <a href="{% url "map" %}"
