@@ -31,14 +31,13 @@ class Attachments(models.Model):
     def delete(self, *args, **kwargs):
         # pylint: disable=no-member
         storage, path = self.image_url.storage, self.image_url.path
-        # pylint: enable=no-member
         super(Attachments, self).delete(*args, **kwargs)
         directory_path = os.path.abspath(os.path.join(path, os.pardir))
 
         head, tail = os.path.split(self.image_url.path)
         thumb_name = "thumb-{}".format(tail)
-
         thumb_storage, thumb_path = self.image_url.storage, os.path.join(directory_path, thumb_name)
+        # pylint: enable=no-member
 
         storage.delete(path)
         thumb_storage.delete(thumb_path)
