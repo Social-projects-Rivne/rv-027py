@@ -3,6 +3,7 @@
 
 import os
 
+from flask import current_app
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.sql.functions import func
 
@@ -19,6 +20,26 @@ class Attachment(db.Model):
     image_url = db.Column(db.Text)
 
     issue = db.relationship(u'Issue')
+
+    def get_thumbnail_url(self):
+        head, tail = os.path.split(self.image_url)
+        thumb_name = "thumb-{}".format(tail)
+        return os.path.join(head, thumb_name)
+
+    def delete(self):
+        delete_file(self.image_url)
+        delete_file(self.get_thumbnail_url())
+        db.session.delete(self)
+        db.session.commit()
+        directory_path = os.path.abspath(os.path.join(
+            current_app.config['MEDIA_FOLDER'], self.image_url, os.pardir))
+        if not os.listdir(directory_path):
+            os.rmdir(directory_path)
+
+
+def delete_file(url):
+    file_path = os.path.abspath(os.path.join(current_app.config['MEDIA_FOLDER'], url))
+    os.remove(file_path)
 
 
 class Category(db.Model):
@@ -118,29 +139,17 @@ class Comments(db.Model):
 
 def get_all_issue_history(issue_id):
     """Method return all issue history and comments sorted by date."""
-    history = db.session.query(
+    all_history = db.session.query(
         IssueHistory).filter(IssueHistory.issue_id == issue_id).order_by(
             IssueHistory.transaction_date).all()
     comments = db.session.query(Comments).filter(
         Comments.issue_id == issue_id).order_by(Comments.date_public).all()
     list_history = []
-    for histor in history:
-        list_history.append(['change_status', histor.status.status,
-                             histor.user.alias, histor.transaction_date.strftime('%Y-%m-%d %H:%M')])
+    for history in all_history:
+        list_history.append(['change_status', history.status.status, history.user.alias,
+                             history.transaction_date.strftime('%Y-%m-%d %H:%M')])
     for comment in comments:
         list_history.append(['add_comment', comment.user.alias,
                              comment.comment, comment.date_public.strftime('%Y-%m-%d %H:%M')])
     list_history.sort(key=lambda history: history[3])
     return list_history
-
-
-def get_all_thumbnails(issue_id):
-    """Method return thumbnails url"""
-    attachments = db.session.query(
-        Attachment).filter(Attachment.issue_id == issue_id).all()
-    url_thumbnail = []
-    for attachment in attachments:
-        head, tail = os.path.split(attachment.image_url)
-        tail = '-'.join(['thumb', tail])
-        url_thumbnail.append(os.path.join(head, tail))
-    return url_thumbnail

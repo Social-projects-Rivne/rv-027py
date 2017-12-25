@@ -17,4 +17,9 @@ $( document ).ready(function() {
         $(".modal-body").text(bodyText);
         $("#delete-elem").attr('action', '/'+funcName+elemName+'/' + elemId);
     });
+
+    $('#deleteModal').on('show.bs.modal', function(e) {
+        var imageID =  $(e.relatedTarget).data('attach-id');
+        $('input[name=attachment-id]').val(imageID);
+    });
 });

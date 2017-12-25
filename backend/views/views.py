@@ -10,7 +10,7 @@ from sqlalchemy import and_
 from backend.app import app, db, mail
 from backend.forms.forms import (IssueForm, LoginForm, SearchUserForm,
                                  SearchIssuesForm, UserForm, UserAddForm)
-from backend.models.issues import Category, get_all_issue_history, get_all_thumbnails, Issue
+from backend.models.issues import Attachment, Category, get_all_issue_history, Issue
 from backend.models.users import Role, User, user_search
 
 
@@ -296,8 +296,19 @@ def media_dir(url):
 @admin_permissions
 def issue_info(issue_id):
     """Route for issue page"""
-    issue_one = db.session.query(Issue).get(issue_id)
+    issue = db.session.query(Issue).get(issue_id)
     list_history = get_all_issue_history(issue_id)
-    url_thumbnails = get_all_thumbnails(issue_id)
-    return render_template('issue.html', issue=issue_one, list_history=list_history,
-                           url_thumbnails=url_thumbnails)
+    attachments = db.session.query(Attachment).filter(Attachment.issue_id == issue_id).all()
+    return render_template('issue.html', issue=issue, list_history=list_history,
+                           attachments=attachments)
+
+
+@app.route('/deleteimage', methods=['POST'])
+@admin_permissions
+def delete_image():
+    """Route for deleting attachment."""
+    attachment_id = request.form['attachment-id']
+    attachment = db.session.query(Attachment).get(attachment_id)
+    issue_id = attachment.issue_id
+    attachment.delete()
+    return redirect(url_for('issue_info', issue_id=issue_id))
