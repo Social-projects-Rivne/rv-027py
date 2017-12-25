@@ -9,10 +9,14 @@
 {% endblock navbar_li %}
 
 {% block content %}
-    <form action="{{ url_for('issues_page') }}" method="GET">
-        <h5> Search issue: {{form.search(size=40)}} search by: {{form.search_by() }}  sort by: {{form.order_by()}}
-            <input type="submit" value="Search"> </h5>
+    <form class="form-inline" action="{{ url_for('issues_page') }}" method="GET">
+        <h4> Search issue: {{form.search(size=40, class="form-control")}}
+            search by: {{form.search_by(class="form-control") }}
+            sort by: {{form.order_by(class="form-control")}}
+            <input class="btn btn-primary" type="submit" value="Search">
+        </h4>
 </form>
+<br>
 <div class="table-responsive">
     <table class="table table-hover">
            <tr>
