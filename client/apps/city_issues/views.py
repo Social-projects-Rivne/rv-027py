@@ -13,10 +13,12 @@ from django.db.models import Q
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import update_session_auth_hash
+from django.contrib.postgres.search import SearchVector
 from django.core import serializers
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.core.exceptions import PermissionDenied
 from django.http import JsonResponse, HttpResponse, HttpResponseRedirect
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect, render, get_object_or_404
 from django.utils.timezone import make_aware
 from django.views import View
 from django.views.generic import CreateView, FormView, ListView, TemplateView
@@ -25,12 +27,12 @@ from django.views.generic.edit import UpdateView
 from django.urls import reverse
 
 from city_issues.models import Attachments, Issues, IssueHistory, User, \
-    Comments
+    Comments, Category
 from city_issues.forms.forms import (EditIssue, IssueFilter, IssueForm,
                                      IssueFormEdit, IssueSearchForm,
                                      EditUserForm, CommentsOnMapForm,
                                      IssueFormEditWithoutStatus,
-                                     InternalCommentsForm)
+                                     InternalCommentsForm, ModEditForm)
 from city_issues.mixins import LoginRequiredMixin
 from city_issues.thumbnails import create_thumbnail
 
@@ -334,6 +336,86 @@ def issue_action(request, issue_id):
             return JsonResponse({'result': 'success'}, safe=False)
 
     raise PermissionDenied("You are not allowed to change issue")
+
+
+def mod_list_panel(request):
+    """ A moderator list of issues"""
+    if request.user.is_superuser or request.user.is_staff:
+        issues_list = Issues.objects.all()
+        context = {'title': 'Moderator Panel:'}
+
+        order_by = request.GET.get('order_by', '')
+        if order_by in ('title', 'status', 'user', 'category', 'open_date'):
+            issues_list = issues_list.order_by(order_by)
+            if request.GET.get('reverse', '') == '1':
+                issues_list = issues_list.reverse()
+
+        query = request.GET.get('q')
+        if query is not None:
+            issues_list = Issues.objects.annotate(search=SearchVector('title', 'status', 'category__category',
+                                                                      config='english')).filter(search=query)
+            context['last_query'] = '?q=%s' % query
+
+        current_page = Paginator(issues_list, 10)
+        page = request.GET.get('page')
+        try:
+            context['issues_list'] = current_page.page(page)
+        except PageNotAnInteger:
+
+            context['issues_list'] = current_page.page(1)
+        except EmptyPage:
+
+            context['issues_list'] = current_page.page(current_page.num_pages)
+
+        if page == '1':
+            return redirect('modpanel', permanent=True)
+    else:
+        context = {'title': 'You have not permission to this page'}
+        return render(request, 'mod/permission.html', context)
+    return render(request, 'mod/mod_list.html', context)
+
+
+def mod_edit_issue(request, pk=None):
+    """A moderator edit issues"""
+    issues = get_object_or_404(Issues, pk=pk)
+    form = ModEditForm(request.POST or None, instance=issues)
+    if form.is_valid():
+        issues = form.save(commit=False)
+        issues.save()
+        messages.success(request, "Successfully Update")
+        return HttpResponseRedirect(issues.get_absolute_url())
+    context = {
+        "title": issues.title,
+        "issue": issues,
+        "form": form,
+    }
+    return render(request, "mod/mod_edit.html", context)
+
+
+def delete_issue(request, pk):
+    """Route for deleting issue."""
+    issue = get_object_or_404(Issues, pk=pk)
+    if request.method == "POST":
+        issue.mod_delete()
+        issue.save()
+        return redirect("modpanel")
+    context = {
+        "issue": issue
+    }
+    return render(request, "mod/confirm_delete.html", context)
+
+
+def restore_issue(request, pk):
+    """Route for restoring issue."""
+    issue = get_object_or_404(Issues, pk=pk)
+    if request.method == "POST":
+        issue.mod_restore()
+        issue.save()
+        return redirect("modpanel")
+    context = {
+        "issue": issue
+    }
+    return render(request, "mod/confirm_restore.html", context)
 
 
 def comment_delete(request, issue_id, comment_id):

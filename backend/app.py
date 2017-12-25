@@ -4,6 +4,7 @@ from flask import Flask
 from flask_bootstrap import Bootstrap
 from flask_wtf.csrf import CSRFProtect
 from flask_sqlalchemy import SQLAlchemy
+from flask_mail import Mail
 
 
 app = Flask(__name__)
@@ -11,6 +12,7 @@ app.config.from_object('backend.config.DevelopmentConfig')
 db = SQLAlchemy(app)
 Bootstrap(app)
 CSRFProtect(app)
+mail = Mail(app)
 
 
 from backend.create_database import db_create

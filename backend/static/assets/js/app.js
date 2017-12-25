@@ -15,6 +15,6 @@ $( document ).ready(function() {
         $(".modal-title").text("Confirm operation of \"" + name+"\"");
         $(".button-confirm").text(buttonText);
         $(".modal-body").text(bodyText);
-        $("#delete-user").attr('action', '/'+funcName+elemName+'/' + elemId);
+        $("#delete-elem").attr('action', '/'+funcName+elemName+'/' + elemId);
     });
 });

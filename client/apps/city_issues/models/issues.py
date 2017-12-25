@@ -11,6 +11,7 @@ from django.conf import settings
 from django.db import models
 from django.db.models import Q
 from django.utils.timezone import make_aware
+from django.core.urlresolvers import reverse
 
 ROLE_ADMIN = 1
 ROLE_MODERATOR = 2
@@ -264,6 +265,23 @@ class Issues(models.Model):
         }
 
         return dict_of_actions
+
+    def get_absolute_url(self):
+        return reverse("mod_edit", kwargs={"pk": self.pk})
+
+    def mod_delete(self):
+        """Setting deleting date for issue"""
+        if not self.delete_date:
+            self.delete_date = datetime.now()
+            return True
+        return False
+
+    def mod_restore(self):
+        """Restoring issue from deletion"""
+        if self.delete_date:
+            self.delete_date = None
+            return True
+        return False
 
 
 class Comments(models.Model):
