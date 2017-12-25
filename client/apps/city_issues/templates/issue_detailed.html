@@ -6,7 +6,9 @@
 {% block meta_title %}Detailed Issue{% endblock meta_title %}
 
 {% block content %}
-
+{% block extra_css %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/issues.css' %}"/>
+    {% endblock extra_css %}
 <div class="container">
     <div class="row">
         <div class="page-header text-center">
@@ -43,10 +45,25 @@
         </table>
            <div class="row">
                 <h3>Comments: </h3>
-                {% for com in  object.comments_set.all %}
-                    <h5>User {{ com.user.name }} {{ com.date_public }}</h5>
-                    <p style="text-indent:20px;">{{ com.comment }}</p>
-                {% endfor %}
+                  <table>
+                      {% for com in  object.comments_set.all %}
+                      <tr>
+                        <td>
+                          <h5>User {{ com.user.name }} {{ com.date_public }}</h5>
+                          <p style="text-indent:20px;">{{ com.comment|linebreaksbr }}</p>
+                        </td>
+                        <td>
+                          {%if user.is_authenticated and user.role.id == 1 or user.role.id == 2  %}
+                            {% if com.status != 'deleted' %}
+                            <a class="btn btn-danger status" data-toggle="modal" data-target="#deletion" data-elem-id="{{ com.id }}" data-func-name="delete" data-elem-name="comment" data-elem-name="comment" data-issue-id="{{ object.pk }}">Delete</a>
+                            {% elif com.status == 'deleted' %}
+                            <a class="btn btn-success status" data-toggle="modal" data-target="#deletion" data-elem-id="{{ com.id }}" data-func-name="restore" data-elem-name="comment" data-issue-id="{{ object.pk }}">Restore</a>
+                            {% endif %}
+                          {% endif %}
+                        </td>
+                      </tr>
+                    {% endfor %}
+                  </table>
              <form action="{% url 'issue-comment' object.pk %}" method="POST">
                 {% csrf_token %}
                  <div class="col-md-6">
@@ -63,4 +80,28 @@
     </div>
 </div>
 
+<div class="modal fade" id="deletion" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title"></h4>
+      </div>
+      <div class="modal-body"> </div>
+      <div class="modal-footer">
+        <form id="delete-comment" method="post" action="#">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-danger button-confirm"> </button>
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
 {% endblock content %}
+
+{% block extra_js %}
+{% load static %}
+  <script type="text/javascript" src="{% static "city_issues/js/app.js" %}"></script>
+{% endblock extra_js %}

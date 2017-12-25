@@ -96,9 +96,25 @@ issue19 = Issue(title='Ugly hounds', user_id='1', category_id='4', location_lat=
                 open_date='2017/12/04')
 
 
-attachment1 = Attachment(issue_id='1', image_url=None)
-attachment2 = Attachment(issue_id='2', image_url=None)
-attachment3 = Attachment(issue_id='3', image_url=None)
+attachment1 = Attachment(issue_id='1', image_url='uploads/Car crash/car-crash.jpg')
+attachment2 = Attachment(issue_id='2', image_url='uploads/Trolleybus is broken/trolleybus-broken.jpg')
+attachment3 = Attachment(issue_id='3', image_url='uploads/Prohibited parking/prohibited-parking.jpg')
+attachment4 = Attachment(issue_id='4', image_url='uploads/Stolen car wheels/stolen-wheels.jpg')
+attachment5 = Attachment(issue_id='5', image_url='uploads/Heavy traffic/heavy-traffic.jpg')
+attachment6 = Attachment(issue_id='6', image_url='uploads/No electricity/no-electricity.jpg')
+attachment7 = Attachment(issue_id='7', image_url='uploads/No water/no-water.jpg')
+attachment8 = Attachment(issue_id='8', image_url='uploads/Gas smell/gas-smell.jpg')
+attachment9 = Attachment(issue_id='9', image_url='uploads/Fire alarm/fire-alarm.jpg')
+attachment10 = Attachment(issue_id='10', image_url='uploads/Broken tree/broken-tree.jpg')
+attachment11 = Attachment(issue_id='11', image_url='uploads/Street musician/street-musician.jpg')
+attachment12 = Attachment(issue_id='12', image_url='uploads/Bad company/bad-company.jpg')
+attachment13 = Attachment(issue_id='13', image_url='uploads/Beer fest/beer-fest.jpg')
+attachment14 = Attachment(issue_id='14', image_url='uploads/Prankers/prankers.jpg')
+attachment15 = Attachment(issue_id='15', image_url='uploads/Dog lost/dog-lost.jpg')
+attachment16 = Attachment(issue_id='16', image_url='uploads/Cat lost/lost-cat.jpg')
+attachment17 = Attachment(issue_id='17', image_url='uploads/Dog found/dog-found.jpg')
+attachment18 = Attachment(issue_id='18', image_url='uploads/Poor puppies/poor-puppies.jpg')
+attachment19 = Attachment(issue_id='19', image_url='uploads/Ugly hounds/ugly-hounds.jpg')
 
 
 issueHistory1 = IssueHistory(user_id='1', issue_id='1', status_id='1',
@@ -145,7 +161,11 @@ def db_insert_data():
                         issueHistory1, issueHistory2, issueHistory3,
                         issueHistory4, issueHistory5, issueHistory6,
                         issueHistory7,
-                        attachment1, attachment2, attachment3,
+                        attachment1, attachment2, attachment3, attachment4,
+                        attachment5, attachment6, attachment7, attachment8,
+                        attachment9, attachment10, attachment11, attachment12,
+                        attachment13, attachment14, attachment15, attachment16,
+                        attachment17, attachment18, attachment19,
                         comment1, comment2, comment3, comment4, comment5])
     db.session.commit()
 

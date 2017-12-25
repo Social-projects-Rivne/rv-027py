@@ -8,15 +8,17 @@
     {% load static %}
     <link rel="stylesheet" type="text/css" href="{% static 'css/user_page.css' %}"/>
     <link rel="stylesheet" type="text/css" href="{% static 'css/general.css' %}"/>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/chat.css' %}"/>
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css"/>
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.16/css/dataTables.bootstrap.min.css"/>
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
 {% endblock extra_css %}
 
 
 {% block content %}
     <div class="wrapper">
         <div class="width">
-             <div class="row">
+             <div class="row errors-messages">
                 {% if messages %}
                     <ul class="messages">
                         {% for message in messages %}
@@ -31,9 +33,6 @@
             <div class="panel panel-info">
                 <div class="panel-heading">
                     <h3 class="panel-title">{{ user.name|default_if_none:"Name is not defined" }}</h3>
-                    <a type="button" class="btn btn-sm btn-primary pull-right user_message">
-                        <i class="glyphicon glyphicon-envelope"></i>
-                    </a>
                 </div>
                 <div class="panel-body">
                     <div class="row">
@@ -82,6 +81,7 @@
                     <th>Status</th>
                     <th>Open date</th>
                     <th>Close date</th>
+                    <th>Moderator comment</th>
                     <th></th>
                 </tr>
                 </thead>
@@ -93,6 +93,7 @@
                     <th>Status</th>
                     <th>Open date</th>
                     <th>Close date</th>
+                    <th>Moderator comment</th>
                     <th></th>
                 </tr>
                 </tfoot>
@@ -105,6 +106,12 @@
                         <td>{{ issue.status }}</td>
                         <td>{{ issue.open_date|date:"d/m/y" }}</td>
                         <td>{{ issue.close_date|default_if_none:"" }}</td>
+                        <td>
+                            <button data-url="{% url 'internal-comment' issue.id %}" data-store-url="{% url 'store-internal-comment' issue.id %}"
+                                    class="btn btn-sm btn-warning comments"  data-toggle="modal" data-target="#internal-comments">
+                                <i class="glyphicon glyphicon-envelope"></i>
+                            </button>
+                        </td>
                         <td>
                            <a href="{% url 'edit_issue' issue.id %}"
                               class="btn btn-sm btn-info">
@@ -119,28 +126,9 @@
         </div>
     </div>
 
-    <div class="modal fade" id="edit-user-modal" tabindex="-1" role="dialog" aria-labelledby="user-modal" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">Edit credentials</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-        <form action="{% url 'user_profile'  %}" method="post">
-            {% csrf_token %}
-            <div class="modal-body">
-                  {{ form.as_p }}
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button type="submit" class="btn btn-primary">Save changes</button>
-            </div>
-        </form>
-    </div>
-  </div>
-</div>
+{% include 'user/edit-modal.html' %}
+
+{% include 'user/chat.html' %}
 
 {% endblock content %}
 
@@ -150,6 +138,7 @@
     <script src="https://cdn.datatables.net/1.10.16/js/dataTables.bootstrap.min.js"></script>
     {% load static %}
     <script type="text/javascript" src="{% static "js/general.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/internal-comments.js" %}"></script>
     <script>
         $(document).ready(function ()
         {
@@ -160,6 +149,8 @@
             {
              $('#edit-user-modal').modal('show');
             }
+
+            new InternalComments('{{ user.id }}');
         });
     </script>
 {% endblock extra_js %}

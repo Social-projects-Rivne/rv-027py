@@ -16,6 +16,7 @@ export FLASK_DEBUG=1
 ```
 flask initdb
 flask insertdata
+flask download_and_extract_images
 ```
 ### Provide migrations
 ```
