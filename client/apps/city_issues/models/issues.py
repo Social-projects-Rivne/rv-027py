@@ -11,6 +11,7 @@ from django.conf import settings
 from django.db import models
 from django.db.models import Q
 from django.utils.timezone import make_aware
+from django.core.urlresolvers import reverse
 
 ROLE_ADMIN = 1
 ROLE_MODERATOR = 2
@@ -31,11 +32,16 @@ class Attachments(models.Model):
     def delete(self, *args, **kwargs):
         # pylint: disable=no-member
         storage, path = self.image_url.storage, self.image_url.path
-        # pylint: enable=no-member
         super(Attachments, self).delete(*args, **kwargs)
         directory_path = os.path.abspath(os.path.join(path, os.pardir))
 
+        head, tail = os.path.split(self.image_url.path)
+        thumb_name = "thumb-{}".format(tail)
+        thumb_storage, thumb_path = self.image_url.storage, os.path.join(directory_path, thumb_name)
+        # pylint: enable=no-member
+
         storage.delete(path)
+        thumb_storage.delete(thumb_path)
         if not os.listdir(directory_path):
             os.rmdir(directory_path)
 
@@ -259,6 +265,23 @@ class Issues(models.Model):
         }
 
         return dict_of_actions
+
+    def get_absolute_url(self):
+        return reverse("mod_edit", kwargs={"pk": self.pk})
+
+    def mod_delete(self):
+        """Setting deleting date for issue"""
+        if not self.delete_date:
+            self.delete_date = datetime.now()
+            return True
+        return False
+
+    def mod_restore(self):
+        """Restoring issue from deletion"""
+        if self.delete_date:
+            self.delete_date = None
+            return True
+        return False
 
 
 class Comments(models.Model):
