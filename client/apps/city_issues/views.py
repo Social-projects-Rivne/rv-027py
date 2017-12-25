@@ -24,13 +24,15 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import UpdateView
 from django.urls import reverse
 
-from city_issues.models import Attachments, Issues, IssueHistory, User, Comments
+from city_issues.models import Attachments, Issues, IssueHistory, User, \
+    Comments
 from city_issues.forms.forms import (EditIssue, IssueFilter, IssueForm,
-                                     IssueFormEdit, IssueSearchForm, EditUserForm, CommentsOnMapForm,
-                                     IssueFormEditWithoutStatus)
+                                     IssueFormEdit, IssueSearchForm,
+                                     EditUserForm, CommentsOnMapForm,
+                                     IssueFormEditWithoutStatus,
+                                     InternalCommentsForm)
 from city_issues.mixins import LoginRequiredMixin
 from city_issues.thumbnails import create_thumbnail
-
 
 ROLE_ADMIN = 1
 ROLE_MODERATOR = 2
@@ -48,6 +50,7 @@ class HomePageView(TemplateView):
 class UserProfileView(View):
     """User profile page"""
     form_class = EditUserForm
+    form_comments_class = InternalCommentsForm
     success_url = 'user_profile'
     template_name = 'user/user.html'
 
@@ -58,7 +61,8 @@ class UserProfileView(View):
 
         return render(request, self.template_name, {'user': user,
                                                     'user_issues': user_issues,
-                                                    'form': form})
+                                                    'form': form,
+                                                    'comments_form': self.form_comments_class})
 
     def post(self, request):
         user = User.objects.get(id=request.user.id)
@@ -79,6 +83,32 @@ class UserProfileView(View):
                           {'form': form, 'has_error': 'error'})
 
         return redirect(self.success_url)
+
+    @classmethod
+    def get_internal_comments(cls, request, issue_id):
+        internal_comments = Comments.objects.filter(issue_id=issue_id,
+                                                    status='internal').select_related(
+            "user_id").values('comment', 'user_id', 'user__alias',
+                              'date_public')
+
+        return JsonResponse({'comments': list(internal_comments)})
+
+    @classmethod
+    def store_internal_comments(cls, request, issue_id):
+        form = UserProfileView.form_comments_class(request.POST)
+
+        if form.is_valid():
+            comment = Comments()
+            comment.comment = form.cleaned_data['comment']
+            comment.issue_id = issue_id
+            comment.user_id = request.user.id
+            comment.status = 'internal'
+            comment.date_public = datetime.now()
+            comment.save()
+
+            return JsonResponse({'answer': 'success'})
+        else:
+            return JsonResponse(form.errors.as_json(), status=400, content_type='application/json', safe=False)
 
 
 class IssueCreate(CreateView):
@@ -133,11 +163,13 @@ def map_page_view(request):
         form.fields.pop('show_new')
         form.fields.pop('show_pending_close')
 
-    if request.user.is_authenticated() and request.user.role.id not in (ROLE_ADMIN, ROLE_MODERATOR):
+    if request.user.is_authenticated() and request.user.role.id not in (
+            ROLE_ADMIN, ROLE_MODERATOR):
         form.fields.pop('show_deleted')
 
     comment_form = CommentsOnMapForm()
-    return render(request, 'map_page.html', {'form': form, 'comment_form': comment_form})
+    return render(request, 'map_page.html',
+                  {'form': form, 'comment_form': comment_form})
 
 
 def get_issue_data(request, issue_id):
@@ -184,7 +216,8 @@ class CheckIssues(ListView, FormView):
         if search:
             query_list = search.split()
             queryset = queryset.filter(
-                reduce(operator.or_, (Q(title__icontains=q) for q in query_list)) |
+                reduce(operator.or_,
+                       (Q(title__icontains=q) for q in query_list)) |
                 reduce(operator.or_, (Q(description__icontains=q)
                                       for q in query_list))
             )
@@ -242,7 +275,8 @@ class CommentIssues(LoginRequiredMixin, CreateView):
         form.issue = issue
         form.user = user
         form.save()
-        return redirect(reverse('issue-comment', kwargs={'pk': self.kwargs['pk']}))
+        return redirect(
+            reverse('issue-comment', kwargs={'pk': self.kwargs['pk']}))
 
     def form_invalid(self, form):
         return super(CommentIssues, self).form_invalid(form)
