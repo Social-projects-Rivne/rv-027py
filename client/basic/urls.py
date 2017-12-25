@@ -38,7 +38,6 @@ urlpatterns = [
     url(r'^modpanel/(?P<pk>\d+)/edit/$', mod_edit_issue, name='mod_edit'),
     url(r'^modpanel/(?P<pk>\d+)/delete/$', delete_issue, name='delete_issue'),
     url(r'^modpanel/(?P<pk>\d+)/restore/$', restore_issue, name='restore_issue'),
-    url(r'^modpanel/(?P<pk>\d+)/restore/$', restore_issue, name='restore_issue'),
 
     url(r'^map/$', map_page_view, name='map'),
     url(r'^map/getissuebyid/(?P<issue_id>[0-9]+)$',
