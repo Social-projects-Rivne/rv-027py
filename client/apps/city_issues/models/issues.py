@@ -35,7 +35,13 @@ class Attachments(models.Model):
         super(Attachments, self).delete(*args, **kwargs)
         directory_path = os.path.abspath(os.path.join(path, os.pardir))
 
+        head, tail = os.path.split(self.image_url.path)
+        thumb_name = "thumb-{}".format(tail)
+
+        thumb_storage, thumb_path = self.image_url.storage, os.path.join(directory_path, thumb_name)
+
         storage.delete(path)
+        thumb_storage.delete(thumb_path)
         if not os.listdir(directory_path):
             os.rmdir(directory_path)
 
