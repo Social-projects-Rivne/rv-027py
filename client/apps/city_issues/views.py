@@ -115,7 +115,7 @@ class IssueCreate(CreateView):
                 attachment.issue = issue
                 attachment.image_url = issue_file
                 attachment.save()
-                create_thumbnail(issue_file, issue.title, issue_file.name)
+                create_thumbnail(issue_file, issue.title, attachment.image_url.url)
 
     def save_issue_history(self, issue, user):
         issue_history = IssueHistory()
