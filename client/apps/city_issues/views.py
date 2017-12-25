@@ -309,6 +309,13 @@ def mod_list_panel(request):
     if request.user.is_superuser or request.user.is_staff:
         issues_list = Issues.objects.all()
         context = {'title': 'Moderator Panel:'}
+
+        order_by = request.GET.get('order_by', '')
+        if order_by in ('title', 'status', 'user', 'category', 'open_date'):
+            issues_list = issues_list.order_by(order_by)
+            if request.GET.get('reverse', '') == '1':
+                issues_list = issues_list.reverse()
+
         query = request.GET.get('q')
         if query is not None:
             issues_list = Issues.objects.annotate(search=SearchVector('title', 'status', 'category__category',
