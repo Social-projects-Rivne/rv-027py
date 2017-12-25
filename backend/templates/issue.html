@@ -40,9 +40,12 @@
         </dl> 
         <hr>
         <div class="row">
-        {% for url in url_thumbnails %}
+        {% for attachment in attachments %}
             <div class="col-md-3" >
-                <img class="img-thumbnail" src="{{url_for('media_dir', url=url)}}" alt="{{url_for('media_dir', url=url)}}">
+                <a class="del-img btn-xs btn-danger" data-attach-id="{{ attachment.id }}"
+                    data-toggle="modal" data-target="#deleteModal"> &times; </a>
+                <img class="img-thumbnail" src="{{ url_for('media_dir', url=attachment.get_thumbnail_url()) }}"
+                    alt="{{url_for('media_dir', url=attachment.get_thumbnail_url()) }}">
             </div>
         {% endfor %}
         </div>
@@ -85,4 +88,31 @@
 
         </div>
       </div>
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog"
+         aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"
+                            aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form action="{{ url_for('delete_image') }}" method="post">
+                    <div class="modal-body">
+                        <h3>Are you sure delete this image?</h3>
+                        <input type="hidden" value="" name="attachment-id"/>
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary"
+                                data-dismiss="modal">Close
+                        </button>
+                        <button type="submit" class="btn btn-danger">Delete
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 {% endblock %}
