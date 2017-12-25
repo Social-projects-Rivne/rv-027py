@@ -41,7 +41,7 @@ def admin_permissions(function):
 @admin_permissions
 def admin():
     """Admin page route."""
-    return render_template('admin_page.html')
+    return redirect(url_for('issues_page'))
 
 
 @app.route('/userpage', methods=['GET', 'POST'])
