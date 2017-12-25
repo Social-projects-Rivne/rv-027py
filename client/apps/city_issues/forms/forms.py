@@ -298,3 +298,13 @@ class CommentsOnMapForm(forms.Form):
     class Meta:
         model = Comments
         fields = ['comment']
+
+
+class InternalCommentsForm(forms.Form):
+    """Internal comments form."""
+
+    comment = forms.CharField(
+        label='',
+        min_length=1,
+        max_length=100,
+        widget=forms.TextInput({'class': 'form-control', 'placeholder': 'Type Message ...'}))

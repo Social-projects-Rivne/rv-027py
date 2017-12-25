@@ -36,6 +36,8 @@ urlpatterns = [
     url(r'^issueaction/(?P<issue_id>[0-9]+)/$', issue_action, name='issue-action'),
     url(r'^deletecomment/(?P<issue_id>[0-9]+)/(?P<comment_id>[0-9]+)/$', comment_delete, name='comment-delete'),
     url(r'^restorecomment/(?P<issue_id>[0-9]+)/(?P<comment_id>[0-9]+)/$', comment_restore, name='comment-restore'),
+    url(r'^internal-comments/(?P<issue_id>[0-9]+)/$', UserProfileView.get_internal_comments, name='internal-comment'),
+    url(r'^store/internal-comments/(?P<issue_id>[0-9]+)/$', UserProfileView.store_internal_comments, name='store-internal-comment'),
 
     url(r'^map/$', map_page_view, name='map'),
     url(r'^map/getissuebyid/(?P<issue_id>[0-9]+)$',
