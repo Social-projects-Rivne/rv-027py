@@ -325,6 +325,9 @@ def mod_list_panel(request):
         except EmptyPage:
 
             context['issues_list'] = current_page.page(current_page.num_pages)
+
+        if page == '1':
+            return redirect('modpanel', permanent=True)
     else:
         context = {'title': 'You have not permission to this page'}
         return render(request, 'mod/permission.html', context)
