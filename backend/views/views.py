@@ -1,12 +1,13 @@
 """This module generates routes for admin panel"""
 from functools import wraps
 from urllib import urlencode
+from flask_mail import Mail, Message
 
 from flask import (current_app, flash, redirect, request, render_template,
                    send_from_directory, session, url_for)
 from sqlalchemy import and_
 
-from backend.app import app, db
+from backend.app import app, db, mail
 from backend.forms.forms import (IssueForm, LoginForm, SearchUserForm,
                                  SearchIssuesForm, UserForm, UserAddForm)
 from backend.models.issues import Attachment, Category, get_all_issue_history, Issue
@@ -29,7 +30,7 @@ def admin_permissions(function):
     def wrapper(*args, **kwargs):
         """Wrapper for routes."""
         if 'user_id' not in session or session['role_id'] != ROLE_ADMIN:
-            flash("No access")
+            flash("No access", category="danger")
             return redirect(url_for('login'))
         return function(*args, **kwargs)
 
@@ -69,7 +70,7 @@ def user_page(num_page=1):
                 per_page=PAGINATE_PAGE, page=num_page, error_out=True)
 
         if msg:
-            flash("Search string is too small")
+            flash("Search string is too small", category="danger")
         return render_template('user_page.html', form=form, users=search_users,
                                get="?" + urlencode(request.args))
     else:
@@ -96,10 +97,24 @@ def user_add():
         newuser.password = form.password.data
         db.session.add(newuser)
         db.session.commit()
-        flash("User added")
+        password = form.password.data
+        subject = "Add User"
+        msg = Message(app.config['ADMIN_MAIL_SUBJECT_PREFIX'] + ' ' + subject, sender=app.config['ADMIN_MAIL_SENDER'],
+                      recipients=[newuser.email])
+        msg.body = """
+                              From: %s to <%s>
+                              Email: %s
+                              Name: %s
+                              Alias: %s
+                              Password: %s
+                              """ % (
+            app.config['ADMIN_MAIL_SUBJECT_PREFIX'], newuser.email, newuser.email, newuser.name,
+            newuser.alias, password)
+        mail.send(msg)
+        flash("User added and notification", category="success")
         return redirect(url_for('user_page'))
 
-    return render_template('user_modify.html', form=form, route_to=route_to)
+    return render_template('user_add.html', form=form, route_to=route_to)
 
 
 @app.route('/usermodify/<int:users_id>', methods=['GET', 'POST'])
@@ -112,10 +127,10 @@ def user_modify(users_id):
     remove_role_change = (users_id != session['user_id'])
 
     if user.delete_date:
-        flash("You can't edit the user who was deleted.")
+        flash("You can't edit the user who was deleted.", category="danger")
     elif form.validate_on_submit():
         if (users_id == session['user_id']) and (int(request.form.get('role_id')) != ROLE_ADMIN):
-            flash("You can't change admin role for yourself.")
+            flash("You can't change admin role for yourself.", category="danger")
         else:
             form.populate_obj(user)
             db.session.commit()
@@ -137,7 +152,9 @@ def delete_user(users_id):
     is_deleted = user.delete()
     db.session.commit()
     if not is_deleted:
-        flash("The last admin can't be deleted!")
+        flash("The last admin can't be deleted!", category="danger")
+    else:
+        flash("User delete", category="success")
     return redirect(url_for('user_page'))
 
 
@@ -148,6 +165,7 @@ def restore_user(users_id):
     user = db.session.query(User).get(users_id)
     user.restore()
     db.session.commit()
+    flash("User restore", category="success")
     return redirect(url_for('user_page'))
 
 
@@ -163,10 +181,10 @@ def login():
                 user.check_password(form.password.data):
             session['user_id'] = user.id
             session['role_id'] = user.role_id
-            flash('Welcome %s' % user.name)
+            flash('Welcome %s' % user.name, category="success")
             return redirect(url_for('admin'))
         else:
-            flash('Incorrect login/password data...')
+            flash('Incorrect login/password data...', category="danger")
             return render_template('login_page.html', form=form)
     else:
         return render_template('login_page.html', form=form)
@@ -179,8 +197,8 @@ def logout():
     """Logout route."""
     session.pop('user_id', None)
     session.pop('role_id', None)
-    flash("Successful logout")
-    return redirect(url_for('admin'))
+    flash("Successful logout", category="success")
+    return redirect(url_for('login'))
 
 
 @app.route('/issuespage', methods=['GET', 'POST'])
@@ -237,7 +255,7 @@ def issue_modify(issue_id):
     form = IssueForm(request.form, obj=issue)
 
     if issue.delete_date:
-        flash("You can't edit the issue who was deleted.")
+        flash("You can't edit the issue who was deleted.", category="danger")
     elif form.validate_on_submit():
         form.populate_obj(issue)
         db.session.commit()
@@ -254,6 +272,7 @@ def delete_issue(issue_id):
     issue = db.session.query(Issue).get(issue_id)
     issue.delete()
     db.session.commit()
+    flash("Issue delete", category="success")
     return redirect(url_for('issues_page'))
 
 
@@ -264,6 +283,7 @@ def restore_issue(issue_id):
     issue = db.session.query(Issue).get(issue_id)
     issue.restore()
     db.session.commit()
+    flash("Issue restore", category="success")
     return redirect(url_for('issues_page'))
 
 
