@@ -36,9 +36,11 @@ class Attachment(db.Model):
         if not os.listdir(directory_path):
             os.rmdir(directory_path)
 
+
 def delete_file(url):
     file_path = os.path.abspath(os.path.join(current_app.config['MEDIA_FOLDER'], url))
     os.remove(file_path)
+
 
 class Category(db.Model):
     """Category table in the database."""
