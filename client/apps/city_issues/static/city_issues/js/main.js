@@ -425,6 +425,9 @@ function bootstrapCarousel(images_urls) {
   for(var i=0 ; i< images_urls.length ; i++) {
     var fullImgUrl = images_urls[i];
     if (fullImgUrl !== null) {
+        thumburl = fullImgUrl.split('/');
+        thumburl[thumburl.length - 1] = 'thumb-' + thumburl[thumburl.length - 1];
+        fullImgUrl = thumburl.join('/');
         fullImgUrl = "/media/" + fullImgUrl;
     } else {
         fullImgUrl = "/static/city_issues/img/no-image.png";
