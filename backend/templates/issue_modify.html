@@ -4,7 +4,7 @@
 {% block title_suffix %}Issues edit{% endblock title_suffix %}
 
 {% block navbar_li %}
-    <li><a href="{{ url_for('admin')}}">Admin</a></li>
+    <li><a href="{{ url_for('issues_page') }}">Issues page</a></li>
     <li><a href="{{ url_for('logout') }}">Logout</a></li>
 {% endblock navbar_li %}
 
@@ -12,7 +12,5 @@
     <h1>Issue modifying form</h1>
     <div class="col-md-5">
         {{ wtf.quick_form(form, action=route_to,  method="POST", button_map={'submit_button' : 'success'}) }}
-        <br>
-        <a href="{{ url_for('issues_page') }}" class="btn btn-primary">Back to the issues list</a>
     </div>
 {% endblock %}
