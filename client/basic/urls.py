@@ -23,7 +23,8 @@ from django.views.generic import RedirectView
 from city_issues.views import (
     CheckIssues, DetailedIssue, delete_attachment, get_all_issues_data, get_issue_data,
     HomePageView, map_page_view, IssueCreate, UserProfileView, UpdateIssue,
-    CommentIssues, post_comment, issue_action, mod_list_panel, mod_edit_issue, delete_issue, restore_issue)
+    CommentIssues, post_comment, issue_action, mod_list_panel, mod_edit_issue,
+    delete_issue, restore_issue)
 
 
 urlpatterns = [
