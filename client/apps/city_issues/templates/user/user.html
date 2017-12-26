@@ -83,6 +83,7 @@
                     <th>Close date</th>
                     <th>Moderator comment</th>
                     <th></th>
+                    <th>Detailed view</th>
                 </tr>
                 </thead>
                 <tfoot>
@@ -95,6 +96,7 @@
                     <th>Close date</th>
                     <th>Moderator comment</th>
                     <th></th>
+                    <th>Detailed view</th>
                 </tr>
                 </tfoot>
                 <tbody>
@@ -119,6 +121,13 @@
                                edit
                            </a>
                         </td>
+                    <td>
+                        <a href="{% url 'issue' issue.id %}"
+                              class="btn btn-sm btn-primary">
+                               <span class="glyphicon glyphicon-search"></span>
+                               show
+                           </a>
+                    </td>
                     </tr>
                 {% endfor %}
                 </tbody>
