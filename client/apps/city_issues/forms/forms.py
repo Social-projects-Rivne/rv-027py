@@ -279,7 +279,9 @@ class IssueSearchForm(forms.Form):
         max_length=100,
         label='',
         widget=forms.TextInput(attrs={
-            'size': '60%'
+            'size': '60%',
+            'class': 'form-control',
+            'style': 'border-color: #31b0d5;',
         }),
         required=False)
     order_by = forms.CharField(

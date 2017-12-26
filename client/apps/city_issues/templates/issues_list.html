@@ -12,11 +12,16 @@
 <div class="container">
     <div class="row">
         <div class="page-header text-center">
-          <h1><small>All Issues:</small></h1>
-          <form action="{% url "issues" %}" method="GET" id="search-filter">
-               {{form}}
+          <h1><a href="{% url "issues"%}"> <small>All Issues:</small></a></h1>
+          {% with search=request.GET.search %}
+          <form class="form-inline" action="{% url "issues" %}" method="GET" id="form" data-search="{{ search }}">
+            {{ form.search }}
+            {{ form.order_by }}
+            {{ form.reverse }}
+            {{ form.page }}
             <button class="btn btn-info" type="submit" id="submit-btn">{% bootstrap_icon 'search' %}</button>
             </form>
+            {% endwith %}
         </div>
     </div>
     <div class="row">
@@ -117,5 +122,10 @@
 {% endif %}
 
 <!--end pagination-->
+
+{% block extra_js %}
+{% load static %}
+<script type="text/javascript" src="{% static "js/search.js" %}"> </script>
+{% endblock extra_js %}
 
 {% endblock content %}
