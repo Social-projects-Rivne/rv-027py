@@ -21,9 +21,16 @@
 
         <div class="form-group">
             <label for="id_email" class="col-sm-3 control-label">Email</label>
-            <input type="email" class="form-control" autofocus required id="id_email" value="{{ request.POST.email }}"
+            <input type="email" class="form-control" required id="id_email" value="{{ request.POST.email }}"
                    name="email" />
             <span class="help-block">{{ form.errors.email.as_text }}</span>
+        </div>
+
+        <div class="form-group">
+            <label for="id_alias" class="col-sm-3 control-label">Nickname</label>
+            <input type="text" class="form-control" required id="id_alias" value="{{ request.POST.alias }}"
+                   name="alias" />
+            <span class="help-block">{{ form.errors.alias.as_text }}</span>
         </div>
 
         <div class="form-group">

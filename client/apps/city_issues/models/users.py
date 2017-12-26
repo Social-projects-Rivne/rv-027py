@@ -35,11 +35,12 @@ class User(AbstractBaseUser):
     Users table in the database
     """
     name = models.TextField(
+        max_length=50,
         blank=True,
         null=True)
     alias = models.TextField(
-        blank=True,
-        null=True)
+        max_length=25,
+        unique=True)
     email = models.EmailField(
         max_length=50,
         unique=True)
@@ -63,7 +64,7 @@ class User(AbstractBaseUser):
     # Connects a custom user manager
     objects = UserManager()
 
-    USERNAME_FIELD = 'email'
+    USERNAME_FIELD = 'alias'
     EMAIL_FIELD = 'email'
 
     def get_full_name(self):
