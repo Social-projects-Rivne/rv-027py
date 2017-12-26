@@ -300,7 +300,7 @@ def issue_info(issue_id):
     list_history = get_all_issue_history(issue_id)
     attachments = db.session.query(Attachment).filter(Attachment.issue_id == issue_id).all()
     return render_template('issue.html', issue=issue, list_history=list_history,
-                           attachments=attachments)
+                           attachments=attachments, debug=app.config['DEBUG'])
 
 
 @app.route('/deleteimage', methods=['POST'])
