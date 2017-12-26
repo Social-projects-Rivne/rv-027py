@@ -83,7 +83,7 @@ class ModEditForm(forms.ModelForm):
     class Meta:
         model = Issues
         fields = ['title', 'description', 'category',
-                  'location_lat', 'location_lon']
+                  'location_lat', 'location_lon', 'status']
 
     title = forms.CharField(
         max_length=35,
@@ -113,10 +113,15 @@ class ModEditForm(forms.ModelForm):
         empty_label=None
     )
 
-    status = forms.ModelChoiceField(
-        queryset=Statuses.objects.all(),
-        widget=forms.Select(attrs={'class': 'form-control'}),
-        empty_label=None
+    status = forms.ChoiceField(
+        choices=(
+            ("new", "new"),
+            ("on moderation", "on moderation"),
+            ("open", "open"),
+            ("pending close", "pending close"),
+            ("closed", "closed"),
+            ("deleted", "deleted")),
+        widget=forms.Select(attrs={'class': 'form-control'})
     )
 
 
