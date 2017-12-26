@@ -44,8 +44,14 @@
             <div class="col-md-3" >
                 <a class="del-img btn-xs btn-danger" data-attach-id="{{ attachment.id }}"
                     data-toggle="modal" data-target="#deleteModal"> &times; </a>
-                <img class="img-thumbnail" src="{{ url_for('media_dir', url=attachment.get_thumbnail_url()) }}"
-                    alt="{{url_for('media_dir', url=attachment.get_thumbnail_url()) }}">
+                {% if debug == False %}
+                <img class="img-thumbnail" 
+                    src="https://limitless-oasis-36193.herokuapp.com/media/app/client/media/{{ attachment.get_thumbnail_url() }}"
+                    alt="https://limitless-oasis-36193.herokuapp.com/media/app/client/media/{{ attachment.get_thumbnail_url() }}">
+                {% else %}
+                    <img class="img-thumbnail" src="{{ url_for('media_dir', url=attachment.get_thumbnail_url()) }}"
+                        alt="{{url_for('media_dir', url=attachment.get_thumbnail_url()) }}">
+                {% endif %}
             </div>
         {% endfor %}
         </div>
