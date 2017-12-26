@@ -24,7 +24,7 @@ class Attachment(db.Model):
     def get_thumbnail_url(self):
         head, tail = os.path.split(self.image_url)
         thumb_name = "thumb-{}".format(tail)
-        return os.path.join(head, thumb_name)
+        return "{}/{}".format(head, thumb_name)
 
     def delete(self):
         delete_file(self.image_url)
