@@ -8,22 +8,22 @@ class UserManager(BaseUserManager):
     """
     Creates and saves a user
     """
-    def _create_user(self, name, email, password, **extra_fields):
+    def _create_user(self, name, email, alias, password, **extra_fields):
         if not name:
-            raise ValueError('The given username and email must be set')
+            raise ValueError('The given email and nickname must be set')
         email = self.normalize_email(email)
         name = self.model.normalize_username(name)
-        user = self.model(name=name, email=email, **extra_fields)
+        user = self.model(name=name, email=email, alias=alias, **extra_fields)
         user.set_password(password)
         user.save(using=self._db)
         return user
 
-    def create_user(self, name, email, password=None, is_staff=False,
-                    alias=None, avatar=None):
-        return self._create_user(name, email, password, is_staff=is_staff,
-                                 alias=alias, avatar=avatar)
+    def create_user(self, name, email, alias, password=None, is_staff=False,
+                    avatar=None):
+        return self._create_user(name, email, alias, password, is_staff=is_staff,
+                                 avatar=avatar)
 
-    def create_superuser(self, name, email, password, alias=None,
+    def create_superuser(self, name, email, alias, password,
                          avatar=None):
-        return self._create_user(name, email, password, is_superuser=True,
-                                 alias=alias, avatar=avatar)
+        return self._create_user(name, email, alias, password, is_superuser=True,
+                                 avatar=avatar)
