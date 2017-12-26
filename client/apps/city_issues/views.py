@@ -17,7 +17,7 @@ from django.contrib.postgres.search import SearchVector
 from django.core import serializers
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.core.exceptions import PermissionDenied
-from django.http import JsonResponse, HttpResponse, HttpResponseRedirect
+from django.http import JsonResponse, HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import redirect, render, get_object_or_404
 from django.utils.timezone import make_aware
 from django.views import View
@@ -147,7 +147,8 @@ class IssueCreate(CreateView):
                 attachment.issue = issue
                 attachment.image_url = issue_file
                 attachment.save()
-                create_thumbnail(issue_file, issue.title, attachment.image_url.url)
+                create_thumbnail(issue_file, issue.title,
+                                 attachment.image_url.url)
 
     def save_issue_history(self, issue, user):
         issue_history = IssueHistory()
@@ -440,3 +441,10 @@ def comment_restore(request, issue_id, comment_id):
         comment.save()
         return redirect(reverse('issue-comment', args=[issue_id]))
     raise PermissionDenied("You are not allowed to delete comments")
+
+
+def imgResponse(request, path):
+    if os.path.exists(path):
+        with open(path, "rb") as f:
+            return HttpResponse(f.read(), content_type="image/jpeg")
+    raise Http404

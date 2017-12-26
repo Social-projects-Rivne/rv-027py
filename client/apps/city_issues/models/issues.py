@@ -42,7 +42,7 @@ class Attachments(models.Model):
 
         storage.delete(path)
         thumb_storage.delete(thumb_path)
-        if not os.listdir(directory_path):
+        if os.path.isdir(directory_path) and not os.listdir(directory_path):
             os.rmdir(directory_path)
 
     issue = models.ForeignKey('Issues', models.DO_NOTHING,
@@ -192,7 +192,8 @@ class Issues(models.Model):
 
         for img in images_urls:
             if img and os.path.isfile(os.path.join(settings.MEDIA_ROOT, img)):
-                checked_img_urls.append(img)
+                img_thumb = settings.MEDIA_URL + 'thumb-' + img
+                checked_img_urls.append(img_thumb)
 
         issue_obj = Issues.objects.filter(
             pk=issue_id).select_related("category")

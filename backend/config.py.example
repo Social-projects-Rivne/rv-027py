@@ -1,20 +1,22 @@
-# Rename this file to config.py and fill SQLALCHEMY_DATABASE_URI with
-# your's data.
+# Rename this file to config.py and:
+# Set SQLALCHEMY_DATABASE_URI
+# Set SECRET_KEY
+# Set WTF_CSRF_SECRET_KEY
+import os
 
 import os
 
 class Config(object):
+    """ Global configuration."""
 
     DEBUG = False
-    
-    # Enter yours secret key(it must be some string)
+
     SECRET_KEY = ''
 
     WTF_CSRF_ENABLED = True
 
-    WTF_CSRF_SECRET_KEY = 'SECRET_OR_NOT_KEY'
+    WTF_CSRF_SECRET_KEY = ''
 
-    # Change database credentials to yours.
     SQLALCHEMY_DATABASE_URI = 'postgres://user:password@localhost/db_name'
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
@@ -22,7 +24,8 @@ class Config(object):
     # password hashing rounds
     BCRYPT_LOG_ROUNDS = 14
 
-    MEDIA_FOLDER = os.path.abspath(os.path.join('client', 'apps', 'city_issues', 'media'))
+    MEDIA_FOLDER = os.path.abspath(os.path.join(
+        'client', 'apps', 'city_issues', 'media'))
 
     # mail configure
     MAIL_SERVER = 'smtp.googlemail.com'
@@ -35,8 +38,17 @@ class Config(object):
 
 
 class ProductionConfig(Config):
+    """ Production configuration."""
     DEBUG = False
+
+    if 'DATABASE_URL' in os.environ:
+        SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL']
+    if 'SECRET_KEY' in os.environ:
+        SECRET_KEY = os.environ['SECRET_KEY']
+    if 'WTF_CSRF_SECRET_KEY' in os.environ:
+        WTF_CSRF_SECRET_KEY = os.environ['WTF_CSRF_SECRET_KEY']
 
 
 class DevelopmentConfig(Config):
+    """ Development configuration."""
     DEBUG = True
