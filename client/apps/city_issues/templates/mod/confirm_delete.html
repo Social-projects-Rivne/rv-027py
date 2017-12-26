@@ -8,8 +8,7 @@
 
 <div class='col-sm-6 col-sm-offset-3'>
   <h1>Confirm Delete</h1>
-        
-      
+
             <form method="POST" action=""> {% csrf_token %}
                 <p>Are you sure you want to delete issue: "{{ issue.title }}"?</p>
               

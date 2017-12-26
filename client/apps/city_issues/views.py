@@ -341,11 +341,11 @@ def issue_action(request, issue_id):
 def mod_list_panel(request):
     """ A moderator list of issues"""
     if request.user.is_superuser or request.user.is_staff:
-        issues_list = Issues.objects.all()
+        issues_list = Issues.objects.order_by('-open_date')
         context = {'title': 'Moderator Panel:'}
 
         order_by = request.GET.get('order_by', '')
-        if order_by in ('title', 'status', 'user', 'category', 'open_date'):
+        if order_by in ('title', 'status', 'user', 'category', 'open_date', 'delete_date'):
             issues_list = issues_list.order_by(order_by)
             if request.GET.get('reverse', '') == '1':
                 issues_list = issues_list.reverse()
