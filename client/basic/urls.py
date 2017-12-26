@@ -55,10 +55,10 @@ urlpatterns = [
     url(r'^accounts/logout/$', auth_views.logout, kwargs={'next_page': 'home'}, name='auth_logout'),
     url(r'^accounts/profile/$', UserProfileView.as_view(), name='user_profile'),
     url(r'^accounts/', include('registration.backends.simple.urls', namespace='accounts', )),
-
-    url(r'^media(?P<path>.*)$', imgResponse, name='media'),
-
 ]
 
 if settings.DEBUG is True:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+if settings.DEBUG is False:
+    urlpatterns.append(url(r'^media(?P<path>.*)$', imgResponse, name='media'))
