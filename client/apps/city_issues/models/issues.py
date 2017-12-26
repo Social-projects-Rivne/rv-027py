@@ -193,7 +193,7 @@ class Issues(models.Model):
         for img in images_urls:
             if img and os.path.isfile(os.path.join(settings.MEDIA_ROOT, img)):
                 img_thumb = settings.MEDIA_URL + 'thumb-' + img
-                checked_img_urls.append(img)
+                checked_img_urls.append(img_thumb)
 
         issue_obj = Issues.objects.filter(
             pk=issue_id).select_related("category")
