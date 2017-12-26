@@ -1,6 +1,7 @@
 # Rename this file to config.py and fill SQLALCHEMY_DATABASE_URI with
 # your's data.
 
+import os
 
 class Config(object):
 
