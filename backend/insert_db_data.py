@@ -35,7 +35,24 @@ user2 = User(name='Mark', alias='Marky', email='mark@gmail.com',
              password='123', role_id='2')
 user3 = User(name='Maria', alias='Mary', email='maria@gmail.com',
              password='321', role_id='3')
-
+user4 = User(name='Petya', alias='Petya', email='petya@gmail.com',
+             password='321', role_id='3')
+user5 = User(name='Tom', alias='Tom', email='tom@gmail.com',
+             password='321', role_id='3')
+user6 = User(name='Jerry', alias='Jerry', email='jerry@gmail.com',
+             password='321', role_id='2')
+user7 = User(name='Olivia', alias='Olivia', email='olivia@gmail.com',
+             password='321', role_id='3')
+user8 = User(name='Jack Sparrow', alias='Jack', email='jack@gmail.com',
+             password='321', role_id='1')
+user9 = User(name='Leo', alias='Leo', email='leo1991@gmail.com',
+             password='321', role_id='3')
+user10 = User(name='Amelia', alias='Ameli', email='amelia@gmail.com',
+              password='321', role_id='2')
+user11 = User(name='Harry', alias='Harry', email='harry@gmail.com',
+              password='321', role_id='3')
+user12 = User(name='Maximus', alias='Max', email='max@gmail.com',
+              password='321', role_id='3')
 
 issue1 = Issue(title='Car crash', user_id='2', category_id='1', location_lat='50.620226734521204',
                location_lon='26.239514350891117', description='Two cars find one way in same moment of time ....', status='on moderation',
@@ -150,7 +167,8 @@ def db_insert_data():
     db.session.add_all([role, role1, role2,
                         category, category1, category2, category3,
                         status1, status2, status3, status4, status5, status6,
-                        user1, user2, user3,
+                        user1, user2, user3, user4, user5, user6, user7, user8,
+                        user9, user10, user11, user12,
                         issue1, issue2, issue3,
                         issue4, issue5, issue6,
                         issue7, issue8, issue9,
