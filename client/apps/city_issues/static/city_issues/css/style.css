@@ -315,6 +315,7 @@
 
 .issue_comments-form textarea{
 	box-sizing: border-box;
+	width: 100%;
 	padding: 10px;
 
 	border: none;
