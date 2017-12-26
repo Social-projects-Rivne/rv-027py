@@ -7,8 +7,11 @@ configparser==3.5.0
 Django==1.11.7
 django-registration-redux==1.8
 django-bootstrap3==9.1.0
+dj-database-url==0.4.2
 django-imagekit==4.0.2
+django-storages==1.6.5
 dominate==2.3.1
+gunicorn==19.7.1
 Flask==0.12.2
 Flask-Bootstrap==3.3.7.1
 Flask-Migrate==2.1.1
@@ -35,4 +38,5 @@ SQLAlchemy==1.1.14
 SQLAlchemy-Utils==0.32.19
 visitor==0.1.3
 Werkzeug==0.12.2
+whitenoise==3.3.1
 WTForms==2.1
