@@ -115,7 +115,6 @@ backend/config.py
 #Migrations files
 /backend/migrations
 
-/backend/config.py
 /client/basic/local_settings.py
 /client/apps/city_issues/media/
 /client/static
