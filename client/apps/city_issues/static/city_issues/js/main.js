@@ -3,9 +3,18 @@
 function IssueMap(elementId) {
   var current = this;
   this.map = L.map(elementId);
-  this.issueDescriptionBox = new IssueDescription("mapid", "issue_container", "issue_close");
+  this.issueDescriptionBox = new IssueDescription(this, "mapid", "issue_container", "issue_close");
   this.issueDescriptionBox.addHandler();
   this.currentMarker = undefined;
+  this.markers = undefined;
+  this.statusRawArr = [
+      document.querySelector("#id_show_closed"),
+      document.querySelector("#id_show_open"),
+      document.querySelector("#id_show_new"),
+      document.querySelector("#id_show_on_moderation"),
+      document.querySelector("#id_show_deleted"),
+      document.querySelector("#id_show_pending_close")
+    ];
 
   IssueMap.prototype.setFilterFromBtn = function(filterFormBtnId) {
     current.filterFormBtn = document.querySelector(filterFormBtnId);
@@ -36,18 +45,21 @@ function IssueMap(elementId) {
 
 
   IssueMap.prototype.iconCreate = function(category, status) {
-    var underscoredStatusShadow = status.replace(/ /g, '_');
+    var underscoredStatusShadow = '/static/city_issues/img/status_' + status.replace(/ /g, '_') + '.png';
+    if (status == "open") {
+      underscoredStatusShadow = "/static/city_issues/img/marker-shadow.png";
+    }
     var MarkerIcon = L.Icon.extend({
     options: {
         customId: "",
         customStatus: "",
         iconUrl: '/static/city_issues/img/category_' + category + '_marker-icon.png',
-        shadowUrl: '/static/city_issues/img/status_' + underscoredStatusShadow + '.png',
+        shadowUrl: underscoredStatusShadow,
         iconSize: [30, 30],
-        iconAnchor: [0, 0],
+        iconAnchor: [5, 35],
         popupAnchor: [1, -34],
-        shadowSize: [38, 38],
-        shadowAnchor: [4, 4],
+        shadowSize: [40, 40],
+        shadowAnchor: [10, 40],
     }});
 
     return new MarkerIcon();
@@ -68,13 +80,16 @@ function IssueMap(elementId) {
     
     jsonData.forEach(function(key) {
       var issue = JSON.parse(key);
-      var underscoredStatus = issue.fields.status.replace(/ /g, '_');
+      var underscoredStatus = '/static/city_issues/img/status_' + issue.fields.status.replace(/ /g, '_') + '.png';
+      if (issue.fields.status == "open") {
+        underscoredStatus = "/static/city_issues/img/marker-shadow.png";
+      }
       var marker = L.marker(
         [issue.fields.location_lat, issue.fields.location_lon],
         {icon: current.iconCreate(issue.fields.category, issue.fields.status),
          title: issue.fields.title,
          customId: issue.pk,
-         customStatus: '/static/city_issues/img/status_' + underscoredStatus + '.png',
+         customStatus: underscoredStatus,
        });
 
       marker.on("click", function(event){
@@ -102,10 +117,27 @@ function IssueMap(elementId) {
   };
 
   IssueMap.prototype.filterHandler = function(event) {
-    event.preventDefault();
+    if (event) {
+      event.preventDefault();
+    }
     var dateFromValue = document.querySelector("#id_date_from").value;
     var dateToValue = document.querySelector("#id_date_to").value;
-    var showClosedValue = document.querySelector("#id_show_closed").checked;
+    var statusArr = [];
+    var filterToSetChecked = localStorage.getItem('updateStatus');
+
+    current.statusRawArr.forEach(function(element) {
+      var elementName = (element) ? element.name.slice(5).replace(/_/g, " ") : undefined;
+
+      if (element && filterToSetChecked && elementName == filterToSetChecked) {
+        localStorage.removeItem('updateStatus');
+        element.checked = true;
+      }
+
+      if (element && element.checked ) {
+        statusArr.push(elementName);
+      }
+    });
+
     var categoryValue = document.querySelector("#id_category").value;
     var searchValue = document.querySelector("#id_search").value;
      
@@ -115,7 +147,7 @@ function IssueMap(elementId) {
       "filter=" + "True" + "&" +
       "date_from=" + dateFromValue + "&" + 
       "date_to=" + dateToValue + "&" + 
-      "show_closed=" + showClosedValue + "&" + 
+      "status_arr=" + statusArr + "&" + 
       "category=" + categoryValue + "&" +
       "search=" +  searchValue
       );
@@ -161,44 +193,204 @@ function IssueMap(elementId) {
 }
 
 
-function IssueDescription(mapId, issueContainerId, issueCloseId) {
+function IssueDescription(mapObject, mapId, issueContainerId, issueCloseId) {
   var current = this;
+  this.mapObject = mapObject;
   this.mapId = mapId;
   this.issueContainerId = issueContainerId;
   this.issueCloseId = issueCloseId;
   this.issue_box = document.getElementById(issueContainerId);
+  this.actionButtons = {
+    'open' : document.querySelector(".issue_action[data-action=open]"),
+    'edit' : document.querySelector("#issue_action-edit"),
+    'pending close' : document.querySelector(".issue_action[data-action='pending close']"),
+    'closed' : document.querySelector(".issue_action[data-action=closed]"),
+    'deleted' : document.querySelector(".issue_action[data-action=deleted]"),
+  };
+  this.commentStatusButtons = ((document.querySelector("#issue_comments-form")) ? 
+  {
+    'public' : document.querySelector("#id_status_0").parentElement,
+    'private' : document.querySelector("#id_status_1").parentElement,
+    'internal' : document.querySelector("#id_status_2").parentElement,
+  } : undefined);
 
   IssueDescription.prototype.loadCurrentMarkerObject = function(obj) {
     current.markerObject = obj;
   };
 
-  IssueDescription.prototype.closeIssueDescriptionHandler = function(event) {
-      if (event.target.id == "mapid" && current.issue_box.style.display == "block") {
-        current.issue_box.style.display = 'none';
-        current.markerObject._shadow.src = current.markerObject.options.customStatus;
+  IssueDescription.prototype.removeActionsElements = function(dict) {
+    if (dict) {
+      for (var key in dict) {
+        dict[key].style.display = "none";
       }
-      
-  };
-
-  IssueDescription.prototype.closeHandler = function(event) {
-    if (event.target.id == current.issueCloseId) {
-      current.issue_box.style.display = "none";
-      current.markerObject._shadow.src = current.markerObject.options.customStatus;
     }
 
   };
 
+  IssueDescription.prototype.listenActionsButtons = function(event){
+    if (event.target.dataset.target == "#action_modal") {
+      current.issueId = event.target.getAttribute("data-id");
+      current.issueAction = event.target.getAttribute("data-action");
+    }
+  };
+
+  IssueDescription.prototype.paintCommnetsInput = function() {
+    if(document.querySelector('#id_status')) {
+      var checkedElement = document.querySelector('#id_status input:checked');
+      var commentsInput = document.querySelector('.issue_comments-form textarea');
+      if (commentsInput.classList.length > 0) {
+        commentsInput.classList.forEach(function(className) {
+          if (className.indexOf('textarea--') !== -1) {
+            commentsInput.classList.remove(className);
+          }
+        });
+      }
+    commentsInput.classList.add("textarea--" + checkedElement.value);
+    }
+  };
+
+  IssueDescription.prototype.sendActionData = function(event) {
+    event.preventDefault();
+    $('#action_modal').modal('hide');
+    localStorage.setItem('updateStatus', current.issueAction);
+    var csrf = document.querySelector("#form_action input[name=csrfmiddlewaretoken]").value;
+    var formData = new FormData();
+    formData.append("action", current.issueAction);
+    formData.append("issue_id", current.issueId);
+    formData.append("csrfmiddlewaretoken", csrf);
+    current.sendAction(formData, current.issueId);
+  };
+
+  IssueDescription.prototype.closeHandler = function(event) {
+    if (event.target.id == current.issueCloseId || (event.target.id == "mapid" && current.issue_box.style.display == "block")) {
+      current.issue_box.style.display = "none";
+
+
+      if (current.markerObject._shadow) {
+            current.markerObject._shadow.src = current.markerObject.options.customStatus;
+          }
+    }
+  };
+
+
+  IssueDescription.prototype.insertComments = function(jsonData, key) {
+    var commentsList = document.querySelector("#issue_comments");
+    commentsList.innerHTML = "";
+    for (var i = 0; i < jsonData.length; i++) {
+      var item = key ? jsonData[i] : JSON.parse(jsonData[i]);
+      var commentBox = document.createElement('li');
+      var commentHeader = document.createElement('div');
+      var commentText = document.createElement('p');
+      var commentAuthor = document.createElement('span');
+
+      commentBox.classList.add("issue_comment-box");
+
+      commentHeader.classList.add("issue_comment-header");
+      commentHeader.appendChild(document.createTextNode(item.date_public.slice(0,16) + " "));
+
+      commentAuthor.appendChild(document.createTextNode(item.user__alias));
+      commentAuthor.classList.add("issue_comment-author");
+
+      commentText.appendChild(document.createTextNode(item.comment));
+      commentText.classList.add("issue_comment-text");
+      commentText.classList.add("issue_comment-text--" + item.status);
+
+      commentHeader.appendChild(commentAuthor);
+      commentBox.appendChild(commentHeader);
+      commentBox.appendChild(commentText);
+      commentsList.appendChild(commentBox);
+    }
+  };
+
+  IssueDescription.prototype.sendComment = function(data,issue_id) {
+    var xml = new XMLHttpRequest();
+    xml.open("POST", "/postcomment/" + issue_id + "/");
+
+    xml.onload = function() {
+      if (xml.status === 200) {
+        var response = JSON.parse(xml.responseText).slice(1,-1).replace(/}, {/g,'}}, {{').split('}, {'); 
+        current.insertComments(response);
+      }
+    };
+
+    xml.send(data);
+  };
+
+  IssueDescription.prototype.sendAction = function(data,issue_id) {
+    var xml = new XMLHttpRequest();
+    xml.open("POST", "/issueaction/" + issue_id + "/");
+    xml.onload = function() {
+      var response = JSON.parse(xml.responseText);
+      if (response.result == "success") {
+        current.mapObject.filterHandler();
+      }
+    };
+    xml.send(data);
+  };
+
+
+
+  IssueDescription.prototype.commentsHandler = function(event) {
+    event.preventDefault();
+    var comment = document.querySelector("#id_comment").value;
+    var commentStatus = document.querySelector("#id_status input:checked").value;
+    var csrf = document.querySelector("#issue_comments-form input[name=csrfmiddlewaretoken]").value;
+    var issue_id = event.target.getAttribute("data-id");
+    if (comment.length > 0) {
+      var formData = new FormData();
+      formData.append("comment", comment);
+      formData.append("status", commentStatus);
+      formData.append("csrfmiddlewaretoken", csrf);
+      current.sendComment(formData, issue_id);
+    }
+  };
+
   IssueDescription.prototype.addHandler = function() {
-    document.addEventListener('click', current.closeIssueDescriptionHandler);
     document.addEventListener('click', current.closeHandler);
+    if ( document.querySelector("#issue_comments-form-btn")) {
+      document.querySelector("#issue_comments-form-btn").addEventListener('click', current.commentsHandler);
+    }
+    document.querySelector("#issue_buttons-box").addEventListener("click", current.listenActionsButtons);
+    document.querySelector("#issue_action-send").addEventListener("click", current.sendActionData);
+    if ( document.querySelector("#id_status")) {
+      document.querySelector("#id_status").addEventListener('click', current.paintCommnetsInput);
+    }
   };
 
 
   IssueDescription.prototype.insertIssueData = function(jsonData, issue_id) {
     current.issue_box.style.display = 'block';
-    document.querySelector(".issue_title").innerHTML = jsonData.title;
+    current.removeActionsElements(current.actionButtons);
+    jsonData.dict_of_actions.list_of_actions.forEach(function(button) {
+      current.actionButtons[button].style.display = "inline-block";
+      current.actionButtons[button].style.verticalAlign = "top";
+      current.actionButtons[button].setAttribute("data-id", issue_id);
+    });
+
+    current.removeActionsElements(current.commentStatusButtons);
+    commentsButtonsNumber =  jsonData.dict_of_actions.list_of_comments_statuses.length;
+    if (current.commentStatusButtons && commentsButtonsNumber > 1) {
+      jsonData.dict_of_actions.list_of_comments_statuses.forEach(function(button) {
+        current.commentStatusButtons[button].style.display = "inline-block";
+        current.commentStatusButtons[button].style.verticalAlign = "top";
+      });      
+    } else if (current.commentStatusButtons && commentsButtonsNumber === 1) {
+      button = jsonData.dict_of_actions.list_of_comments_statuses[0];
+        current.commentStatusButtons[button].type = 'hidden';
+        current.commentStatusButtons[button].firstElementChild.checked = true;
+    }
+    current.paintCommnetsInput();
+
+    if (document.querySelector("#issue_comments-form-btn")) {
+      document.querySelector("#issue_comments-form-btn").setAttribute("data-id", issue_id);
+    }
+    current.insertComments(jsonData.comments, true);
+
+    document.querySelector("#issue_title").innerHTML = jsonData.title;
     document.querySelector(".issue_description").innerHTML = jsonData.description;
     document.querySelector("#issue_category").innerHTML = jsonData.category__category;
+    document.querySelector("#issue_status").innerHTML = '';
+    document.querySelector("#issue_status").appendChild(document.createTextNode(jsonData.status.charAt(0).toUpperCase() + jsonData.status.slice(1)));
     var imgBox = document.querySelector(".issue_img-box");
     imgBox.innerHTML = "";
     if (jsonData.images_urls.length > 0) {
@@ -210,14 +402,9 @@ function IssueDescription(mapId, issueContainerId, issueCloseId) {
       img.classList.add("issue_img");
       imgBox.appendChild(img);
     }
-    var editBtn = document.getElementById("issue_edit");
+    var editBtn = document.getElementById("issue_action-edit");
     var dataUrl =  editBtn.getAttribute("data-url").slice(0,-1);
     editBtn.setAttribute("href", dataUrl + issue_id);
-    editBtn.style.display = "none";
-    if (jsonData.editable) {
-      editBtn.style.display = "inline-block";
-    }
-
   };
 
 
@@ -238,6 +425,9 @@ function bootstrapCarousel(images_urls) {
   for(var i=0 ; i< images_urls.length ; i++) {
     var fullImgUrl = images_urls[i];
     if (fullImgUrl !== null) {
+        thumburl = fullImgUrl.split('/');
+        thumburl[thumburl.length - 1] = 'thumb-' + thumburl[thumburl.length - 1];
+        fullImgUrl = thumburl.join('/');
         fullImgUrl = "/media/" + fullImgUrl;
     } else {
         fullImgUrl = "/static/city_issues/img/no-image.png";
@@ -271,21 +461,21 @@ function placeFilter() {
   filterForm.style.left = (leafletControlsCoordinatse.left + 5) + "px";
 }
 
+$(document).ready(function() {
+  issueMap = new IssueMap("mapid");
+  issueMap.setFilterFromBtn("#issue_filter-form-btn");
+  issueMap.setFilterFromCloseBtn("#issue_filter-form-close-btn");
+  issueMap.setFilterFromShowBtn("#issue_filter-form-show-btn");
+  issueMap.setViewPoint(50.621945, 26.249314, 16);
+  issueMap.addMapLayer(
+    'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', 
+    19, 
+    '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>');
+  issueMap.filterHandler();
+  issueMap.addHandler();
 
-issueMap = new IssueMap("mapid");
-issueMap.setFilterFromBtn("#issue_filter-form-btn");
-issueMap.setFilterFromCloseBtn("#issue_filter-form-close-btn");
-issueMap.setFilterFromShowBtn("#issue_filter-form-show-btn");
-issueMap.setViewPoint(50.621945, 26.249314, 16);
-issueMap.addMapLayer(
-  'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', 
-  19, 
-  '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>');
-issueMap.getMarkers("getissuesall/");
-issueMap.addHandler();
-
-insertTemplate("#message_box", "#message_list");
-placeFilter();
-
+  insertTemplate("#message_box", "#message_list");
+  placeFilter();
+});
 })();
 

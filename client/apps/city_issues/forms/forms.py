@@ -2,11 +2,12 @@
 from django import forms
 from django.core.validators import MaxValueValidator, MinValueValidator
 
-from city_issues.models.issues import Issues, Category
+from city_issues.models.issues import Issues, Category, Comments, Statuses
 from city_issues.models.users import User
 
 
 class IssueForm(forms.ModelForm):
+
     class Meta:
         model = Issues
         fields = ['description', 'category',
@@ -76,6 +77,54 @@ class EditIssue(forms.ModelForm):
                   'location_lon', 'description']
 
 
+class ModEditForm(forms.ModelForm):
+    """Form edit issue for moderator"""
+
+    class Meta:
+        model = Issues
+        fields = ['title', 'description', 'category',
+                  'location_lat', 'location_lon', 'status']
+
+    title = forms.CharField(
+        max_length=35,
+        min_length=3,
+        widget=forms.TextInput(attrs={'class': 'form-control'}),
+    )
+
+    description = forms.CharField(
+        max_length=350,
+        min_length=5,
+        widget=forms.Textarea(attrs={'class': 'form-control', 'rows': '5'}),
+    )
+
+    location_lat = forms.FloatField(
+        widget=forms.TextInput(
+            attrs={'class': 'form-control', 'readonly': 'readonly'}),
+    )
+
+    location_lon = forms.FloatField(
+        widget=forms.TextInput(
+            attrs={'class': 'form-control', 'readonly': 'readonly'}),
+    )
+
+    category = forms.ModelChoiceField(
+        queryset=Category.objects.all(),
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        empty_label=None
+    )
+
+    status = forms.ChoiceField(
+        choices=(
+            ("new", "new"),
+            ("on moderation", "on moderation"),
+            ("open", "open"),
+            ("pending close", "pending close"),
+            ("closed", "closed"),
+            ("deleted", "deleted")),
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+
+
 class IssueFilter(forms.Form):
     """Issue filter form on map."""
     date_from = forms.DateField(
@@ -88,8 +137,38 @@ class IssueFilter(forms.Form):
         widget=forms.DateInput(
             attrs={'type': 'date', 'class': 'form-control'}))
 
+    show_open = forms.BooleanField(
+        label="Open",
+        required=False,
+        initial=True,
+        widget=forms.CheckboxInput())
+
     show_closed = forms.BooleanField(
-        label="Closed only",
+        label="Closed",
+        required=False,
+        initial=False,
+        widget=forms.CheckboxInput())
+
+    show_new = forms.BooleanField(
+        label="New",
+        required=False,
+        initial=True,
+        widget=forms.CheckboxInput())
+
+    show_on_moderation = forms.BooleanField(
+        label="On moderation",
+        required=False,
+        initial=True,
+        widget=forms.CheckboxInput())
+
+    show_pending_close = forms.BooleanField(
+        label="Pending close",
+        required=False,
+        initial=False,
+        widget=forms.CheckboxInput())
+
+    show_deleted = forms.BooleanField(
+        label="Deleted",
         required=False,
         initial=False,
         widget=forms.CheckboxInput())
@@ -216,4 +295,64 @@ class IssueSearchForm(forms.Form):
 
 
 class IssueFormEdit(IssueForm):
-    files = None
+
+    status = forms.ChoiceField(
+        choices=(
+            ("new", "new"),
+            ("on moderation", "on moderation"),
+            ("open", "open"),
+            ("pending close", "pending close"),
+            ("closed", "closed"),
+            ("deleted", "deleted")),
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+
+    class Meta:
+        model = Issues
+        fields = ['description', 'category',
+                  'location_lat', 'location_lon', 'title', 'status']
+
+
+class IssueFormEditWithoutStatus(IssueForm):
+
+    class Meta:
+        model = Issues
+        fields = ['description', 'category',
+                  'location_lat', 'location_lon', 'title', ]
+
+
+class CommentsOnMapForm(forms.Form):
+    """Map comments form."""
+
+    comment = forms.CharField(
+        label='',
+        required=False,
+        min_length=1,
+        max_length=350,
+        widget=forms.Textarea(attrs={'rows': 2}))
+
+    status = forms.ChoiceField(
+        label='',
+        required=True,
+        initial="public",
+        choices=(
+            ("public", "public"),
+            ("private", "private"),
+            ("internal", "internal")),
+        widget=forms.RadioSelect(
+            attrs={'class': 'comments-status-buttons'})
+    )
+
+    class Meta:
+        model = Comments
+        fields = ['comment']
+
+
+class InternalCommentsForm(forms.Form):
+    """Internal comments form."""
+
+    comment = forms.CharField(
+        label='',
+        min_length=1,
+        max_length=100,
+        widget=forms.TextInput({'class': 'form-control', 'placeholder': 'Type Message ...'}))

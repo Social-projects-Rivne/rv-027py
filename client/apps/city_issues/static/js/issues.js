@@ -1,10 +1,20 @@
 function IssueMap()
 {
-    this.map = L.map('map').locate({setView: true, maxZoom: 50});
+    this.map = L.map('map');
+    if (localStorage.getItem('lat') && localStorage.getItem('lng')) {
+        this.map.setView([localStorage.getItem('lat'), localStorage.getItem('lng')], 15);
+    }
+    else {
+        this.map.locate({setView: true, maxZoom: 50});
+    }
+
+    
     this.layer = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png').addTo(this.map);
 
     this.map.on('click',($.proxy(this.getLocation, this)));
     this.marker = '';
+    this.submitBtn = $("#form_submit-btn");
+    this.submitBtn.on('click', $.proxy(this.saveLocation, this));
 }
 
 IssueMap.prototype.getLocation = function (e)
@@ -17,6 +27,15 @@ IssueMap.prototype.getLocation = function (e)
 
      $("input[name=location_lat]").val(location.lat);
      $("input[name=location_lon]").val(location.lng);
+};
+
+IssueMap.prototype.saveLocation = function (e)
+{
+    e.preventDefault();
+    localStorage.setItem('lat', $("input[name=location_lat]").val());
+    localStorage.setItem('lng', $("input[name=location_lon]").val());
+    $("#issue_create-form").submit();
+
 };
 
 $(function ()

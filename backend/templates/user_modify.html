@@ -4,7 +4,7 @@
 {% block title_suffix %}Users add/edit{% endblock title_suffix %}
 
 {% block navbar_li %}
-    <li><a href="{{ url_for('admin')}}">Admin</a></li>
+    <li><a href="{{ url_for('user_page') }}">Users page</a></li>
     <li><a href="{{ url_for('logout') }}">Logout</a></li>
 {% endblock navbar_li %}
 
@@ -23,7 +23,5 @@
 			{% endif %}
 		  <input class="btn btn-success" type="submit" name="save" value="Save">
 		</form>
-		<br>
-        <a href="{{ url_for('user_page') }}" class="btn btn-primary">Back to the user list</a>
     </div>
 {% endblock %}

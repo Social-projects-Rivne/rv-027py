@@ -1,6 +1,7 @@
 # Rename this file to config.py and fill SQLALCHEMY_DATABASE_URI with
 # your's data.
 
+import os
 
 class Config(object):
 
@@ -20,6 +21,17 @@ class Config(object):
 
     # password hashing rounds
     BCRYPT_LOG_ROUNDS = 14
+
+    MEDIA_FOLDER = os.path.abspath(os.path.join('client', 'apps', 'city_issues', 'media'))
+
+    # mail configure
+    MAIL_SERVER = 'smtp.googlemail.com'
+    MAIL_PORT = 587
+    MAIL_USE_TLS = True
+    MAIL_USERNAME = 'info.cityissues@gmail.com'
+    MAIL_PASSWORD = 'passqwerty'
+    ADMIN_MAIL_SUBJECT_PREFIX = '[CityView]'
+    ADMIN_MAIL_SENDER = 'CityView Admin <contact@example.com>'
 
 
 class ProductionConfig(Config):

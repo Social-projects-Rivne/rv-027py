@@ -8,25 +8,33 @@ import os.path
 from datetime import date, datetime, time
 import operator
 
+from django import forms
 from django.db.models import Q
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import update_session_auth_hash
+from django.contrib.postgres.search import SearchVector
 from django.core import serializers
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.core.exceptions import PermissionDenied
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse, HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect, render, get_object_or_404
 from django.utils.timezone import make_aware
 from django.views import View
 from django.views.generic import CreateView, FormView, ListView, TemplateView
+from django.views.generic.detail import DetailView
 from django.views.generic.edit import UpdateView
 from django.urls import reverse
 
-from city_issues.models import Attachments, Issues, IssueHistory, User, Comments
-from city_issues.forms.forms import EditIssue, IssueFilter, IssueForm, \
-    IssueFormEdit, IssueSearchForm, EditUserForm
+from city_issues.models import Attachments, Issues, IssueHistory, User, \
+    Comments, Category
+from city_issues.forms.forms import (EditIssue, IssueFilter, IssueForm,
+                                     IssueFormEdit, IssueSearchForm,
+                                     EditUserForm, CommentsOnMapForm,
+                                     IssueFormEditWithoutStatus,
+                                     InternalCommentsForm, ModEditForm)
 from city_issues.mixins import LoginRequiredMixin
-
+from city_issues.thumbnails import create_thumbnail
 
 ROLE_ADMIN = 1
 ROLE_MODERATOR = 2
@@ -44,6 +52,7 @@ class HomePageView(TemplateView):
 class UserProfileView(View):
     """User profile page"""
     form_class = EditUserForm
+    form_comments_class = InternalCommentsForm
     success_url = 'user_profile'
     template_name = 'user/user.html'
 
@@ -54,7 +63,8 @@ class UserProfileView(View):
 
         return render(request, self.template_name, {'user': user,
                                                     'user_issues': user_issues,
-                                                    'form': form})
+                                                    'form': form,
+                                                    'comments_form': self.form_comments_class})
 
     def post(self, request):
         user = User.objects.get(id=request.user.id)
@@ -75,6 +85,32 @@ class UserProfileView(View):
                           {'form': form, 'has_error': 'error'})
 
         return redirect(self.success_url)
+
+    @classmethod
+    def get_internal_comments(cls, request, issue_id):
+        internal_comments = Comments.objects.filter(issue_id=issue_id,
+                                                    status='internal').select_related(
+            "user_id").values('comment', 'user_id', 'user__alias',
+                              'date_public')
+
+        return JsonResponse({'comments': list(internal_comments)})
+
+    @classmethod
+    def store_internal_comments(cls, request, issue_id):
+        form = UserProfileView.form_comments_class(request.POST)
+
+        if form.is_valid():
+            comment = Comments()
+            comment.comment = form.cleaned_data['comment']
+            comment.issue_id = issue_id
+            comment.user_id = request.user.id
+            comment.status = 'internal'
+            comment.date_public = datetime.now()
+            comment.save()
+
+            return JsonResponse({'answer': 'success'})
+        else:
+            return JsonResponse(form.errors.as_json(), status=400, content_type='application/json', safe=False)
 
 
 class IssueCreate(CreateView):
@@ -111,6 +147,7 @@ class IssueCreate(CreateView):
                 attachment.issue = issue
                 attachment.image_url = issue_file
                 attachment.save()
+                create_thumbnail(issue_file, issue.title, attachment.image_url.url)
 
     def save_issue_history(self, issue, user):
         issue_history = IssueHistory()
@@ -122,107 +159,46 @@ class IssueCreate(CreateView):
 def map_page_view(request):
     """Map page"""
     form = IssueFilter()
-    return render(request, 'map_page.html', {'form': form})
+    if request.user.is_anonymous():
+        form.fields.pop('show_deleted')
+        form.fields.pop('show_on_moderation')
+        form.fields.pop('show_new')
+        form.fields.pop('show_pending_close')
+
+    if request.user.is_authenticated() and request.user.role.id not in (
+            ROLE_ADMIN, ROLE_MODERATOR):
+        form.fields.pop('show_deleted')
+
+    comment_form = CommentsOnMapForm()
+    return render(request, 'map_page.html',
+                  {'form': form, 'comment_form': comment_form})
 
 
 def get_issue_data(request, issue_id):
     """Returns single issue record as json"""
-
-    attachments_query = list(
-        Attachments.objects.filter(issue=issue_id).values())
-
-    images_urls = [item['image_url'] for item in attachments_query]
-    checked_img_urls = []
-
-    for img in images_urls:
-        if img and os.path.isfile(os.path.join(settings.MEDIA_ROOT, img)):
-            checked_img_urls.append(img)
-
-    issue_obj = Issues.objects.filter(pk=issue_id).select_related("category")
-    unpacked_issue_obj = issue_obj[0]
-
-    issue_is_editable = False
-
-    if hasattr(request.user, 'role') and (
-            (request.user.role.id in (ROLE_ADMIN, ROLE_MODERATOR)) or
-            (unpacked_issue_obj.user_id == request.user.id)):
-        issue_is_editable = True
-
-    issue_query = list(issue_obj.values(
-        "title",
-        "user",
-        "category",
-        "location_lat",
-        "location_lon",
-        "status",
-        "description",
-        "open_date",
-        "close_date",
-        "delete_date",
-        "category__category",))
-
-    issue_dict = issue_query[0]
-    issue_dict['images_urls'] = checked_img_urls
-    issue_dict['editable'] = issue_is_editable
-
-    issue_dict['open_date'] = convert_date(issue_dict['open_date'])
-    issue_dict['close_date'] = convert_date(issue_dict['close_date'])
-    issue_dict['delete_date'] = convert_date(issue_dict['delete_date'])
-
-    data = json.dumps(issue_query)
+    single_issue = Issues()
+    data = json.dumps(single_issue.get_issue_data_by_id(request, issue_id))
     return JsonResponse(data, safe=False)
 
 
 def get_all_issues_data(request):
     """Returns all issues records as json with possible filter."""
+    all_issues = Issues()
+    role_based_query = all_issues.get_role_based_query(request)
+    role_based_query_default_show = role_based_query.filter(
+        status__in=["open", "new", "on moderation"])
+
     data = serializers.serialize(
         "json",
-        Issues.objects.filter(close_date__isnull=True))
+        role_based_query_default_show)
 
     form = IssueFilter(request.GET)
 
     if form.is_valid() and form.data.get('filter'):
-
-        map_date_from = form.cleaned_data.get('date_from')
-        map_date_to = form.cleaned_data.get('date_to')
-        show_closed = form.cleaned_data.get('show_closed')
-        category = form.data.get('category')
-        search = form.cleaned_data.get('search')
-
-        show_opened_issue = not show_closed
-
-        kwargs = {"close_date__isnull": (show_opened_issue)}
-
-        date_from = make_aware(datetime(1970, 1, 1,))
-        print date_from
-        date_to = make_aware(datetime.now())
-
-        if map_date_from:
-            date_from = make_aware(datetime.combine(map_date_from, time.min))
-        if map_date_to:
-            date_to = make_aware(datetime.combine(map_date_to, time.max))
-
-        kwargs["open_date__range"] = (date_from, date_to)
-
-        if category:
-            kwargs['category'] = category
-
-        query = Issues.objects.filter(**kwargs)
-
-        if search:
-            query = Issues.objects.filter(**kwargs).filter(
-                Q(title__icontains=search) | Q(description__icontains=search))
-
+        query = all_issues.issue_filter(form, role_based_query)
         data = serializers.serialize("json", query)
 
     return JsonResponse(data, safe=False)
-
-
-def convert_date(obj):
-    """Converts data field from database to json acceptable format"""
-    if isinstance(obj, (date, datetime)):
-        return obj.isoformat()
-    return obj
 
 
 class CheckIssues(ListView, FormView):
@@ -242,7 +218,8 @@ class CheckIssues(ListView, FormView):
         if search:
             query_list = search.split()
             queryset = queryset.filter(
-                reduce(operator.or_, (Q(title__icontains=q) for q in query_list)) |
+                reduce(operator.or_,
+                       (Q(title__icontains=q) for q in query_list)) |
                 reduce(operator.or_, (Q(description__icontains=q)
                                       for q in query_list))
             )
@@ -258,7 +235,13 @@ class CheckIssues(ListView, FormView):
         return context
 
 
-class UpdateIssue(UpdateView):
+class DetailedIssue(DetailView):
+    """Detailed issue"""
+    template_name = 'issue_detailed.html'
+    model = Issues
+
+
+class UpdateIssue(IssueCreate, UpdateView):
     """Edit issue from map."""
     model = Issues
     form_class = IssueFormEdit
@@ -267,9 +250,11 @@ class UpdateIssue(UpdateView):
 
     def dispatch(self, request, *args, **kwargs):
         obj = self.get_object()
-        if hasattr(self.request.user, 'role') and (
+        if request.user.is_authenticated() and (
                 (self.request.user.role.id in (ROLE_ADMIN, ROLE_MODERATOR)) or
                 (obj.user == self.request.user)):
+            if self.request.user.role.id not in (ROLE_ADMIN, ROLE_MODERATOR):
+                self.form_class = IssueFormEditWithoutStatus
             return super(UpdateIssue, self).dispatch(request, *args, **kwargs)
         raise PermissionDenied("You are not allowed to edit this issue")
 
@@ -277,17 +262,12 @@ class UpdateIssue(UpdateView):
 class CommentIssues(LoginRequiredMixin, CreateView):
     """Comment issue"""
     template_name = 'issue_detailed.html'
+    model = Comments
     fields = ['comment']
-
-    def get_queryset(self):
-        self.issue = get_object_or_404(Issues, pk=self.kwargs['pk'])
-        return Comments.objects.filter(issue=self.issue)
 
     def get_context_data(self, **kwargs):
         context = super(CommentIssues, self).get_context_data(**kwargs)
         context['object'] = Issues.objects.get(pk=self.kwargs['pk'])
-        context['issue'] = self.issue
-        context['attachment_list'] = Attachments.objects.filter(issue=self.issue)
         return context
 
     def form_valid(self, form):
@@ -297,7 +277,166 @@ class CommentIssues(LoginRequiredMixin, CreateView):
         form.issue = issue
         form.user = user
         form.save()
-        return redirect(reverse('issue-comment', kwargs={'pk': self.kwargs['pk']}))
+        return redirect(
+            reverse('issue-comment', kwargs={'pk': self.kwargs['pk']}))
 
     def form_invalid(self, form):
         return super(CommentIssues, self).form_invalid(form)
+
+
+def delete_attachment(request):
+    attachment_id = request.POST.get('attachment-id')
+    attachment = Attachments.objects.get(id=attachment_id)
+    attachment.delete()
+
+    messages.success(request, 'Attachment successfully deleted')
+
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+
+
+def post_comment(request, issue_id):
+    if request.user.is_authenticated():
+        form = CommentsOnMapForm(request.POST)
+
+        if form.is_valid():
+            issue = Issues()
+            list_of_comments_statuses = issue.get_actions_list(
+                request, issue_id)['list_of_comments_statuses']
+            comment_form_status = form.cleaned_data.get('status')
+            if comment_form_status and comment_form_status in list_of_comments_statuses:
+                comment = Comments()
+                comment.comment = form.cleaned_data.get('comment')
+                comment.user = request.user
+                comment.status = comment_form_status
+                comment.issue = Issues.objects.get(pk=issue_id)
+                comment.date_public = datetime.now()
+                comment.save()
+
+                comments_list = Comments()
+                comments_query = comments_list.get_comments(
+                    issue_id, list_of_comments_statuses)
+
+                data = json.dumps(comments_query)
+                return JsonResponse(data, safe=False)
+
+    raise PermissionDenied("You are not allowed to comment without login")
+
+
+def issue_action(request, issue_id):
+    """Makes actions with issues"""
+    if request.user.is_authenticated():
+        issue = Issues()
+        list_of_actions = issue.get_actions_list(
+            request, issue_id)['list_of_actions']
+        action = request.POST.get('action')
+        if action and action in list_of_actions:
+            changing_issue = Issues.objects.get(pk=issue_id)
+            changing_issue.status = action
+            changing_issue.save()
+            return JsonResponse({'result': 'success'}, safe=False)
+
+    raise PermissionDenied("You are not allowed to change issue")
+
+
+def mod_list_panel(request):
+    """ A moderator list of issues"""
+    if request.user.is_superuser or request.user.is_staff:
+        issues_list = Issues.objects.order_by('-open_date')
+        context = {'title': 'Moderator Panel:'}
+
+        order_by = request.GET.get('order_by', '')
+        if order_by in ('title', 'status', 'user', 'category', 'open_date', 'delete_date'):
+            issues_list = issues_list.order_by(order_by)
+            if request.GET.get('reverse', '') == '1':
+                issues_list = issues_list.reverse()
+
+        query = request.GET.get('q')
+        if query is not None:
+            issues_list = Issues.objects.annotate(search=SearchVector('title', 'status', 'category__category',
+                                                                      config='english')).filter(search=query)
+            context['last_query'] = '?q=%s' % query
+
+        current_page = Paginator(issues_list, 10)
+        page = request.GET.get('page')
+        try:
+            context['issues_list'] = current_page.page(page)
+        except PageNotAnInteger:
+
+            context['issues_list'] = current_page.page(1)
+        except EmptyPage:
+
+            context['issues_list'] = current_page.page(current_page.num_pages)
+
+        if page == '1':
+            return redirect('modpanel', permanent=True)
+    else:
+        context = {'title': 'You have not permission to this page'}
+        return render(request, 'mod/permission.html', context)
+    return render(request, 'mod/mod_list.html', context)
+
+
+def mod_edit_issue(request, pk=None):
+    """A moderator edit issues"""
+    issues = get_object_or_404(Issues, pk=pk)
+    form = ModEditForm(request.POST or None, instance=issues)
+    if form.is_valid():
+        issues = form.save(commit=False)
+        issues.save()
+        messages.success(request, "Successfully Update")
+        return HttpResponseRedirect(issues.get_absolute_url())
+    context = {
+        "title": issues.title,
+        "issue": issues,
+        "form": form,
+    }
+    return render(request, "mod/mod_edit.html", context)
+
+
+def delete_issue(request, pk):
+    """Route for deleting issue."""
+    issue = get_object_or_404(Issues, pk=pk)
+    if request.method == "POST":
+        issue.mod_delete()
+        issue.save()
+        return redirect("modpanel")
+    context = {
+        "issue": issue
+    }
+    return render(request, "mod/confirm_delete.html", context)
+
+
+def restore_issue(request, pk):
+    """Route for restoring issue."""
+    issue = get_object_or_404(Issues, pk=pk)
+    if request.method == "POST":
+        issue.mod_restore()
+        issue.save()
+        return redirect("modpanel")
+    context = {
+        "issue": issue
+    }
+    return render(request, "mod/confirm_restore.html", context)
+
+
+def comment_delete(request, issue_id, comment_id):
+    if request.user.is_authenticated() and request.user.role.id in (
+            ROLE_ADMIN, ROLE_MODERATOR):
+        comment = Comments.objects.get(pk=comment_id)
+        comment.pre_deletion_status = comment.status
+        comment.status = "deleted"
+        comment.save()
+        return redirect(reverse('issue-comment', args=[issue_id]))
+    raise PermissionDenied("You are not allowed to delete comments")
+
+
+def comment_restore(request, issue_id, comment_id):
+    if request.user.is_authenticated() and request.user.role.id in (
+            ROLE_ADMIN, ROLE_MODERATOR):
+        comment = Comments.objects.get(pk=comment_id)
+
+        comment.status = 'public'
+        if comment.pre_deletion_status:
+            comment.status = comment.pre_deletion_status
+        comment.save()
+        return redirect(reverse('issue-comment', args=[issue_id]))
+    raise PermissionDenied("You are not allowed to delete comments")

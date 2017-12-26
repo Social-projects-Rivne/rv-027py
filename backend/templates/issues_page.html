@@ -4,15 +4,19 @@
 {% block title_suffix %}Issues managements{% endblock title_suffix %}
 
 {% block navbar_li %}
-    <li><a href="{{ url_for('admin') }}">Admin page</a></li>
+    <li><a href="{{ url_for('user_page') }}">Users page</a></li>
     <li><a href="{{ url_for('logout') }}">Logout</a></li>
 {% endblock navbar_li %}
 
 {% block content %}
-    <form action="{{ url_for('issues_page') }}" method="GET">
-        <h5> Search issue: {{form.search(size=40)}} search by: {{form.search_by() }}  sort by: {{form.order_by()}}
-            <input type="submit" value="Search"> </h5>
+    <form class="form-inline" action="{{ url_for('issues_page') }}" method="GET">
+        <h4> Search issue: {{form.search(size=40, class="form-control")}}
+            search by: {{form.search_by(class="form-control") }}
+            sort by: {{form.order_by(class="form-control")}}
+            <input class="btn btn-primary" type="submit" value="Search">
+        </h4>
 </form>
+<br>
 <div class="table-responsive">
     <table class="table table-hover">
            <tr>
@@ -56,39 +60,21 @@
 {% if issues.pages > 1 %}
   <div class="text-center">
     {% if issues.has_prev %}
-        <a class="btn btn-primary" href="{{ url_for('issues_page', num_page=issues.prev_num)+ get  }}"><< </a>
+        <a class="btn" href="{{ url_for('issues_page', num_page=issues.prev_num)+ get  }}"><< </a>
     {% endif %}
     {% for page in issues.iter_pages() %}
         {% if page == issues.page %}
-            <a class="btn btn-success" >{{ page }}</a>
+            <a class="btn btn-primary" >{{ page }}</a>
         {% else %}
-            <a class="btn btn-primary" href="{{ url_for('issues_page', num_page=page )+ get }}">{{ page }}</a>
+            <a class="btn" href="{{ url_for('issues_page', num_page=page )+ get }}">{% if not page %}...{%else%} {{ page }} {% endif %}</a>
         {% endif %}
     {% endfor %}
     {% if issues.has_next %}
-        <a class="btn btn-primary" href="{{ url_for('issues_page', num_page=issues.next_num)+ get  }}">>></a>
+        <a class="btn" href="{{ url_for('issues_page', num_page=issues.next_num)+ get  }}">>></a>
     {% endif %}
   </div>
 {%endif%}
 
-<div class="modal fade" id="deletion" role="dialog">
-        <div class="modal-dialog">
+{% include 'modal_confirm.html' %}
 
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    <h4 class="modal-title"></h4>
-                </div>
-                <div class="modal-body"> </div>
-                <div class="modal-footer">
-                    <form id="delete-user" method="post" action="#">
-                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                        <button type="submit" class="btn btn-danger button-confirm"> </button>
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    </form>
-                </div>
-            </div>
-
-        </div>
-      </div>
 {% endblock %}

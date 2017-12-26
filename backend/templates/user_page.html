@@ -4,15 +4,19 @@
 {% block title_suffix %}Users managements{% endblock title_suffix %}
 
 {% block navbar_li %}
-    <li><a href="{{ url_for('admin') }}">Admin page</a></li>
+    <li><a href="{{ url_for('issues_page') }}">Issues page</a></li>
     <li><a href="{{ url_for('logout') }}">Logout</a></li>
 {% endblock navbar_li %}
 
 {% block content %}
-<form action="{{ url_for('user_page') }}" method="GET">
-        <h5> Search user: {{form.search(size=40)}} search by: {{form.search_by() }}  sort by: {{form.order_by()}}
-            <input type="submit" value="Search/Sort"> </h5>
+<form class="form-inline" action="{{ url_for('user_page') }}" method="GET">
+      <h4>  Search user: {{form.search(size=40, class="form-control")}}
+        search by: {{form.search_by(class="form-control") }}
+        sort by: {{form.order_by(class="form-control")}}
+        <input class="btn btn-primary" type="submit" value="Search">
+      </h4>
 </form>
+<br>
     <div class="table-responsive">
         <table class="table table-striped">
             <tr>
@@ -26,7 +30,7 @@
                 <th></th>
                 <th></th>
             </tr>
-            {% for user, role in users %}
+            {% for user, role in users.items %}
                 <tr>
                     <td>{{ user.id }}</td>
                     <td>{{ user.name }}</td>
@@ -53,26 +57,27 @@
             {% endfor %}
         </table>
     </div>
+
+    {% if users.pages > 1 %}
+  <div class="text-center">
+    {% if users.has_prev %}
+        <a class="btn" href="{{ url_for('user_page', num_page=users.prev_num)+ get  }}"><< </a>
+    {% endif %}
+    {% for page in users.iter_pages() %}
+        {% if page == users.page %}
+            <a class="btn btn-primary" >{{ page }}</a>
+        {% else %}
+            <a class="btn" href="{{ url_for('user_page', num_page=page )+ get }}">{% if not page %}...{%else%} {{ page }} {% endif %}</a>
+        {% endif %}
+    {% endfor %}
+    {% if users.has_next %}
+        <a class="btn" href="{{ url_for('user_page', num_page=users.next_num)+ get  }}">>></a>
+    {% endif %}
+  </div>
+{%endif%}
+
     <a href="{{ url_for('user_add') }}" class="btn btn-success">Add new user</a>
 
-    <div class="modal fade" id="deletion" role="dialog">
-        <div class="modal-dialog">
+    {% include 'modal_confirm.html' %}
 
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    <h4 class="modal-title"></h4>
-                </div>
-                <div class="modal-body"> </div>
-                <div class="modal-footer">
-                    <form id="delete-user" method="post" action="#">
-                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                        <button type="submit" class="btn btn-danger button-confirm"></button>
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    </form>
-                </div>
-            </div>
-
-        </div>
-      </div>
 {% endblock %}

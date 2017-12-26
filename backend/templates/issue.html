@@ -4,8 +4,8 @@
 {% block title_suffix %}Issues managements{% endblock title_suffix %}
 
 {% block navbar_li %}
-    <li><a href="{{ url_for('admin') }}">Admin page</a></li>
     <li><a href="{{ url_for('issues_page') }}">Issues page</a></li>
+    <li><a href="{{ url_for('user_page') }}">Users page</a></li>
     <li><a href="{{ url_for('logout') }}">Logout</a></li>
 {% endblock navbar_li %}
 
@@ -39,6 +39,17 @@
                 <dd> {{ issue.status }} </dd>
         </dl> 
         <hr>
+        <div class="row">
+        {% for attachment in attachments %}
+            <div class="col-md-3" >
+                <a class="del-img btn-xs btn-danger" data-attach-id="{{ attachment.id }}"
+                    data-toggle="modal" data-target="#deleteModal"> &times; </a>
+                <img class="img-thumbnail" src="{{ url_for('media_dir', url=attachment.get_thumbnail_url()) }}"
+                    alt="{{url_for('media_dir', url=attachment.get_thumbnail_url()) }}">
+            </div>
+        {% endfor %}
+        </div>
+        <hr>
         <ul>
             {% for history in list_history%}
               {% if history[0] == 'change_status' %}
@@ -57,24 +68,34 @@
     </div>
 </div>
 
-<div class="modal fade" id="deletion" role="dialog">
-        <div class="modal-dialog">
+{% include 'modal_confirm.html' %}
 
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog"
+         aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    <h4 class="modal-title"></h4>
+                    <button type="button" class="close" data-dismiss="modal"
+                            aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
                 </div>
-                <div class="modal-body"> </div>
-                <div class="modal-footer">
-                    <form id="delete-user" method="post" action="#">
+                <form action="{{ url_for('delete_image') }}" method="post">
+                    <div class="modal-body">
+                        <h3>Are you sure delete this image?</h3>
+                        <input type="hidden" value="" name="attachment-id">
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                        <button type="submit" class="btn btn-danger button-confirm"> </button>
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    </form>
-                </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary"
+                                data-dismiss="modal">Close
+                        </button>
+                        <button type="submit" class="btn btn-danger">Delete
+                        </button>
+                    </div>
+                </form>
             </div>
-
         </div>
-      </div>
+    </div>
+  
 {% endblock %}
