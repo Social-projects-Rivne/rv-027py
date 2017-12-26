@@ -4,7 +4,6 @@
 # Set WTF_CSRF_SECRET_KEY
 import os
 
-import os
 
 class Config(object):
     """ Global configuration."""

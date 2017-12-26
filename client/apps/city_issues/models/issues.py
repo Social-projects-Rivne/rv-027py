@@ -192,7 +192,7 @@ class Issues(models.Model):
 
         for img in images_urls:
             if img and os.path.isfile(os.path.join(settings.MEDIA_ROOT, img)):
-                imgurl = img.split('/');
+                imgurl = img.split('/')
                 imgurl[-1] = 'thumb-' + imgurl[-1]
                 img = settings.MEDIA_URL + ('/').join(imgurl)
                 checked_img_urls.append(img)
