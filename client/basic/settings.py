@@ -144,7 +144,7 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'apps', 'city_issues', 'media')
 
 if 'SECRET_KEY' in os.environ:
-        SECRET_KEY = os.environ['SECRET_KEY']
+    SECRET_KEY = os.environ['SECRET_KEY']
 
 # Expand the default settings.
 # Loading extension parameters of standard configurations
@@ -158,7 +158,7 @@ if 'DEBUG' in os.environ and os.environ['DEBUG'] == 'False':
     DEBUG = False
 
     ALLOWED_HOSTS = [".herokuapp.com"]
-    
+
     STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'))
 
     MEDIA_URL = '/media/app/client/media/'
@@ -169,7 +169,6 @@ if 'DEBUG' in os.environ and os.environ['DEBUG'] == 'False':
     db_from_env = dj_database_url.config(conn_max_age=500)
     DATABASES['default'].update(db_from_env)
 
-   
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
     LOGGING = {
