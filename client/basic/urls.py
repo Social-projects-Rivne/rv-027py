@@ -24,7 +24,7 @@ from city_issues.views import (
     CheckIssues, DetailedIssue, delete_attachment, get_all_issues_data, get_issue_data,
     HomePageView, map_page_view, IssueCreate, UserProfileView, UpdateIssue, CommentIssues,
     post_comment, issue_action, comment_delete, comment_restore, mod_list_panel, mod_edit_issue,
-    delete_issue, restore_issue)
+    delete_issue, restore_issue, imgResponse)
 
 
 urlpatterns = [
@@ -55,5 +55,10 @@ urlpatterns = [
     url(r'^accounts/logout/$', auth_views.logout, kwargs={'next_page': 'home'}, name='auth_logout'),
     url(r'^accounts/profile/$', UserProfileView.as_view(), name='user_profile'),
     url(r'^accounts/', include('registration.backends.simple.urls', namespace='accounts', )),
+]
 
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+if settings.DEBUG is True:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+if settings.DEBUG is False:
+    urlpatterns.append(url(r'^media(?P<path>.*)$', imgResponse, name='media'))

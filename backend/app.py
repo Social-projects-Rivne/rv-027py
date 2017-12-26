@@ -1,5 +1,9 @@
 """This module create instance of Flask and activate packages."""
 # pylint: disable=wrong-import-position
+import os
+import sys
+import logging
+
 from flask import Flask
 from flask_bootstrap import Bootstrap
 from flask_wtf.csrf import CSRFProtect
@@ -9,6 +13,12 @@ from flask_mail import Mail
 
 app = Flask(__name__)
 app.config.from_object('backend.config.DevelopmentConfig')
+
+if 'DEBUG' in os.environ and os.environ['DEBUG'] == 'False':
+    app.config.from_object('backend.config.ProductionConfig')
+    app.logger.addHandler(logging.StreamHandler(sys.stdout))
+    app.logger.setLevel(logging.ERROR)
+
 db = SQLAlchemy(app)
 Bootstrap(app)
 CSRFProtect(app)
