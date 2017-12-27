@@ -7,11 +7,7 @@
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
-<<<<<<< HEAD
-        <form action="{% url 'user_profile'  %}" method="post">
-=======
         <form action="{% url 'user_profile'  %}" method="post" class="user-edit">
->>>>>>> origin/develop
             {% csrf_token %}
             <div class="modal-body">
                   {{ form.as_p }}

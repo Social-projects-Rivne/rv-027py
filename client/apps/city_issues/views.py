@@ -22,10 +22,6 @@ from django.shortcuts import redirect, render, get_object_or_404
 from django.utils.timezone import make_aware
 from django.views import View
 from django.views.generic import CreateView, FormView, ListView, TemplateView
-<<<<<<< HEAD
-=======
-from django.views.generic.detail import DetailView
->>>>>>> origin/develop
 from django.views.generic.edit import UpdateView
 from django.urls import reverse
 
@@ -83,10 +79,6 @@ class UserProfileView(View):
             messages.success(request, 'Changes successfully saved')
 
         else:
-<<<<<<< HEAD
-            messages.error(request, form.errors)
-=======
->>>>>>> origin/develop
             return render(request, self.template_name,
                           {'form': form, 'has_error': 'error'})
 
@@ -242,15 +234,6 @@ class CheckIssues(ListView, FormView):
         return context
 
 
-<<<<<<< HEAD
-=======
-class DetailedIssue(DetailView):
-    """Detailed issue"""
-    template_name = 'issue_detailed.html'
-    model = Issues
-
-
->>>>>>> origin/develop
 class UpdateIssue(IssueCreate, UpdateView):
     """Edit issue from map."""
     model = Issues
@@ -272,7 +255,6 @@ class UpdateIssue(IssueCreate, UpdateView):
 class CommentIssues(LoginRequiredMixin, CreateView):
     """Comment issue"""
     template_name = 'issue_detailed.html'
-<<<<<<< HEAD
     fields = ['comment']
 
     def get_queryset(self):
@@ -283,14 +265,6 @@ class CommentIssues(LoginRequiredMixin, CreateView):
         context = super(CommentIssues, self).get_context_data(**kwargs)
         context['object'] = Issues.objects.get(pk=self.kwargs['pk'])
         context['attachment_list'] = Attachments.objects.filter(issue=self.issue)
-=======
-    model = Comments
-    fields = ['comment']
-
-    def get_context_data(self, **kwargs):
-        context = super(CommentIssues, self).get_context_data(**kwargs)
-        context['object'] = Issues.objects.get(pk=self.kwargs['pk'])
->>>>>>> origin/develop
         return context
 
     def form_valid(self, form):
