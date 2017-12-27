@@ -26,8 +26,8 @@
         <input type="hidden" name="next" value="{% url "home" %}" />
 
         <div class="form-group">
-            <label for="id_email" class="col-sm-3 control-label">Email</label>
-            <input type="text" class="form-control" id="id_email" value="{{ request.POST.username }}"
+            <label for="id_username" class="col-sm-3 control-label">Username Name</label>
+            <input type="text" class="form-control" id="id_username" value="{{ request.POST.username }}"
                    name="username" />
             <span class="help-block">{{ form.errors.username.as_data.0.0 }}</span>
         </div>
