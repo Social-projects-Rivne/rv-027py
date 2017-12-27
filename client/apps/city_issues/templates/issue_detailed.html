@@ -5,6 +5,7 @@
 
 {% block meta_title %}Detailed Issue{% endblock meta_title %}
 
+<<<<<<< HEAD
 {% block extra_css %}
     {% load static %}
     <link rel="stylesheet" type="text/css" href="{% static 'css/issues.css' %}"/>
@@ -84,6 +85,80 @@
                      <input type='submit' class="btn btn-primary" value='Comment' name="Comment"/>
              </form>
          </div>
+=======
+{% block content %}
+{% block extra_css %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/issues.css' %}"/>
+    {% endblock extra_css %}
+<div class="container">
+    <div class="row">
+        <div class="page-header text-center">
+          <h1>{{ object.title }}<small> {{ object.user }}</small></h1>
+        </div>
+    </div>
+    <div class="row">
+      <div>
+          <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th>Category</th>
+                  <th>Latitude</th>
+                  <th>Longitude</th>
+                  <th>Status</th>
+                  <th class="col-md-4">Description</th>
+                  <th>Open date</th>
+                  <th>Close date</th>
+                  <th>Attachments</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>{{ object.category}}</td>
+                  <td>{{ object.location_lat}}</td>
+                  <td>{{ object.location_lon}}</td>
+                  <td>{{ object.status }}</td>
+                  <td>{{ object.description}}</td>
+                  <td>{{ object.open_date}}</td>
+                  <td>{{ object.close_date}}</td>
+                  <td>None</td>
+                </tr>
+              </tbody>
+        </table>
+           <div class="row">
+                <h3>Comments: </h3>
+                  <table>
+                      {% for com in  object.comments_set.all %}
+                      <tr>
+                        <td>
+                          <h5>User {{ com.user.name }} {{ com.date_public }}</h5>
+                          <p style="text-indent:20px;">{{ com.comment|linebreaksbr }}</p>
+                        </td>
+                        <td>
+                          {%if user.is_authenticated and user.role.id == 1 or user.role.id == 2  %}
+                            {% if com.status != 'deleted' %}
+                            <a class="btn btn-danger status" data-toggle="modal" data-target="#deletion" data-elem-id="{{ com.id }}" data-func-name="delete" data-elem-name="comment" data-elem-name="comment" data-issue-id="{{ object.pk }}">Delete</a>
+                            {% elif com.status == 'deleted' %}
+                            <a class="btn btn-success status" data-toggle="modal" data-target="#deletion" data-elem-id="{{ com.id }}" data-func-name="restore" data-elem-name="comment" data-issue-id="{{ object.pk }}">Restore</a>
+                            {% endif %}
+                          {% endif %}
+                        </td>
+                      </tr>
+                    {% endfor %}
+                  </table>
+             <form action="{% url 'issue-comment' object.pk %}" method="POST">
+                {% csrf_token %}
+                 <div class="col-md-6">
+                 <label for={{ form.comment.id_for_label }}>Comment:</label>
+                <textarea type="text" class="form-control"
+                          rows="5" name="{{ form.comment.name }}" maxlength="400"
+                          id={{ form.comment.id_for_label }}></textarea>
+                     <br>
+                 <input type='submit' class="btn btn-primary" value='Comment' name="Comment"/>
+             </div>
+             </form>
+                </div>
+      </div>
+>>>>>>> origin/develop
     </div>
 </div>
 
@@ -109,6 +184,7 @@
 {% endblock content %}
 
 {% block extra_js %}
+<<<<<<< HEAD
     <script src="https://unpkg.com/leaflet@1.2.0/dist/leaflet.js"
             integrity="sha512-lInM/apFSqyy1o6s89K4iQUKg6ppXEgsVxT35HbzUupEVRh2Eu9Wdl4tHj7dZO0s1uvplcYGmt3498TtHq+log=="
             crossorigin="">
@@ -118,4 +194,8 @@
         <script type="text/javascript" src="{% static "city_issues/js/app.js" %}"></script>
         <script type="text/javascript" src="{% static "city_issues/js/edit_on_map.js" %}"></script>
 
+=======
+{% load static %}
+  <script type="text/javascript" src="{% static "city_issues/js/app.js" %}"></script>
+>>>>>>> origin/develop
 {% endblock extra_js %}

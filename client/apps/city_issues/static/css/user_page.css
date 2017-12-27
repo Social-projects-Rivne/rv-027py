@@ -19,4 +19,17 @@
 
 .dataTable > thead > tr > th[class*="sort"]:after{
     content: "";
+<<<<<<< HEAD
+=======
+}
+
+ul.errorlist{
+    position: relative;
+    right: 38px;
+}
+
+ul.errorlist li{
+    color: red;
+    list-style: none;
+>>>>>>> origin/develop
 }
