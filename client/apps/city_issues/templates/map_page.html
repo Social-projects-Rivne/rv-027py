@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+
+{% load i18n %}
+{% load static from staticfiles %}
+
+{% block meta_title %}Map page{% endblock meta_title %}
+{% block extra_css %}
+ <link rel="stylesheet" href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css"
+   integrity="sha512-M2wvCLH6DSRazYeZRIm1JnYyh22purTM+FDB5CsyxtQJYeKq83arPe5wgbNmcFXGqiSH2XR8dT/fJISVA1r/zQ=="
+   crossorigin=""/>
+  <link rel="stylesheet" type="text/css" href="https://unpkg.com/leaflet.markercluster@1.2.0/dist/MarkerCluster.css">
+  <link rel="stylesheet" type="text/css" href="https://unpkg.com/leaflet.markercluster@1.2.0/dist/MarkerCluster.Default.css">
+   {% load static %}
+   <link rel="stylesheet" type="text/css" href="{% static "city_issues/css/style.css" %}">
+   <link rel="stylesheet" type="text/css" href="{% static 'css/general.css' %}"/>
+{% endblock extra_css %}
+
+{% block content %}
+
+	<div class="wrapper">
+        <div class="width map-width">
+            <div class="row">
+                {% if messages %}
+                    <ul class="messages">
+                        {% for message in messages %}
+                            <li{% if message.tags %}
+                                class="{{ message.tags }}"{% endif %}>
+                                {{ message }}
+                                <a href="#" class="del-msg">&times;</a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+	
+	<div class="issue_form-box" id="issue_form-box">
+		<button id="issue_filter-form-show-btn" class="issue_filter-form-show-btn">Filter</button>
+		<div id="issue_form-container" class="issue_form-container">
+			<p id="message_box" class="message_box"></p>
+			    {% csrf_token %}
+                {% for field in form %}
+
+	                {% if field.auto_id == "id_category" %}
+	                </div>
+	                {% endif %}
+
+	                <div class="form-group">
+	                	{{field.errors}}
+	                	{{field.label_tag}}
+	                    {{field}}
+	                </div>
+
+	                {% if field.auto_id == "id_date_to" %}
+	                <p><strong>Status:</strong></p>
+	                <div class="form-group--checkbox">
+	                {% endif %}
+				
+                {% endfor %}
+			    <input id="issue_filter-form-btn"  class="btn btn-success" type="submit" value="Show" />
+			    <button id="issue_filter-form-close-btn" class="btn btn-danger">Close</button>
+		</div>
+    </div>
+
+	<div id="mapid" class="map_container"></div>
+
+	<div id="issue_container"  class="issue_container">
+		<div class="issue_box">
+			<div id="issue_close" class="issue_img-box-close-btn"></div>
+			<div id="issue_img-box" class="issue_img-box"></div>
+			<div class="issue_header-box">
+				<h3 id="issue_category" class="issue_category"></h3>
+				<h4 class="issue_title" id="issue_title"></h4>
+				<h5 class="issue_status" id="issue_status"></h5>
+			</div>
+			<p class="issue_description"></p>
+		</div>
+		<div class="issue_buttons-box" id="issue_buttons-box">
+			<button  class="btn btn-success issue_action-hide issue_action" data-action="open" data-toggle="modal" data-target="#action_modal">Approve</button>
+			<a href="#" class="btn btn-primary issue_action-hide issue_action" id="issue_action-edit" data-url="{% url 'edit_issue' 1 %}">Edit</a>
+			<button  class="btn btn-warning issue_action-hide issue_action" data-action="pending close" data-toggle="modal" data-target="#action_modal">Pending close</button>
+			<button  class="btn btn-danger issue_action-hide issue_action" data-action="closed" data-toggle="modal" data-target="#action_modal"">Close</button>
+			<button  class="btn btn-default issue_action-hide issue_action" data-action="deleted" data-toggle="modal" data-target="#action_modal">Delete</button>
+			
+		</div>
+		<div class="issue_comments-box" id="issue_comments-box">
+			{% if user.is_authenticated %}
+			<div class="issue_comments-form" id="issue_comments-form">
+				{% csrf_token %}
+                {% for field in comment_form %}
+                	{{field.errors}}
+                	{{field.label_tag}}
+                    {{field}}
+                {% endfor %}
+                <input id="issue_comments-form-btn"  class="btn btn-success issue_comments-form-btn" type="submit" value="Comment" />
+			</div>
+			{% endif %}
+
+			<ul id="issue_comments" class="issue_comments"></ul>
+			
+		</div>
+	</div>
+
+	<div id="action_modal" class="modal fade" tabindex="-1" role="dialog">
+	  <div class="modal-dialog modal-width" role="document">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+	      </div>
+	      <div class="modal-body">
+	        <p>Confirm changes, please</p>
+	      </div>
+	      <div class="modal-footer">
+	      	<form action="" method="POST" id="form_action">
+	      		{% csrf_token %}
+		        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+		        <button type="button" class="btn btn-primary" id="issue_action-send">Confirm</button>
+		    </form>
+	      </div>
+	    </div>
+	  </div>
+	</div>
+
+	<template id="bootstrap_carousel">
+		<div id="carousel-example-generic" class="carousel slide" data-ride="carousel">
+  				<!-- Indicators -->
+			<ol class="carousel-indicators"></ol>
+				<!-- Wrapper for slides -->
+			<div class="carousel-inner" role="listbox"></div>
+				<!-- Controls -->
+			<a class="left carousel-control" href="#carousel-example-generic" role="button" data-slide="prev">
+				<span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+				 <span class="sr-only">Previous</span>
+			</a>
+			<a class="right carousel-control" href="#carousel-example-generic" role="button" data-slide="next">
+				<span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+				<span class="sr-only">Next</span>
+			</a>
+		</div>
+	</template>
+		
+	<template id="message_list">
+		<ul>
+			<li class="some_error small"></li>
+		</ul>
+	</template>
+{% endblock content %}
+
+{% block extra_js %}
+	<script src="https://unpkg.com/leaflet@1.2.0/dist/leaflet.js"
+	   integrity="sha512-lInM/apFSqyy1o6s89K4iQUKg6ppXEgsVxT35HbzUupEVRh2Eu9Wdl4tHj7dZO0s1uvplcYGmt3498TtHq+log=="
+	   crossorigin=""></script>
+	
+{% load static %}
+	<script type="text/javascript" src="{% static "city_issues/js/main.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/general.js" %}"></script>
+
+<script type="text/javascript" src="https://unpkg.com/leaflet.markercluster@1.2.0/dist/leaflet.markercluster.js"></script>
+{% endblock extra_js %}

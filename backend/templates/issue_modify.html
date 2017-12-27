@@ -1,0 +1,26 @@
+{% extends 'layouts.html' %}
+
+
+{% block title_suffix %}Issues edit{% endblock title_suffix %}
+
+{% block navbar_li %}
+    <li><a href="{{ url_for('issues_page') }}">Issues page</a></li>
+    <li><a href="{{ url_for('logout') }}">Logout</a></li>
+{% endblock navbar_li %}
+
+{% block content %}
+    <h1>Issue modifying form</h1>
+    <div class="col-md-5">
+        <form class="form" method="post" role="form" action="{{ route_to }}">
+            {{ form.hidden_tag() }}
+            {{ wtf.form_errors(form, hiddens="only") }}
+            {{ wtf.form_field(form.title) }}
+            {{ wtf.form_field(form.status) }}
+            {{ wtf.form_field(form.description) }}
+            {{ wtf.form_field(form.location_lat) }}
+            {{ wtf.form_field(form.location_lon) }}
+            {{ wtf.form_field(form.category_id) }}
+		  <input class="btn btn-success" type="submit" name="save" value="Save">
+		</form>
+    </div>
+{% endblock %}

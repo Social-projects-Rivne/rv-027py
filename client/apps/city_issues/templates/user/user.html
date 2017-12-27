@@ -1,0 +1,165 @@
+{% extends "home_page.html" %}
+
+{% load i18n %}
+
+{% block meta_title %}Issues page{% endblock meta_title %}
+
+{% block extra_css %}
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/user_page.css' %}"/>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/general.css' %}"/>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/chat.css' %}"/>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css"/>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.16/css/dataTables.bootstrap.min.css"/>
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+{% endblock extra_css %}
+
+
+{% block content %}
+    <div class="wrapper">
+        <div class="width">
+             <div class="row errors-messages">
+                {% if messages %}
+                    <ul class="messages">
+                        {% for message in messages %}
+                            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>
+                                {{ message }}
+                                <a href="#" class="del-msg">&times;</a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+            <div class="panel panel-info">
+                <div class="panel-heading">
+                    <h3 class="panel-title">{{ user.name|default_if_none:"Name is not defined" }}</h3>
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-3 col-lg-3">
+                            <img alt="User avatar" {% load static %} src="{% static "images/avatar.png" %}" class="img-circle img-responsive">
+                        </div>
+                        <div class=" col-md-9 col-lg-9 ">
+                            <table class="table table-user-information">
+                                <tbody>
+                                <tr>
+                                    <td>Alias:</td>
+                                    <td>{{ user.alias|default_if_none:"Alias is not defined" }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Role:</td>
+                                    <td>{{ user.role.role }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Email</td>
+                                    <td><a href="mailto:info@support.com">{{ user.email }}</a>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel-footer">
+                    <span class="pull-right">
+                        <a href="#" class="btn btn-sm btn-warning" title="edit" data-toggle="modal" data-target="#edit-user-modal">
+                            <i class="glyphicon glyphicon-edit"></i>
+                        </a>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="width">
+            <h2>Added issues</h2>
+
+            <table id="user_issues" class="display" width="100%" cellspacing="0">
+                <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Title</th>
+                    <th>Category</th>
+                    <th>Status</th>
+                    <th>Open date</th>
+                    <th>Close date</th>
+                    <th>Moderator comment</th>
+                    <th></th>
+                    <th>Detailed view</th>
+                </tr>
+                </thead>
+                <tfoot>
+                <tr>
+                    <th>#</th>
+                    <th>Title</th>
+                    <th>Category</th>
+                    <th>Status</th>
+                    <th>Open date</th>
+                    <th>Close date</th>
+                    <th>Moderator comment</th>
+                    <th></th>
+                    <th>Detailed view</th>
+                </tr>
+                </tfoot>
+                <tbody>
+                {% for issue in user_issues %}
+                    <tr>
+                        <td>{{ forloop.counter }} </td>
+                        <td>{{ issue.title }}</td>
+                        <td>{{ issue.category.category }}</td>
+                        <td>{{ issue.status }}</td>
+                        <td>{{ issue.open_date|date:"d/m/y" }}</td>
+                        <td>{{ issue.close_date|default_if_none:"" }}</td>
+                        <td>
+                            <button data-url="{% url 'internal-comment' issue.id %}" data-store-url="{% url 'store-internal-comment' issue.id %}"
+                                    class="btn btn-sm btn-warning comments"  data-toggle="modal" data-target="#internal-comments">
+                                <i class="glyphicon glyphicon-envelope"></i>
+                            </button>
+                        </td>
+                        <td>
+                           <a href="{% url 'edit_issue' issue.id %}"
+                              class="btn btn-sm btn-info">
+                               <span class="glyphicon glyphicon-edit"></span>
+                               edit
+                           </a>
+                        </td>
+                    <td>
+                        <a href="{% url 'issue' issue.id %}"
+                              class="btn btn-sm btn-primary">
+                               <span class="glyphicon glyphicon-search"></span>
+                               show
+                           </a>
+                    </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+{% include 'user/edit-modal.html' %}
+
+{% include 'user/chat.html' %}
+
+{% endblock content %}
+
+
+{% block extra_js %}
+    <script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.16/js/dataTables.bootstrap.min.js"></script>
+    {% load static %}
+    <script type="text/javascript" src="{% static "js/general.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/internal-comments.js" %}"></script>
+    <script>
+        $(document).ready(function ()
+        {
+            $('#user_issues').DataTable();
+            var isError = '{{ has_error }}';
+
+            if (isError === 'error')
+            {
+             $('#edit-user-modal').modal('show');
+            }
+
+            new InternalComments('{{ user.id }}');
+        });
+    </script>
+{% endblock extra_js %}

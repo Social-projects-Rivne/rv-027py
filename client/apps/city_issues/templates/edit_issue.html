@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% block meta_title %}Edit issue page{% endblock meta_title %}
+
+{% block extra_css %}
+    {% load static %}
+    <link rel="stylesheet" type="text/css"
+          href="{% static 'css/issues.css' %}"/>
+    <link rel="stylesheet" type="text/css"
+          href="{% static 'css/general.css' %}"/>
+    <link rel="stylesheet"
+          href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css"
+          integrity="sha512-M2wvCLH6DSRazYeZRIm1JnYyh22purTM+FDB5CsyxtQJYeKq83arPe5wgbNmcFXGqiSH2XR8dT/fJISVA1r/zQ=="
+          crossorigin=""/>
+{% endblock extra_css %}
+
+{% block content %}
+
+    <div class="wrapper">
+        <div class="width map-width">
+            <div class="row">
+                {% if messages %}
+                    <ul class="messages">
+                        {% for message in messages %}
+                            <li{% if message.tags %}
+                                class="{{ message.tags }}"{% endif %}>
+                                {{ message }}
+                                <a href="#" class="del-msg">&times;</a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-6">
+                <form action="" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <input id="issue_form-submit" class="btn btn-success" type="submit"
+                           value="Update"/>
+                </form>
+                <br>
+                <a href="{% url "map" %}" class="btn btn-danger">Return to
+                    map</a>
+
+                 <div class="images">
+                    {% for image in issues.get_attachments %}
+                        <a class="del-img" data-attach-id="{{ image.id }}"
+                           data-toggle="modal" data-target="#deleteModal">&times;</a>
+                        <img src="{% get_media_prefix %}{{ image.image_url }}"
+                             alt="{{ image.image_url }}" class="imgs">
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div id="map"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog"
+         aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"
+                            aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form action="{% url 'delete-attachment' %}" method="post">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <h3>Are you sure delete this image?</h3>
+                        <input type="hidden" value="" name="attachment-id">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary"
+                                data-dismiss="modal">Close
+                        </button>
+                        <button type="submit" class="btn btn-danger">Delete
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+{% endblock content %}
+
+{% block extra_js %}
+    <script src="https://unpkg.com/leaflet@1.2.0/dist/leaflet.js"
+            integrity="sha512-lInM/apFSqyy1o6s89K4iQUKg6ppXEgsVxT35HbzUupEVRh2Eu9Wdl4tHj7dZO0s1uvplcYGmt3498TtHq+log=="
+            crossorigin="">
+    </script>
+
+    {% load static %}
+    <script type="text/javascript"
+            src="{% static "city_issues/js/edit_on_map.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/general.js" %}"></script>
+
+{% endblock extra_js %}

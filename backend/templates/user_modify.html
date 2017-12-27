@@ -1,0 +1,27 @@
+{% extends 'layouts.html' %}
+
+
+{% block title_suffix %}Users add/edit{% endblock title_suffix %}
+
+{% block navbar_li %}
+    <li><a href="{{ url_for('user_page') }}">Users page</a></li>
+    <li><a href="{{ url_for('logout') }}">Logout</a></li>
+{% endblock navbar_li %}
+
+{% block content %}
+    <h1>User modifying form</h1>
+    <div class="col-md-5">
+		<form class="form" method="post" role="form" action="{{ route_to }}">
+		  {{ form.hidden_tag() }}
+		  {{ wtf.form_errors(form, hiddens="only") }}
+
+		  {{ wtf.form_field(form.name) }}
+		  {{ wtf.form_field(form.alias) }}
+		  {{ wtf.form_field(form.email) }}
+			{% if remove_role_change %}
+		  {{ wtf.form_field(form.role_id) }}
+			{% endif %}
+		  <input class="btn btn-success" type="submit" name="save" value="Save">
+		</form>
+    </div>
+{% endblock %}

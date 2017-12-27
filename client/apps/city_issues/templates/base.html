@@ -1,0 +1,84 @@
+{% load i18n %}
+{% load static from staticfiles %}
+
+<!DOCTYPE html>
+<html>
+<head>
+
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>City Issues -
+        {% block meta_title %}{% endblock meta_title %}</title>
+    <link rel="stylesheet"
+          href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+          integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
+          crossorigin="anonymous">
+    {% block extra_css %}
+
+    {% endblock extra_css %}
+
+</head>
+<body>
+
+<!--start navigation-->
+<nav class="navbar navbar-default">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+            <a class="navbar-brand" href="{% url "home" %}">CITY ISSUES</a>
+        </div>
+        <div class="collapse navbar-collapse"
+             id="bs-example-navbar-collapse-1">
+            {% if user.is_authenticated %}
+                <div class="navbar-form navbar-left">
+                    <a href="{% url 'create_issue' %}" class="btn btn-md btn-info">
+                        <span class="glyphicon glyphicon-plus"></span> Add issue
+                    </a>
+                </div>
+                <!--<p class="navbar-text navbar-right">You are logged as <a href="#">{{ user.email }}</a></p>-->
+                <!--<a href="#" class="navbar-text navbar-left">{{ user.email }}</a>-->
+                <a href="{% url "accounts:auth_logout" %}"
+                   class="navbar-text navbar-right">Log out</a>
+                <a href="{% url "issues" %}"
+                   class="navbar-text navbar-right">All Issues</a>
+                 <a href="{% url "map" %}"
+                 class="navbar-text navbar-right">Map</a>
+                <p class="navbar-text navbar-right">You are logged as <a
+                        href="{% url 'user_profile' %}">{{ user.email }}</a></p>
+            {% else %}
+                <a href="{% url "accounts:auth_login" %}"
+                   class="navbar-text navbar-right">Sign in</a>
+                <a href="{% url "accounts:registration_register" %}"
+                   class="navbar-text navbar-right">Sign up</a>
+                <a href="{% url "issues" %}"
+                   class="navbar-text navbar-right">All Issues</a>
+                <a href="{% url "map" %}"
+                   class="navbar-text navbar-right">Map</a>
+            {% endif %}
+            {% if user.is_staff or user.is_superuser %}
+                <div class="navbar-form navbar-left">
+                <a href="{% url 'modpanel' %}" type="button" class="btn btn-md btn-info">
+                    Moderator panel
+                </a>
+            {% else %}
+            {% endif %}
+
+        </div><!-- /.navbar-collapse -->
+    </div><!-- /.container-fluid -->
+</nav>
+<!--end navigation-->
+
+{% block content %}
+{% endblock content %}
+
+<!--scripts-->
+<script src="https://code.jquery.com/jquery-3.1.1.js"
+        integrity="sha256-16cdPddA6VdVInumRGo6IbivbERE8p7CQR3HzTBuELA="
+        crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+        integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+        crossorigin="anonymous"></script>
+{% block extra_js %}{% endblock extra_js %}
+
+</body>
+</html>

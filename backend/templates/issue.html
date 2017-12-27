@@ -1,0 +1,101 @@
+{% extends 'layouts.html' %}
+
+
+{% block title_suffix %}Issues managements{% endblock title_suffix %}
+
+{% block navbar_li %}
+    <li><a href="{{ url_for('issues_page') }}">Issues page</a></li>
+    <li><a href="{{ url_for('user_page') }}">Users page</a></li>
+    <li><a href="{{ url_for('logout') }}">Logout</a></li>
+{% endblock navbar_li %}
+
+{% block content %}
+<div class="lead row">     
+    <div class="col-md-7">  <h1> {{issue.title }} </h1> </div>
+    <div class="text-right text-muted col-md-5">
+        {%  if issue.delete_date %}
+            <small> <i>  Deleted   {{ issue.delete_date.strftime('%Y-%m-%d %H:%M') }} </i> </small>
+            <a class="btn btn-success" data-toggle="modal" data-target="#deletion" data-elem-id="{{ issue.id }}"
+                data-name="{{ issue.title }}" data-func-name="restore" data-elem-name="issue">Restore</a>
+        {% else %}
+                <a class="btn btn-danger" data-toggle="modal" data-target="#deletion" data-elem-id="{{ issue.id }}"
+                    data-name="{{ issue.title }}" data-func-name="delete" data-elem-name="issue">Delete</a>      
+        {% endif %} 
+        <a href="{{ url_for('issue_modify', issue_id=issue.id) }}" class="btn btn-primary">Edit</a>
+    </div>
+
+    <div class="col-md-12">
+        <hr>
+        <dl class="dl-horizontal ">
+            <dt> Description: </dt>
+                <dd> {{ issue.description }}</dd>
+            <dt> Category: </dt>
+                <dd> {{issue.category.category}} </dd>
+            <dt> Owner: </dt>
+                <dd> {{issue.user.alias}} </dd>
+            <dt> Location: </dt>
+                <dd> {{issue.location_lat}}, {{issue.location_lon }}  </dd>
+            <dt> Last status: </dt>
+                <dd> {{ issue.status }} </dd>
+        </dl> 
+        <hr>
+        <div class="row">
+        {% for attachment in attachments %}
+            <div class="col-md-3" >
+                <a class="del-img btn-xs btn-danger" data-attach-id="{{ attachment.id }}"
+                    data-toggle="modal" data-target="#deleteModal"> &times; </a>
+                <img class="img-thumbnail" src="{{ attachment.get_full_thumbnail_url() }}"
+                    alt="">
+            </div>
+        {% endfor %}
+        </div>
+        <hr>
+        <ul>
+            {% for history in list_history%}
+              {% if history[0] == 'change_status' %}
+                    {% if history[1]=='new' %}
+                        <li> <i>{{ history[3]}}</i> new issue created by <b> {{ history[2] }} </b></li>
+                    {% else %}
+                        <li> <i>{{ history[3]}}</i> status changed to <b>{{ history[1] }}</b> by <b> {{ history[2] }} </b></li>
+                    {% endif %}
+              {% else %}
+                <ul>
+                    <li type="circle"> <i>{{ history[3]}}  </i> by <b> {{history[1]}} </b> <p> "{{history[2]}}" </li>
+                </ul>
+              {% endif%}
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+
+{% include 'modal_confirm.html' %}
+
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog"
+         aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"
+                            aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form action="{{ url_for('delete_image') }}" method="post">
+                    <div class="modal-body">
+                        <h3>Are you sure delete this image?</h3>
+                        <input type="hidden" value="" name="attachment-id">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary"
+                                data-dismiss="modal">Close
+                        </button>
+                        <button type="submit" class="btn btn-danger">Delete
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+  
+{% endblock %}

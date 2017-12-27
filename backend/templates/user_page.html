@@ -1,0 +1,88 @@
+{% extends 'layouts.html' %}
+
+
+{% block title_suffix %}Users managements{% endblock title_suffix %}
+
+{% block navbar_li %}
+    <li><a href="{{ url_for('issues_page') }}">Issues page</a></li>
+    <li><a href="{{ url_for('logout') }}">Logout</a></li>
+{% endblock navbar_li %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-10">
+        <form class="form-inline" action="{{ url_for('user_page') }}" method="GET">
+            <h4>  Search user: {{form.search(size=40, class="form-control")}}
+                search by: {{form.search_by(class="form-control") }}
+                sort by: {{form.order_by(class="form-control")}}
+                <input class="btn btn-primary" type="submit" value="Search">
+            </h4>
+        </form>
+    </div>
+    <div class="col-md-2">
+        <h4> <a href="{{ url_for('user_add') }}" class="btn btn-success">Add new user</a> </h4>
+    </div>
+</div>
+<br>
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <tr>
+                <th>Id</th>
+                <th>User</th>
+                <th>Alias</th>
+                <th>E-mail</th>
+                <th>Role</th>
+                <th>Avatar</th>
+                <th>Delete date</th>
+                <th></th>
+                <th></th>
+            </tr>
+            {% for user, role in users.items %}
+                <tr>
+                    <td>{{ user.id }}</td>
+                    <td>{{ user.name }}</td>
+                    <td>{{ user.alias }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>{{ role.role }}</td>
+                    <td>{{ user.avatar }}</td>
+                    <td>
+                        {%  if user.delete_date %}
+                            {{ user.delete_date.strftime('%Y-%m-%d %H:%M') }}
+                        {% endif %}
+                    </td>
+                    <td><a href="{{ url_for('user_modify', users_id=user.id) }}" class="btn btn-primary">Edit</a></td>
+                    {% if not user.delete_date %}
+                        <td><a class="btn btn-danger" data-toggle="modal" data-target="#deletion" data-elem-id="{{ user.id }}"
+                               data-name="{{ user.name }}" data-func-name="delete" data-elem-name="user">Delete</a></td>
+                    {% else %}
+                        <td>
+                            <a class="btn btn-success" data-toggle="modal" data-target="#deletion" data-elem-id="{{ user.id }}"
+                               data-name="{{ user.name }}" data-func-name="restore" data-elem-name="user">Restore</a>
+                        </td>
+                    {% endif %}
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+    {% if users.pages > 1 %}
+  <div class="text-center">
+    {% if users.has_prev %}
+        <a class="btn" href="{{ url_for('user_page', num_page=users.prev_num)+ get  }}"><< </a>
+    {% endif %}
+    {% for page in users.iter_pages() %}
+        {% if page == users.page %}
+            <a class="btn btn-primary" >{{ page }}</a>
+        {% else %}
+            <a class="btn" href="{{ url_for('user_page', num_page=page )+ get }}">{% if not page %}...{%else%} {{ page }} {% endif %}</a>
+        {% endif %}
+    {% endfor %}
+    {% if users.has_next %}
+        <a class="btn" href="{{ url_for('user_page', num_page=users.next_num)+ get  }}">>></a>
+    {% endif %}
+  </div>
+{%endif%}
+
+    {% include 'modal_confirm.html' %}
+
+{% endblock %}
