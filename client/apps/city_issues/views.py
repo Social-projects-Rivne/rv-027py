@@ -22,6 +22,7 @@ from django.shortcuts import redirect, render, get_object_or_404
 from django.utils.timezone import make_aware
 from django.views import View
 from django.views.generic import CreateView, FormView, ListView, TemplateView
+from django.views.generic.detail import DetailView
 from django.views.generic.edit import UpdateView
 from django.urls import reverse
 
@@ -250,6 +251,12 @@ class UpdateIssue(IssueCreate, UpdateView):
                 self.form_class = IssueFormEditWithoutStatus
             return super(UpdateIssue, self).dispatch(request, *args, **kwargs)
         raise PermissionDenied("You are not allowed to edit this issue")
+
+
+class DetailedIssue(DetailView):
+    """Detailed issue"""
+    template_name = 'issue_detailed.html'
+    model = Issues
 
 
 class CommentIssues(LoginRequiredMixin, CreateView):

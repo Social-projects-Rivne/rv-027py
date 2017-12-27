@@ -21,7 +21,7 @@ from django.contrib.auth.decorators import login_required
 from django.views.generic import RedirectView
 
 from city_issues.views import (
-    CheckIssues, delete_attachment, get_all_issues_data, get_issue_data,
+    CheckIssues, DetailedIssue, delete_attachment, get_all_issues_data, get_issue_data,
     HomePageView, map_page_view, IssueCreate, UserProfileView, UpdateIssue, CommentIssues,
     post_comment, issue_action, comment_delete, comment_restore, mod_list_panel, mod_edit_issue,
     delete_issue, restore_issue, imgResponse)
@@ -31,6 +31,7 @@ urlpatterns = [
     url(r'^$', HomePageView.as_view(), name='home'),
     url(r'^issues/$', CheckIssues.as_view(), name='issues'),
     url(r'^issue-comment/(?P<pk>[0-9]+)/$', CommentIssues.as_view(), name='issue-comment'),
+    url(r'^issue/(?P<pk>\d+)/$', DetailedIssue.as_view(), name='issue'),
     url(r'^delete-attachment/$', delete_attachment, name='delete-attachment'),
     url(r'^postcomment/(?P<issue_id>[0-9]+)/$', post_comment, name='post-comment'),
     url(r'^issueaction/(?P<issue_id>[0-9]+)/$', issue_action, name='issue-action'),
