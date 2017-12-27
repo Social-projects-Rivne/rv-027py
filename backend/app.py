@@ -28,6 +28,7 @@ mail = Mail(app)
 from backend.create_database import db_create
 from backend.drop_database import db_drop
 from backend.insert_db_data import db_insert_data
+from backend.insert_db_data import db_create_tables
 from backend.dowload_attachments import download_and_extract_attachments
 # pylint: disable=unused-import
 from backend.views import views
@@ -55,3 +56,8 @@ def insertdata():
 def download_and_extract_images():
     """Download and extract images from Google Drive"""
     download_and_extract_attachments()
+
+@app.cli.command()
+def createtables():
+    """Inserting data into database"""
+    db_create_tables()
