@@ -22,7 +22,6 @@ from django.shortcuts import redirect, render, get_object_or_404
 from django.utils.timezone import make_aware
 from django.views import View
 from django.views.generic import CreateView, FormView, ListView, TemplateView
-from django.views.generic.detail import DetailView
 from django.views.generic.edit import UpdateView
 from django.urls import reverse
 
@@ -236,12 +235,6 @@ class CheckIssues(ListView, FormView):
         return context
 
 
-class DetailedIssue(DetailView):
-    """Detailed issue"""
-    template_name = 'issue_detailed.html'
-    model = Issues
-
-
 class UpdateIssue(IssueCreate, UpdateView):
     """Edit issue from map."""
     model = Issues
@@ -263,12 +256,16 @@ class UpdateIssue(IssueCreate, UpdateView):
 class CommentIssues(LoginRequiredMixin, CreateView):
     """Comment issue"""
     template_name = 'issue_detailed.html'
-    model = Comments
     fields = ['comment']
+
+    def get_queryset(self):
+        self.issue = get_object_or_404(Issues, pk=self.kwargs['pk'])
+        return Comments.objects.filter(issue=self.issue)
 
     def get_context_data(self, **kwargs):
         context = super(CommentIssues, self).get_context_data(**kwargs)
         context['object'] = Issues.objects.get(pk=self.kwargs['pk'])
+        context['attachment_list'] = Attachments.objects.filter(issue=self.issue)
         return context
 
     def form_valid(self, form):
