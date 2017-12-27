@@ -47,6 +47,8 @@ class ProductionConfig(Config):
     if 'WTF_CSRF_SECRET_KEY' in os.environ:
         WTF_CSRF_SECRET_KEY = os.environ['WTF_CSRF_SECRET_KEY']
 
+    MEDIA_URL = 'https://limitless-oasis-36193.herokuapp.com/media/app/client/media/'
+
 
 class DevelopmentConfig(Config):
     """ Development configuration."""

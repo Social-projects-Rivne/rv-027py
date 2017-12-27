@@ -27,18 +27,26 @@ class Attachment(db.Model):
         return "{}/{}".format(head, thumb_name)
 
     def delete(self):
-        delete_file(self.image_url)
-        delete_file(self.get_thumbnail_url())
         db.session.delete(self)
         db.session.commit()
-        directory_path = os.path.abspath(os.path.join(
-            current_app.config['MEDIA_FOLDER'], self.image_url, os.pardir))
-        if not os.listdir(directory_path):
-            os.rmdir(directory_path)
+        if os.path.exists(self.image_url) and os.path.exists(self.get_thumbnail_url()):
+            delete_file(self.image_url)
+            delete_file(self.get_thumbnail_url())
+            directory_path = os.path.abspath(os.path.join(
+                current_app.config['MEDIA_FOLDER'], self.image_url, os.pardir))
+            if not os.listdir(directory_path):
+                os.rmdir(directory_path)
+
+    def get_full_thumbnail_url(self):
+        url = self.get_thumbnail_url()
+        if current_app.config.get('MEDIA_URL'):
+            return current_app.config['MEDIA_URL'] + url
+        return '/media/' + url
 
 
 def delete_file(url):
-    file_path = os.path.abspath(os.path.join(current_app.config['MEDIA_FOLDER'], url))
+    file_path = os.path.abspath(os.path.join(
+        current_app.config['MEDIA_FOLDER'], url))
     os.remove(file_path)
 
 
