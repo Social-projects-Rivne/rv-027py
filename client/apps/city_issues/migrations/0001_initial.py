@@ -16,11 +16,13 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='User',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('id', models.AutoField(auto_created=True,
+                                        primary_key=True, serialize=False, verbose_name='ID')),
                 ('name', models.TextField(unique=True)),
                 ('alias', models.TextField(blank=True, null=True)),
                 ('email', models.EmailField(max_length=50, unique=True)),
-                ('hashed_password', models.TextField(blank=True, max_length=256, null=True)),
+                ('hashed_password', models.TextField(
+                    blank=True, max_length=256, null=True)),
                 ('avatar', models.ImageField(blank=True, null=True, upload_to=b'')),
                 ('delete_date', models.DateTimeField(blank=True, null=True)),
             ],
@@ -32,7 +34,8 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Role',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('id', models.AutoField(auto_created=True,
+                                        primary_key=True, serialize=False, verbose_name='ID')),
                 ('role', models.TextField()),
             ],
             options={
@@ -40,4 +43,4 @@ class Migration(migrations.Migration):
                 'managed': False,
             },
         ),
-]
+    ]
