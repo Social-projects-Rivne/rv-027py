@@ -105,5 +105,12 @@
 }
 
 .status {
-    min-width: 80px;
+    border-radius: 50%;
+    cursor: pointer;
 }
+/*
+.glyphicon-ok,
+.glyphicon-remove {
+    margin: 5px;
+}
+*/
