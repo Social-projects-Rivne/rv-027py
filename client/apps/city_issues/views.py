@@ -80,7 +80,6 @@ class UserProfileView(View):
             messages.success(request, 'Changes successfully saved')
 
         else:
-            messages.error(request, form.errors)
             return render(request, self.template_name,
                           {'form': form, 'has_error': 'error'})
 
