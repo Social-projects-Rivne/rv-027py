@@ -19,8 +19,6 @@
 
 .dataTable > thead > tr > th[class*="sort"]:after{
     content: "";
-<<<<<<< HEAD
-=======
 }
 
 ul.errorlist{
@@ -31,5 +29,4 @@ ul.errorlist{
 ul.errorlist li{
     color: red;
     list-style: none;
->>>>>>> origin/develop
 }
