@@ -151,15 +151,15 @@ issueHistory7 = IssueHistory(user_id='3', issue_id='3', status_id='4',
 
 
 comment1 = Comments(user_id='1', issue_id='1',
-                    date_public='2017/09/26', comment='some data6', status='public')
+                    date_public='2017/09/26', comment='It is good that no one was hurt', status='public')
 comment2 = Comments(user_id='2', issue_id='1',
-                    date_public='2017/10/10', comment='some data2', status='public')
+                    date_public='2017/10/10', comment='Smashed car headlights', status='public')
 comment3 = Comments(user_id='3', issue_id='1',
-                    date_public='2017/11/06', comment='some data3', status='private')
+                    date_public='2017/11/06', comment='Good', status='private')
 comment4 = Comments(user_id='2', issue_id='3', date_public='2017/10/16',
-                    comment='some data4', status='internal')
+                    comment='Photo is low quality, please upload other', status='internal')
 comment5 = Comments(user_id='3', issue_id='3', date_public='2017/10/16',
-                    comment='some data5', status='internal')
+                    comment='Ok, I take a picture and upload it', status='internal')
 
 
 def db_insert_data():
