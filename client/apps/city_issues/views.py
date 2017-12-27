@@ -264,7 +264,7 @@ class CommentIssues(LoginRequiredMixin, CreateView):
     """Comment issue"""
     template_name = 'issue_detailed.html'
     model = Comments
-    fields = ['comment']
+    fields = ['comment', 'status']
 
     def get_context_data(self, **kwargs):
         context = super(CommentIssues, self).get_context_data(**kwargs)
@@ -420,26 +420,32 @@ def restore_issue(request, pk):
 
 
 def comment_delete(request, issue_id, comment_id):
-    if request.user.is_authenticated() and request.user.role.id in (
-            ROLE_ADMIN, ROLE_MODERATOR):
+    if request.user.is_authenticated():
         comment = Comments.objects.get(pk=comment_id)
-        comment.pre_deletion_status = comment.status
-        comment.status = "deleted"
-        comment.save()
-        return redirect(reverse('issue-comment', args=[issue_id]))
+
+        if request.user.role.id in (
+                ROLE_ADMIN, ROLE_MODERATOR) or comment.user_id == request.user.id:
+            comment.pre_deletion_status = comment.status
+            comment.status = "deleted"
+            comment.save()
+            return redirect(reverse('issue-comment', args=[issue_id]))
+
     raise PermissionDenied("You are not allowed to delete comments")
 
 
 def comment_restore(request, issue_id, comment_id):
-    if request.user.is_authenticated() and request.user.role.id in (
-            ROLE_ADMIN, ROLE_MODERATOR):
+    if request.user.is_authenticated():
         comment = Comments.objects.get(pk=comment_id)
 
-        comment.status = 'public'
-        if comment.pre_deletion_status:
-            comment.status = comment.pre_deletion_status
-        comment.save()
-        return redirect(reverse('issue-comment', args=[issue_id]))
+        if request.user.role.id in (
+                ROLE_ADMIN, ROLE_MODERATOR) or comment.user_id == request.user.id:
+
+            comment.status = 'public'
+            if comment.pre_deletion_status:
+                comment.status = comment.pre_deletion_status
+            comment.save()
+            return redirect(reverse('issue-comment', args=[issue_id]))
+
     raise PermissionDenied("You are not allowed to delete comments")
 
 
