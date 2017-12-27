@@ -258,6 +258,7 @@ function IssueDescription(mapObject, mapId, issueContainerId, issueCloseId) {
     formData.append("action", current.issueAction);
     formData.append("issue_id", current.issueId);
     formData.append("csrfmiddlewaretoken", csrf);
+    current.issue_box.style.display = "none";
     current.sendAction(formData, current.issueId);
   };
 
