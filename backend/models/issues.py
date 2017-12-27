@@ -3,7 +3,7 @@
 
 import os
 
-from flask import current_app, send_from_directory
+from flask import current_app
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.sql.functions import func
 
@@ -40,8 +40,8 @@ class Attachment(db.Model):
     def get_full_thumbnail_url(self):
         url = self.get_thumbnail_url()
         if current_app.config.get('MEDIA_URL'):
-            return '%s%s' % (current_app.config['MEDIA_URL'], url)
-        return '%s%s' % ('/media/', url)
+            return current_app.config['MEDIA_URL'] + url
+        return '/media/' + url
 
 
 def delete_file(url):
