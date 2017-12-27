@@ -5,5 +5,5 @@ from backend.app import db
 
 def db_create_tables():
     """Creating all tables."""
-        db.create_all()
-        print "Successfully created tables."
+    db.create_all()
+    print "Successfully created tables."
