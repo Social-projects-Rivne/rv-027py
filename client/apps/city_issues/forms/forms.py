@@ -1,6 +1,9 @@
 """Forms models"""
+from registration.forms import RegistrationForm
+
 from django import forms
 from django.core.validators import MaxValueValidator, MinValueValidator
+from django.contrib.auth import get_user_model
 
 from city_issues.models.issues import Issues, Category, Comments, Statuses
 from city_issues.models.users import User
@@ -361,3 +364,27 @@ class InternalCommentsForm(forms.Form):
         min_length=1,
         max_length=100,
         widget=forms.TextInput({'class': 'form-control', 'placeholder': 'Type Message ...'}))
+
+User = get_user_model()
+
+
+class RegisterUserForm(RegistrationForm):
+    """Registration form"""
+
+    alias = forms.CharField(
+        required=True,
+        max_length=20,
+        min_length=3,
+    )
+
+    name = forms.CharField(
+        required=False,
+        max_length=25,
+        min_length=3,
+    )
+
+    class Meta:
+        model = User
+        fields = ("email",
+                  "alias", "name", "password1",
+                  "password2")
