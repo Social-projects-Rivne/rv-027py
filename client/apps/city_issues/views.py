@@ -80,8 +80,10 @@ class UserProfileView(View):
             messages.success(request, 'Changes successfully saved')
 
         else:
+            user_issues = Issues.objects.filter(user_id=user.id)
             return render(request, self.template_name,
-                          {'form': form, 'has_error': 'error'})
+                          {'form': form, 'has_error': 'error',
+                           'user_issues': user_issues, 'comments_form': self.form_comments_class})
 
         return redirect(self.success_url)
 
