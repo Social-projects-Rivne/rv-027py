@@ -7,10 +7,13 @@ $( document ).ready(function() {
         if (funcName == 'delete'){
             buttonText ='Delete';
             bodyText = "Please click "+buttonText+" button if you want to delete data.";
+            $(".button-confirm").addClass('btn-danger');
         }
         else {
             buttonText ='Restore';
             bodyText = "Please click "+buttonText+" button if you want to restore data.";
+            $(".button-confirm").addClass('btn-success');
+
         }
         $(".modal-title").text("Confirm operation");
         $(".button-confirm").text(buttonText);

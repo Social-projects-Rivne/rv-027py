@@ -25,6 +25,7 @@ from django.views.generic import CreateView, FormView, ListView, TemplateView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import UpdateView
 from django.urls import reverse
+from django.utils.decorators import method_decorator
 
 from city_issues.models import Attachments, Issues, IssueHistory, User, \
     Comments, Category
@@ -83,7 +84,8 @@ class UserProfileView(View):
             user_issues = Issues.objects.filter(user_id=user.id)
             return render(request, self.template_name,
                           {'form': form, 'has_error': 'error',
-                           'user_issues': user_issues, 'comments_form': self.form_comments_class})
+                           'user_issues': user_issues,
+                           'comments_form': self.form_comments_class})
 
         return redirect(self.success_url)
 
@@ -237,6 +239,12 @@ class CheckIssues(ListView, FormView):
         return context
 
 
+class DetailedIssue(DetailView):
+    """Detailed issue"""
+    template_name = 'issue_detailed.html'
+    model = Issues
+
+
 class UpdateIssue(IssueCreate, UpdateView):
     """Edit issue from map."""
     model = Issues
@@ -255,38 +263,27 @@ class UpdateIssue(IssueCreate, UpdateView):
         raise PermissionDenied("You are not allowed to edit this issue")
 
 
-class DetailedIssue(DetailView):
-    """Detailed issue"""
-    template_name = 'issue_detailed.html'
-    model = Issues
-
-
-class CommentIssues(LoginRequiredMixin, CreateView):
+class CommentIssues(CreateView):
     """Comment issue"""
     template_name = 'issue_detailed.html'
-    fields = ['comment']
-
-    def get_queryset(self):
-        self.issue = get_object_or_404(Issues, pk=self.kwargs['pk'])
-        return Comments.objects.filter(issue=self.issue)
+    model = Comments
+    fields = ['comment', 'status']
 
     def get_context_data(self, **kwargs):
         context = super(CommentIssues, self).get_context_data(**kwargs)
         context['object'] = Issues.objects.get(pk=self.kwargs['pk'])
-        context['attachment_list'] = Attachments.objects.filter(issue=self.issue)
         return context
 
     def form_valid(self, form):
-        form = form.save(commit=False)
-        issue = Issues.objects.get(pk=self.kwargs['pk'])
-        user = User.objects.get(pk=self.request.user.id)
-        form.issue = issue
-        form.user = user
-        form.save()
-        return redirect(
-            reverse('issue-comment', kwargs={'pk': self.kwargs['pk']}))
-
-    def form_invalid(self, form):
+        if self.request.user.is_authenticated():
+            form = form.save(commit=False)
+            issue = Issues.objects.get(pk=self.kwargs['pk'])
+            user = User.objects.get(pk=self.request.user.id)
+            form.issue = issue
+            form.user = user
+            form.save()
+            return redirect(
+                reverse('issue-comment', kwargs={'pk': self.kwargs['pk']}))
         return super(CommentIssues, self).form_invalid(form)
 
 
@@ -425,26 +422,32 @@ def restore_issue(request, pk):
 
 
 def comment_delete(request, issue_id, comment_id):
-    if request.user.is_authenticated() and request.user.role.id in (
-            ROLE_ADMIN, ROLE_MODERATOR):
+    if request.user.is_authenticated():
         comment = Comments.objects.get(pk=comment_id)
-        comment.pre_deletion_status = comment.status
-        comment.status = "deleted"
-        comment.save()
-        return redirect(reverse('issue-comment', args=[issue_id]))
+
+        if request.user.role.id in (
+                ROLE_ADMIN, ROLE_MODERATOR) or comment.user_id == request.user.id:
+            comment.pre_deletion_status = comment.status
+            comment.status = "deleted"
+            comment.save()
+            return redirect(reverse('issue-comment', args=[issue_id]))
+
     raise PermissionDenied("You are not allowed to delete comments")
 
 
 def comment_restore(request, issue_id, comment_id):
-    if request.user.is_authenticated() and request.user.role.id in (
-            ROLE_ADMIN, ROLE_MODERATOR):
+    if request.user.is_authenticated():
         comment = Comments.objects.get(pk=comment_id)
 
-        comment.status = 'public'
-        if comment.pre_deletion_status:
-            comment.status = comment.pre_deletion_status
-        comment.save()
-        return redirect(reverse('issue-comment', args=[issue_id]))
+        if request.user.role.id in (
+                ROLE_ADMIN, ROLE_MODERATOR) or comment.user_id == request.user.id:
+
+            comment.status = 'public'
+            if comment.pre_deletion_status:
+                comment.status = comment.pre_deletion_status
+            comment.save()
+            return redirect(reverse('issue-comment', args=[issue_id]))
+
     raise PermissionDenied("You are not allowed to delete comments")
 
 

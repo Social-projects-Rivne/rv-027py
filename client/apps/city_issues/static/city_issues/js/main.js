@@ -338,6 +338,7 @@ function IssueDescription(mapObject, mapId, issueContainerId, issueCloseId) {
     var csrf = document.querySelector("#issue_comments-form input[name=csrfmiddlewaretoken]").value;
     var issue_id = event.target.getAttribute("data-id");
     if (comment.length > 0) {
+      document.querySelector("#id_comment").value = "";
       var formData = new FormData();
       formData.append("comment", comment);
       formData.append("status", commentStatus);

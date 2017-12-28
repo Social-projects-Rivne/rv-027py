@@ -17,39 +17,38 @@
 {% block content %}
 
 <div class="container">
-    <div class="row">
-        <div class="col-sm-3">
-            <div style="border: 2px solid gainsboro; max-height: 250px; overflow-y: scroll;">
-            {% for image in attachment_list  %}
-                {% if image.image_url %}
-                    <img src="{{ image.image_url.url }}" alt="..." class="img-thumbnail">
-                {% else %}
-                    <img src="{% static "city_issues/img/no-image.png" %}" alt="..." class="img-thumbnail">
-                {% endif %}
-            {% endfor %}
-            {% if not attachment_list %}
-                <img src="{% static "city_issues/img/no-image.png" %}" alt="..." class="img-thumbnail">
-            {% endif %}
-            </div>
-        </div>
-        <div class="col-sm-3" style="border: 2px solid gainsboro; height: 250px; overflow-y: auto;">
-            <h6 style="float: right">{{ object.status }}</h6>
-            <h4>Title: {{ object.title }}</h4>
-            <h4>User: {{ object.user }}</h4>
-            <h4>Category: {{ object.category }}</h4>
-            <h5>Open date: {{ object.open_date }}</h5>
-            <h5>Close date: {{ object.close_date }}</h5>
-            <h5>Latitude: {{ object.location_lat }}</h5>
-            <h5>Longitude: {{ object.location_lon }}</h5>
-            <p style="color: #5d5d5d">{{ object.description }}</p>
-        </div>
-        <div class="col-sm-6">
-			<div id="map"></div>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-sm-6" style="border: 2px solid gainsboro; margin-left: 15px; width: 570px; margin-top: -340px; height: 340px; overflow-y: scroll;">
-        Comments:
+		<div class="card">
+			<div class="container-fliud">
+				<div class="wrapper row">
+					<div class="preview col-md-4">
+                         {% for image in issues.get_attachments %}
+                             {% if image.image_url %}
+                                <img src="{% get_media_prefix %}{{ image.image_url }}" alt="{{ image.image_url }}" class="imgs">
+                             {% else %}
+                                 <img src="{% static "city_issues/img/no-image.png" %}" alt="photo" class="img-thumbnail">
+                             {% endif %}
+                         {% endfor %}
+					</div>
+					<div class="details col-md-4">
+                        <h6 style="float: right">{{ object.status }}</h6>
+						<h3 class="product-title">{{ object.title }}</h3>
+                        <h4>Created: {{ object.user }}</h4>
+                        <h4>Category: {{ object.category }}</h4>
+                        <h5>Open date: {{ object.open_date|date:"d/m/y" }}</h5>
+                        <h5>Close date: {{ object.close_date|date:"d/m/y" }}</h5>
+                        <h5>Latitude: {{ object.location_lat }}</h5>
+                        <h5>Longitude: {{ object.location_lon }}</h5>
+                        <h5>Description:</h5>
+						<p class="product-description">{{ object.description }}</p>
+					</div>
+                    <div class="col-sm-4">
+			            <div id="map" style="width: 330px; height: 330px;"></div>
+                    </div>
+				</div>
+			</div>
+            <div class="row">
+        <div class="col-md-6">
+            <h3>Comments:</h3>
             <table>
             {% for com in  object.comments_set.all %}
             <tr>
@@ -81,11 +80,12 @@
                               rows="5" name="{{ form.comment.name }}" maxlength="400"
                               id={{ form.comment.id_for_label }}></textarea>
                          <br>
-                     <input type='submit' class="btn btn-primary" value='Comment' name="Comment"/>
+                 <button class="btn btn-primary">Comment</button>
              </form>
          </div>
     </div>
-</div>
+		</div>
+	</div>
 
 <div class="modal fade" id="deletion" role="dialog">
   <div class="modal-dialog">
@@ -117,4 +117,7 @@
     {% load static %}
         <script type="text/javascript" src="{% static "city_issues/js/app.js" %}"></script>
         <script type="text/javascript" src="{% static "city_issues/js/edit_on_map.js" %}"></script>
+    <script>
+
+    </script>
 {% endblock extra_js %}
