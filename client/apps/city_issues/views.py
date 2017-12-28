@@ -32,7 +32,7 @@ from city_issues.forms.forms import (EditIssue, IssueFilter, IssueForm,
                                      IssueFormEdit, IssueSearchForm,
                                      EditUserForm, CommentsOnMapForm,
                                      IssueFormEditWithoutStatus,
-                                     InternalCommentsForm, ModEditForm)
+                                     InternalCommentsForm, ModEditForm, ModCommentForm)
 from city_issues.mixins import LoginRequiredMixin
 from city_issues.thumbnails import create_thumbnail
 
@@ -390,6 +390,24 @@ def mod_edit_issue(request, pk=None):
         "form": form,
     }
     return render(request, "mod/mod_edit.html", context)
+
+
+def mod_comment(request, pk=None):
+    """A moderator comments"""
+    issue = Issues.objects.get(pk=pk)
+    if request.method != 'POST':
+        form = ModCommentForm()
+    else:
+        form = ModCommentForm(data=request.POST)
+        if form.is_valid():
+            new_comment = form.save(commit=False)
+            new_comment.issue = issue
+            new_comment.save()
+            return HttpResponseRedirect(reverse('modcomment',
+                                                args=[pk]))
+
+    context = {'issue': issue, 'form': form}
+    return render(request, 'mod/mod_comments.html', context)
 
 
 def delete_issue(request, pk):
