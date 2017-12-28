@@ -22,4 +22,9 @@ $( document ).ready(function() {
         var imageID =  $(e.relatedTarget).data('attach-id');
         $('input[name=attachment-id]').val(imageID);
     });
+
+    setTimeout(function ()
+    {
+        $('.messages').fadeOut('slow');
+    }, 10000);
 });
