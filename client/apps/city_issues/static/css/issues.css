@@ -107,3 +107,8 @@
 .status {
     min-width: 80px;
 }
+
+.card .container-fliud .preview.col-md-6 img.imgs
+{
+    max-width: 360px;
+}

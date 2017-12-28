@@ -1,6 +1,10 @@
 {% extends "bootstrap/base.html" %}
 {% import "bootstrap/wtf.html" as wtf %}
 
+{% block styles %}
+{{super()}}
+<link rel="stylesheet" href="{{url_for('.static', filename='assets/css/message.css')}}">
+{% endblock %}
 
 {% block title %}
 	City View - {% block title_suffix %}{% endblock title_suffix %}
@@ -23,18 +27,20 @@
 		</div>
 	{% endblock  navbar %}
 
-	<div class="container">
+	<div class="container messages">
 		<div class="row">
 			<div class="col-sm-12">
                 {% with messages = get_flashed_messages(with_categories=true) %}
                     {% if messages %}
                         {% for category, message in messages %}
                             {% if category == 'message' %}
-                                <div class="alert alert-info" role="alert">
+                                <div class="alert alert-info alert-dismissable" role="alert">
                             {% else %}
-                                <div class="alert alert-{{ category }}" role="alert">
+                                <div class="alert alert-{{ category }} alert-dismissable" role="alert">
                             {% endif %}
+							<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
                             {{ message }}
+                                </div>
                         {% endfor %}
                     {% endif %}
                 {% endwith %}

@@ -32,7 +32,6 @@
                 <th>Alias</th>
                 <th>E-mail</th>
                 <th>Role</th>
-                <th>Avatar</th>
                 <th>Delete date</th>
                 <th></th>
                 <th></th>
@@ -44,7 +43,6 @@
                     <td>{{ user.alias }}</td>
                     <td>{{ user.email }}</td>
                     <td>{{ role.role }}</td>
-                    <td>{{ user.avatar }}</td>
                     <td>
                         {%  if user.delete_date %}
                             {{ user.delete_date.strftime('%Y-%m-%d %H:%M') }}
