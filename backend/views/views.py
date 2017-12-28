@@ -97,7 +97,6 @@ def user_add():
         newuser.password = form.password.data
         db.session.add(newuser)
         db.session.commit()
-        password = form.password.data
         subject = "Add User"
         msg = Message(app.config['ADMIN_MAIL_SUBJECT_PREFIX'] + ' ' + subject, sender=app.config['ADMIN_MAIL_SENDER'],
                       recipients=[newuser.email])
@@ -106,10 +105,9 @@ def user_add():
                               Email: %s
                               Name: %s
                               Alias: %s
-                              Password: %s
                               """ % (
             app.config['ADMIN_MAIL_SUBJECT_PREFIX'], newuser.email, newuser.email, newuser.name,
-            newuser.alias, password)
+            newuser.alias)
         mail.send(msg)
         flash("User added and notification", category="success")
         return redirect(url_for('user_page'))
@@ -262,7 +260,7 @@ def issue_modify(issue_id):
         flash("Issue modified")
         return redirect(url_for('issues_page'))
 
-    return render_template('issue_modify.html', form=form, route_to=route_to)
+    return render_template('issue_modify.html', form=form, route_to=route_to, issue=issue)
 
 
 @app.route('/deleteissue/<int:issue_id>', methods=['POST'])

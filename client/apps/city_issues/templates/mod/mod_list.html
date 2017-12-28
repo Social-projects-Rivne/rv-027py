@@ -42,7 +42,8 @@
                 </tr>
                 {% for issue in issues_list %}
                     <tr>
-                        <td><a href='{{ issue.get_absolute_url }}'>{{ issue.title }}</a></td>
+                        <td><a href="{% url 'issue' issue.id %}">
+                           {{ issue.title }}</a></td>
                         <td>{{ issue.status }}</td>
                         <td>{{ issue.user }}</td>
                         <td>{{ issue.category }}</td>
