@@ -27,4 +27,3 @@ class UserManager(BaseUserManager):
                          avatar=None):
         return self._create_user(email=email, password=password, alias=alias, name=name, is_superuser=True,
                                  avatar=avatar)
-

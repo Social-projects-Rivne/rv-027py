@@ -365,6 +365,7 @@ class InternalCommentsForm(forms.Form):
         max_length=100,
         widget=forms.TextInput({'class': 'form-control', 'placeholder': 'Type Message ...'}))
 
+
 User = get_user_model()
 
 
