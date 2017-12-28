@@ -53,10 +53,10 @@
                             <span class="glyphicon glyphicon-cog"></span></a></td>
                         {% if not issue.delete_date %}
                             <td><a class="btn btn-danger" data-toggle="modal" data-target="#deletion" data-elem-id="{{ issue.id }}" data-func-name="modpanel"
-                               data-elem-name="delete" data-issue-id="{{ issue.pk }}"><span class="glyphicon glyphicon-trash"></span></a></td>
+                               data-elem-name="delete" data-name="{{ issue.title }}" data-issue-id="{{ issue.pk }}"><span class="glyphicon glyphicon-trash"></span></a></td>
                         {% else %}
                             <td><a class="btn btn-success" data-toggle="modal" data-target="#deletion" data-elem-id="{{ issue.id }}" data-func-name="modpanel"
-                               data-elem-name="restore" data-issue-id="{{ issue.pk }}"><span class="glyphicon glyphicon-refresh"></span></a>
+                               data-elem-name="restore" data-name="{{ issue.title }}" data-issue-id="{{ issue.pk }}"><span class="glyphicon glyphicon-refresh"></span></a>
                             </td>
                         {% endif %}
                     </tr>
