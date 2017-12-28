@@ -7,17 +7,16 @@ $( document ).ready(function() {
         if (funcName == 'delete'){
             buttonText ='Delete';
             bodyText = "Please click "+buttonText+" button if you want to delete data.";
-            $(".button-confirm").css('background-color', '#c9302c');
+            $(".button-confirm").addClass('btn-danger');
         }
         else {
             buttonText ='Restore';
             bodyText = "Please click "+buttonText+" button if you want to restore data.";
-            $(".button-confirm").css('background-color', '#449d44');
+            $(".button-confirm").addClass('btn-success');
 
         }
         $(".modal-title").text("Confirm operation");
         $(".button-confirm").text(buttonText);
-        $(".button-confirm").css('color', 'white');
         $(".modal-body").text(bodyText);
         $("#delete-comment").attr('action', '/'+funcName+elemName+'/'+ issueId +'/'+ elemId+'/');
     });
