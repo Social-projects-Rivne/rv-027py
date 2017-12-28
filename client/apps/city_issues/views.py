@@ -13,6 +13,7 @@ from django.db.models import Q
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.decorators import login_required
 from django.contrib.postgres.search import SearchVector
 from django.core import serializers
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
@@ -375,6 +376,7 @@ def mod_list_panel(request):
     return render(request, 'mod/mod_list.html', context)
 
 
+@login_required
 def mod_edit_issue(request, pk=None):
     """A moderator edit issues"""
     issues = get_object_or_404(Issues, pk=pk)
@@ -392,6 +394,7 @@ def mod_edit_issue(request, pk=None):
     return render(request, "mod/mod_edit.html", context)
 
 
+@login_required
 def mod_comment(request, pk=None):
     """A moderator comments"""
     issue = Issues.objects.get(pk=pk)
@@ -410,6 +413,7 @@ def mod_comment(request, pk=None):
     return render(request, 'mod/mod_comments.html', context)
 
 
+@login_required
 def delete_issue(request, pk):
     """Route for deleting issue."""
     issue = get_object_or_404(Issues, pk=pk)
@@ -423,6 +427,7 @@ def delete_issue(request, pk):
     return redirect(reverse('modpanel', context))
 
 
+@login_required
 def restore_issue(request, pk):
     """Route for restoring issue."""
     issue = get_object_or_404(Issues, pk=pk)
