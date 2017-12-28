@@ -5,47 +5,52 @@
 
 {% block meta_title %}Detailed Issue{% endblock meta_title %}
 
-{% block content %}
 {% block extra_css %}
+    {% load static %}
     <link rel="stylesheet" type="text/css" href="{% static 'css/issues.css' %}"/>
-    {% endblock extra_css %}
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css"
+          integrity="sha512-M2wvCLH6DSRazYeZRIm1JnYyh22purTM+FDB5CsyxtQJYeKq83arPe5wgbNmcFXGqiSH2XR8dT/fJISVA1r/zQ=="
+          crossorigin=""/>
+{% endblock extra_css %}
+
+{% block content %}
+
 <div class="container">
     <div class="row">
-        <div class="page-header text-center">
-          <h1>{{ object.title }}<small> {{ object.user }}</small></h1>
+        <div class="col-sm-3">
+            <div style="border: 2px solid gainsboro; max-height: 250px; overflow-y: scroll;">
+            {% for image in attachment_list  %}
+                {% if image.image_url %}
+                    <img src="{{ image.image_url.url }}" alt="..." class="img-thumbnail">
+                {% else %}
+                    <img src="{% static "city_issues/img/no-image.png" %}" alt="..." class="img-thumbnail">
+                {% endif %}
+            {% endfor %}
+            {% if not attachment_list %}
+                <img src="{% static "city_issues/img/no-image.png" %}" alt="..." class="img-thumbnail">
+            {% endif %}
+            </div>
+        </div>
+        <div class="col-sm-3" style="border: 2px solid gainsboro; height: 250px; overflow-y: auto;">
+            <h6 style="float: right">{{ object.status }}</h6>
+            <h4>Title: {{ object.title }}</h4>
+            <h4>User: {{ object.user }}</h4>
+            <h4>Category: {{ object.category }}</h4>
+            <h5>Open date: {{ object.open_date }}</h5>
+            <h5>Close date: {{ object.close_date }}</h5>
+            <h5>Latitude: {{ object.location_lat }}</h5>
+            <h5>Longitude: {{ object.location_lon }}</h5>
+            <p style="color: #5d5d5d">{{ object.description }}</p>
+        </div>
+        <div class="col-sm-6">
+			<div id="map"></div>
         </div>
     </div>
     <div class="row">
-      <div>
-          <table class="table table-hover">
-              <thead>
-                <tr>
-                  <th>Category</th>
-                  <th>Latitude</th>
-                  <th>Longitude</th>
-                  <th>Status</th>
-                  <th class="col-md-4">Description</th>
-                  <th>Open date</th>
-                  <th>Close date</th>
-                  <th>Attachments</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>{{ object.category}}</td>
-                  <td>{{ object.location_lat}}</td>
-                  <td>{{ object.location_lon}}</td>
-                  <td>{{ object.status }}</td>
-                  <td>{{ object.description}}</td>
-                  <td>{{ object.open_date}}</td>
-                  <td>{{ object.close_date}}</td>
-                  <td>None</td>
-                </tr>
-              </tbody>
-        </table>
-           <div class="row">
-                <h3>Comments: </h3>
-                  <table>
+        <div class="col-sm-6" style="border: 2px solid gainsboro; margin-left: 15px; width: 570px; margin-top: -340px; height: 340px; overflow-y: scroll;">
+        Comments:
+            <table>
                       {% for com in  object.comments_set.all %}
                       {%  if user.pk == com.user_id or user.role.id == 1 or user.role.id == 2  and com.status != 'internal'%}
                       <tr>
@@ -78,11 +83,16 @@
                       {% endif %}
                       </tr>
                     {% endfor %}
-                  </table>
-           {% if user.is_authenticated %}
+</table>
+        </div>
+    </div>
+    {% if user.is_authenticated %}
+         <div class="row">
+         <div class="col-sm-6" style="padding-right: 0">
+            <br>
              <form action="{% url 'issue-comment' object.pk %}" method="POST">
                 {% csrf_token %}
-                 <div class="col-md-6">
+
                  <label for={{ form.comment.id_for_label }}>Comment:</label>
                 <textarea type="text" class="form-control"
                           rows="5" name="{{ form.comment.name }}" maxlength="400"
@@ -95,12 +105,11 @@
 
 
                  <input type='submit' class="btn btn-primary" value='Comment' name="Comment"/>
-             </div>
+
              </form>
-           {% endif %}
-                </div>
-      </div>
-    </div>
+        </div>
+        </div>
+{% endif %}
 </div>
 
 <div class="modal fade" id="deletion" role="dialog">
@@ -125,6 +134,12 @@
 {% endblock content %}
 
 {% block extra_js %}
-{% load static %}
-  <script type="text/javascript" src="{% static "city_issues/js/app.js" %}"></script>
+    <script src="https://unpkg.com/leaflet@1.2.0/dist/leaflet.js"
+            integrity="sha512-lInM/apFSqyy1o6s89K4iQUKg6ppXEgsVxT35HbzUupEVRh2Eu9Wdl4tHj7dZO0s1uvplcYGmt3498TtHq+log=="
+            crossorigin="">
+    </script>
+
+    {% load static %}
+        <script type="text/javascript" src="{% static "city_issues/js/app.js" %}"></script>
+        <script type="text/javascript" src="{% static "city_issues/js/edit_on_map.js" %}"></script>
 {% endblock extra_js %}
