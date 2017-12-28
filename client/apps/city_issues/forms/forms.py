@@ -215,21 +215,21 @@ class EditUserForm(forms.ModelForm):
 
     current_password = forms.CharField(
         required=False,
-        min_length=4,
+        min_length=3,
         widget=forms.PasswordInput(attrs={'class': 'form-control'})
     )
 
     new_password = forms.CharField(
         required=False,
         max_length=50,
-        min_length=4,
+        min_length=3,
         widget=forms.PasswordInput(attrs={'class': 'form-control'})
     )
 
     confirm_password = forms.CharField(
         required=False,
         max_length=50,
-        min_length=4,
+        min_length=3,
         widget=forms.PasswordInput(attrs={'class': 'form-control'})
     )
 

@@ -30,3 +30,7 @@ ul.errorlist li{
     color: red;
     list-style: none;
 }
+
+..modal-title{
+    display: inline-block;
+}
