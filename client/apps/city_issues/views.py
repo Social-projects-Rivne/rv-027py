@@ -402,7 +402,7 @@ def delete_issue(request, pk):
     context = {
         "issue": issue
     }
-    return render(request, "mod/confirm_delete.html", context)
+    return redirect(reverse('modpanel', context))
 
 
 def restore_issue(request, pk):
@@ -415,7 +415,7 @@ def restore_issue(request, pk):
     context = {
         "issue": issue
     }
-    return render(request, "mod/confirm_restore.html", context)
+    return redirect(reverse('modpanel', context))
 
 
 def comment_delete(request, issue_id, comment_id):

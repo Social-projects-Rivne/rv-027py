@@ -52,10 +52,11 @@
                         <td><a href='{{ issue.get_absolute_url }}' class="btn btn-md btn-info">
                             <span class="glyphicon glyphicon-cog"></span></a></td>
                         {% if not issue.delete_date %}
-                            <td><a class="btn btn-danger"  href="{% url "delete_issue" issue.id%}"><span class="glyphicon glyphicon-trash"></span></a></td>
+                            <td><a class="btn btn-danger" data-toggle="modal" data-target="#deletion" data-elem-id="{{ issue.id }}" data-func-name="modpanel"
+                               data-elem-name="delete" data-issue-id="{{ issue.pk }}"><span class="glyphicon glyphicon-trash"></span></a></td>
                         {% else %}
-                            <td>
-                                <a class="btn btn-success" href="{% url "restore_issue" issue.id%}"><span class="glyphicon glyphicon-refresh"></span></a>
+                            <td><a class="btn btn-success" data-toggle="modal" data-target="#deletion" data-elem-id="{{ issue.id }}" data-func-name="modpanel"
+                               data-elem-name="restore" data-issue-id="{{ issue.pk }}"><span class="glyphicon glyphicon-refresh"></span></a>
                             </td>
                         {% endif %}
                     </tr>
@@ -69,4 +70,28 @@
 
 </div>
 
+    <div class="modal fade" id="deletion" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title"></h4>
+      </div>
+      <div class="modal-body"> </div>
+      <div class="modal-footer">
+        <form id="delete-issue" method="post" action="#">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-warning button-confirm"> </button>
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
 {% endblock content %}
+
+{% block extra_js %}
+{% load static %}
+  <script type="text/javascript" src="{% static "mod_static/mod_modal.js" %}"></script>
+{% endblock extra_js %}
