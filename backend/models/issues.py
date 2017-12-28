@@ -33,7 +33,7 @@ class Attachment(db.Model):
         delete_file(self.get_thumbnail_url())
         directory_path = os.path.abspath(os.path.join(
             current_app.config['MEDIA_FOLDER'], self.image_url, os.pardir))
-        if not os.listdir(directory_path) and os.path.exists(directory_path):
+        if os.path.exists(directory_path) and not os.listdir(directory_path):
             os.rmdir(directory_path)
 
     def get_full_thumbnail_url(self):
