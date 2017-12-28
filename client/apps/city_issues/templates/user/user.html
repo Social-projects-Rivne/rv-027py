@@ -63,7 +63,7 @@
                 <div class="panel-footer">
                     <span class="pull-right">
                         <a href="#" class="btn btn-sm btn-warning" title="edit" data-toggle="modal" data-target="#edit-user-modal">
-                            <i class="glyphicon glyphicon-edit"></i>
+                            <i class="glyphicon glyphicon-edit"></i> edit-profile
                         </a>
                     </span>
                 </div>
@@ -82,7 +82,7 @@
                     <th>Open date</th>
                     <th>Close date</th>
                     <th>Moderator comment</th>
-                    <th></th>
+                    <th>Edit</th>
                     <th>Detailed view</th>
                 </tr>
                 </thead>
@@ -95,7 +95,7 @@
                     <th>Open date</th>
                     <th>Close date</th>
                     <th>Moderator comment</th>
-                    <th></th>
+                    <th>Edit</th>
                     <th>Detailed view</th>
                 </tr>
                 </tfoot>
@@ -115,11 +115,13 @@
                             </button>
                         </td>
                         <td>
-                           <a href="{% url 'edit_issue' issue.id %}"
-                              class="btn btn-sm btn-info">
-                               <span class="glyphicon glyphicon-edit"></span>
-                               edit
-                           </a>
+                            {% if issue.status == 'new' %}
+                               <a href="{% url 'edit_issue' issue.id %}"
+                                  class="btn btn-sm btn-info">
+                                   <span class="glyphicon glyphicon-edit"></span>
+                                   edit
+                               </a>
+                            {% endif %}
                         </td>
                     <td>
                         <a href="{% url 'issue' issue.id %}"
