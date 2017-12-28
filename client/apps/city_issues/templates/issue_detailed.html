@@ -47,7 +47,7 @@
                 <h3>Comments: </h3>
                   <table>
                       {% for com in  object.comments_set.all %}
-                      {%  if user.pk == com.user_id or user.role.id == 1 or user.role.id == 2 %}
+                      {%  if user.pk == com.user_id or user.role.id == 1 or user.role.id == 2  and com.status != 'internal'%}
                       <tr>
                         <td>
                           <h5>{{ com.user.role.role|title }}: {{ com.user.name }} {{ com.date_public }} {{ com.status }}</h5>
@@ -67,10 +67,19 @@
                           <p style="text-indent:20px;">{{ com.comment|linebreaksbr }}</p>
                         </td>
                               {% endif %}
+                          {% if user.is_authenticated %}
+                              {% if com.status == 'internal' %}
+                                  <td>
+                          <h5>{{ com.user.role.role|title }}: {{ com.user.name }} {{ com.date_public }} {{ com.status }}</h5>
+                          <p style="text-indent:20px;">{{ com.comment|linebreaksbr }}</p>
+                        </td>
+                                  {% endif %}
+                              {% endif %}
                       {% endif %}
                       </tr>
                     {% endfor %}
                   </table>
+           {% if user.is_authenticated %}
              <form action="{% url 'issue-comment' object.pk %}" method="POST">
                 {% csrf_token %}
                  <div class="col-md-6">
@@ -88,6 +97,7 @@
                  <input type='submit' class="btn btn-primary" value='Comment' name="Comment"/>
              </div>
              </form>
+           {% endif %}
                 </div>
       </div>
     </div>

@@ -25,6 +25,7 @@ from django.views.generic import CreateView, FormView, ListView, TemplateView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import UpdateView
 from django.urls import reverse
+from django.utils.decorators import method_decorator
 
 from city_issues.models import Attachments, Issues, IssueHistory, User, \
     Comments, Category
@@ -260,7 +261,7 @@ class UpdateIssue(IssueCreate, UpdateView):
         raise PermissionDenied("You are not allowed to edit this issue")
 
 
-class CommentIssues(LoginRequiredMixin, CreateView):
+class CommentIssues(CreateView):
     """Comment issue"""
     template_name = 'issue_detailed.html'
     model = Comments
@@ -272,16 +273,15 @@ class CommentIssues(LoginRequiredMixin, CreateView):
         return context
 
     def form_valid(self, form):
-        form = form.save(commit=False)
-        issue = Issues.objects.get(pk=self.kwargs['pk'])
-        user = User.objects.get(pk=self.request.user.id)
-        form.issue = issue
-        form.user = user
-        form.save()
-        return redirect(
-            reverse('issue-comment', kwargs={'pk': self.kwargs['pk']}))
-
-    def form_invalid(self, form):
+        if self.request.user.is_authenticated():
+            form = form.save(commit=False)
+            issue = Issues.objects.get(pk=self.kwargs['pk'])
+            user = User.objects.get(pk=self.request.user.id)
+            form.issue = issue
+            form.user = user
+            form.save()
+            return redirect(
+                reverse('issue-comment', kwargs={'pk': self.kwargs['pk']}))
         return super(CommentIssues, self).form_invalid(form)
 
 
