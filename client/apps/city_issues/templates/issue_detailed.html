@@ -59,9 +59,13 @@
                 <td>
                   {% if user.is_authenticated and user.role.id == 1 or user.role.id == 2  %}
                     {% if com.status != 'deleted' %}
-                    <a class="btn btn-danger status" data-toggle="modal" data-target="#deletion" data-elem-id="{{ com.id }}" data-func-name="delete" data-elem-name="comment" data-issue-id="{{ object.pk }}">Delete</a>
+                    <a class="btn btn-danger status" data-toggle="modal" data-target="#deletion"
+                        data-elem-id="{{ com.id }}" data-func-name="delete" data-elem-name="comment"
+                        data-issue-id="{{ object.pk }}">&times;</a>
                     {% elif com.status == 'deleted' %}
-                    <a class="btn btn-success status" data-toggle="modal" data-target="#deletion" data-elem-id="{{ com.id }}" data-func-name="restore" data-elem-name="comment" data-issue-id="{{ object.pk }}">Restore</a>
+                    <a class="btn btn-success status" data-toggle="modal" data-target="#deletion"
+                        data-elem-id="{{ com.id }}" data-func-name="restore" data-elem-name="comment"
+                        data-issue-id="{{ object.pk }}">&#10003;</a>
                     {% endif %}
                   {% endif %}
                 </td>
