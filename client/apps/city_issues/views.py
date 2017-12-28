@@ -235,12 +235,6 @@ class CheckIssues(ListView, FormView):
         return context
 
 
-class DetailedIssue(DetailView):
-    """Detailed issue"""
-    template_name = 'issue_detailed.html'
-    model = Issues
-
-
 class UpdateIssue(IssueCreate, UpdateView):
     """Edit issue from map."""
     model = Issues
@@ -259,15 +253,25 @@ class UpdateIssue(IssueCreate, UpdateView):
         raise PermissionDenied("You are not allowed to edit this issue")
 
 
+class DetailedIssue(DetailView):
+    """Detailed issue"""
+    template_name = 'issue_detailed.html'
+    model = Issues
+
+
 class CommentIssues(LoginRequiredMixin, CreateView):
     """Comment issue"""
     template_name = 'issue_detailed.html'
-    model = Comments
     fields = ['comment']
+
+    def get_queryset(self):
+        self.issue = get_object_or_404(Issues, pk=self.kwargs['pk'])
+        return Comments.objects.filter(issue=self.issue)
 
     def get_context_data(self, **kwargs):
         context = super(CommentIssues, self).get_context_data(**kwargs)
         context['object'] = Issues.objects.get(pk=self.kwargs['pk'])
+        context['attachment_list'] = Attachments.objects.filter(issue=self.issue)
         return context
 
     def form_valid(self, form):
