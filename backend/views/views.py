@@ -138,6 +138,7 @@ def user_modify(users_id):
     return render_template(
         'user_modify.html',
         form=form,
+        user=user,
         route_to=route_to,
         remove_role_change=remove_role_change)
 

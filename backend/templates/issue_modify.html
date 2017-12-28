@@ -22,8 +22,13 @@
             {{ wtf.form_field(form.category_id) }}
 		  <input class="btn btn-success" type="submit" name="save" value="Save">
             <a href="{{ url_for('issue_info', issue_id=issue.id) }}" class="btn btn-primary">Edit Attachments</a>
-            <a class="btn btn-danger" data-toggle="modal" data-target="#deletion" data-elem-id="{{ issue.id }}"
+            {%if not issue.delete_date %}
+                        <a class="btn btn-danger" data-toggle="modal" data-target="#deletion" data-elem-id="{{ issue.id }}"
                                data-name="{{ issue.title }}" data-func-name="delete" data-elem-name="issue">Delete</a>
+                    {% else %}
+                            <a class="btn btn-success" data-toggle="modal" data-target="#deletion" data-elem-id="{{ issue.id }}"
+                               data-name="{{ issue.title }}" data-func-name="restore" data-elem-name="issue">Restore</a>
+                    {% endif %}
 		</form>
         <br>
     <a href="{{ url_for('issues_page') }}" class="btn btn-info">Return to issues page</a>
