@@ -20,3 +20,17 @@
 .dataTable > thead > tr > th[class*="sort"]:after{
     content: "";
 }
+
+ul.errorlist{
+    position: relative;
+    right: 38px;
+}
+
+ul.errorlist li{
+    color: red;
+    list-style: none;
+}
+
+..modal-title{
+    display: inline-block;
+}

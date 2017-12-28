@@ -108,9 +108,8 @@
     border-radius: 50%;
     cursor: pointer;
 }
-/*
-.glyphicon-ok,
-.glyphicon-remove {
-    margin: 5px;
+
+.card .container-fliud .preview.col-md-6 img.imgs
+{
+    max-width: 360px;
 }
-*/

@@ -215,21 +215,21 @@ class EditUserForm(forms.ModelForm):
 
     current_password = forms.CharField(
         required=False,
-        min_length=4,
+        min_length=3,
         widget=forms.PasswordInput(attrs={'class': 'form-control'})
     )
 
     new_password = forms.CharField(
         required=False,
         max_length=50,
-        min_length=4,
+        min_length=3,
         widget=forms.PasswordInput(attrs={'class': 'form-control'})
     )
 
     confirm_password = forms.CharField(
         required=False,
         max_length=50,
-        min_length=4,
+        min_length=3,
         widget=forms.PasswordInput(attrs={'class': 'form-control'})
     )
 
@@ -249,9 +249,10 @@ class EditUserForm(forms.ModelForm):
 
     def check_current_password(self, user, current_password):
         if not user.check_password(current_password):
-            self._errors['Current password'] = self.error_class(
+            self._errors['current_password'] = self.error_class(
                 ['Incorrect current password'])
             del self.cleaned_data['confirm_password']
+            print user.check_password(current_password)
             return False
         else:
             return True
@@ -263,12 +264,14 @@ class EditUserForm(forms.ModelForm):
 
         if (confirm_password or new_password) and (
                 new_password != confirm_password):
-            self._errors['Confirm password'] = self.error_class(
+            self._errors['confirm_password'] = self.error_class(
                 ['Passwords do not match.'])
             del self.cleaned_data['confirm_password']
 
         if not new_password and not confirm_password and self.check_current_password(user, current_password):
-            self._errors['New password, confirm password'] = self.error_class(
+            self._errors['new_password'] = self.error_class(
+                ['Fields is required'])
+            self._errors['confirm password'] = self.error_class(
                 ['Fields is required'])
 
 
