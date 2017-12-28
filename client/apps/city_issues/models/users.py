@@ -64,8 +64,8 @@ class User(AbstractBaseUser):
     # Connects a custom user manager
     objects = UserManager()
 
-    USERNAME_FIELD = 'alias'
-    EMAIL_FIELD = 'email'
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['alias']
 
     def get_full_name(self):
         return self.name
