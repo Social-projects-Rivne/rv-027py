@@ -66,10 +66,17 @@
                 <br>
                 <a href="{% url "modpanel" %}" class="btn btn-info">Return to
                     moderator panel</a>
+{#             <div class="images">#}
+{#                    {% for image in issue.get_attachments %}#}
+{#                        <a class="del-img" data-attach-id="{{ image.id }}"#}
+{#                           data-toggle="modal" data-target="#deleteModal">&times;</a>#}
+{#                        <img src="{% get_media_prefix %}{{ image.image_url }}"#}
+{#                             alt="{{ image.image_url }}" class="imgs">#}
+{#                    {% endfor %}#}
                 <div class="images">
                     {% for image in issue.get_attachments %}
                         <a class="del-img" data-attach-id="{{ image.id }}"
-                           data-toggle="modal" data-target="#deleteModal"><span class="glyphicon glyphicon-remove small"></span></a>
+                           data-toggle="modal" data-target="#deleteModal">&times;</a>
                         <a target="_blank" href="{% get_media_prefix %}{{ image.image_url }}">
                             <img src="{% get_media_prefix %}{{ image.image_url }}" style="width:300px"
                                                 alt="{{ image.image_url }}" class="box border"></a>
