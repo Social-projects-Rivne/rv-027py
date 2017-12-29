@@ -268,7 +268,7 @@ class CommentIssues(CreateView):
     """Comment issue"""
     template_name = 'issue_detailed.html'
     model = Comments
-    fields = ['comment', 'status']
+    fields = ['comment']
 
     def get_context_data(self, **kwargs):
         context = super(CommentIssues, self).get_context_data(**kwargs)
@@ -284,7 +284,8 @@ class CommentIssues(CreateView):
             form.user = user
             form.save()
             return redirect(
-                reverse('issue-comment', kwargs={'pk': self.kwargs['pk']}))
+                reverse('issue-comment', kwargs={'pk': self.kwargs['pk']})
+            )
         return super(CommentIssues, self).form_invalid(form)
 
 

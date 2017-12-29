@@ -21,7 +21,7 @@
 			<div class="container-fliud">
 				<div class="wrapper row">
 					<div class="preview col-md-4">
-                         {% for image in issues.get_attachments %}
+                         {% for image in object.get_attachments %}
                              {% if image.image_url %}
                                 <img src="{% get_media_prefix %}{{ image.image_url }}" alt="{{ image.image_url }}" class="imgs">
                              {% else %}
@@ -54,7 +54,7 @@
             <tr>
                 <td>
                   <h5>User {{ com.user.name }} {{ com.date_public }}</h5>
-                  <p style="text-indent:20px;">{{ com.comment|linebreaksbr }}</p>
+                  <p>{{ com.comment|linebreaksbr }}</p>
                 </td>
                 <td>
                   {% if user.is_authenticated and user.role.id == 1 or user.role.id == 2  %}
@@ -117,7 +117,4 @@
     {% load static %}
         <script type="text/javascript" src="{% static "city_issues/js/app.js" %}"></script>
         <script type="text/javascript" src="{% static "city_issues/js/edit_on_map.js" %}"></script>
-    <script>
-
-    </script>
 {% endblock extra_js %}

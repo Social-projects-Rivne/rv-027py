@@ -137,6 +137,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 # Registration settings
 REGISTRATION_OPEN = True
 SITE_ID = 1
+REGISTRATION_FORM = 'city_issues.forms.forms.RegisterUserForm'
 
 
 MEDIA_URL = '/media/'
