@@ -2,7 +2,9 @@
 # Django
 # =============
 django-bootstrap3==9.1.0
+dj-database-url==0.4.2
 django-imagekit==4.0.2
+django-storages==1.6.5
 django-registration-redux==1.8
 Django==1.11.7
 olefile==0.44

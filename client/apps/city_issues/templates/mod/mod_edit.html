@@ -9,6 +9,8 @@
           href="{% static 'css/issues.css' %}"/>
     <link rel="stylesheet" type="text/css"
           href="{% static 'css/general.css' %}"/>
+        <link rel="stylesheet" type="text/css"
+          href="{% static 'mod_static/css/image.css' %}"/>
     <link rel="stylesheet"
           href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css"
           integrity="sha512-M2wvCLH6DSRazYeZRIm1JnYyh22purTM+FDB5CsyxtQJYeKq83arPe5wgbNmcFXGqiSH2XR8dT/fJISVA1r/zQ=="
@@ -42,21 +44,96 @@
 
     <div class="container">
         <div class="row">
-            <div class="col-sm-5">
-                <form action="" method="POST">
+            <div class="col-sm-6">
+                <form action="" method="POST" enctype="multipart/form-data">
                     {% csrf_token %}
                     {{ form.as_p }}
                     <input id="submit" class="btn btn-success" type="submit"
                            value="Approve"/>
-                    <a class="btn btn-danger"  href="{% url "delete_issue" issue.id%}">Delete</a>
-                    <a class="btn btn-primary"  href=""><span class="glyphicon glyphicon-envelope"></span></a>
+        {% if not issue.delete_date %}
+                            <a class="btn btn-danger" data-toggle="modal" data-target="#deletion" data-elem-id="{{ issue.id }}"
+                               data-func-name="modpanel"
+                               data-elem-name="delete" data-name="{{ issue.title }}" data-issue-id="{{ issue.pk }}">
+                                <span class="glyphicon glyphicon-trash"></span></a>
+                        {% else %}
+                            <a class="btn btn-success" data-toggle="modal" data-target="#deletion" data-elem-id="{{ issue.id }}"
+                               data-func-name="modpanel"
+                               data-elem-name="restore" data-name="{{ issue.title }}" data-issue-id="{{ issue.pk }}">
+                                <span class="glyphicon glyphicon-refresh"></span></a>
+                        {% endif %}
+                <a href='{% url 'modcomment' issue.pk %}' class="btn btn-md btn-warning">Comments</a>
                 </form>
                 <br>
                 <a href="{% url "modpanel" %}" class="btn btn-info">Return to
                     moderator panel</a>
+{#             <div class="images">#}
+{#                    {% for image in issue.get_attachments %}#}
+{#                        <a class="del-img" data-attach-id="{{ image.id }}"#}
+{#                           data-toggle="modal" data-target="#deleteModal">&times;</a>#}
+{#                        <img src="{% get_media_prefix %}{{ image.image_url }}"#}
+{#                             alt="{{ image.image_url }}" class="imgs">#}
+{#                    {% endfor %}#}
+                <div class="images">
+                    {% for image in issue.get_attachments %}
+                        <a class="del-img" data-attach-id="{{ image.id }}"
+                           data-toggle="modal" data-target="#deleteModal">&times;</a>
+                        <a target="_blank" href="{% get_media_prefix %}{{ image.image_url }}">
+                            <img src="{% get_media_prefix %}{{ image.image_url }}" style="width:300px"
+                                                alt="{{ image.image_url }}" class="box border"></a>
+                    {% endfor %}
+                </div>
+                <br>
+                <br>
             </div>
             <div class="col-sm-6">
                 <div id="map"></div>
+            </div>
+        </div>
+    </div>
+
+       <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog"
+         aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"
+                            aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form action="{% url 'delete-attachment' %}" method="post">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <h3>Are you sure delete this image?</h3>
+                        <input type="hidden" value="" name="attachment-id">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary"
+                                data-dismiss="modal">Close
+                        </button>
+                        <button type="submit" class="btn btn-danger">Delete
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+        <div class="modal fade" id="deletion" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title"></h4>
+                </div>
+                <div class="modal-body"> </div>
+                <div class="modal-footer">
+                    <form id="delete-issue" method="post" action="#">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-warning button-confirm"> </button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
@@ -72,5 +149,6 @@
     <script type="text/javascript"
             src="{% static "city_issues/js/edit_on_map.js" %}"></script>
     <script type="text/javascript" src="{% static "js/general.js" %}"></script>
+      <script type="text/javascript" src="{% static "mod_static/mod_modal.js" %}"></script>
 
 {% endblock extra_js %}
