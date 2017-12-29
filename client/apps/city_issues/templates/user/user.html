@@ -107,7 +107,7 @@
                         <td>{{ issue.category.category }}</td>
                         <td>{{ issue.status }}</td>
                         <td>{{ issue.open_date|date:"d/m/y" }}</td>
-                        <td>{{ issue.close_date|default_if_none:"" }}</td>
+                        <td>{{ issue.close_date|default_if_none:""|date:"d/m/y" }}</td>
                         <td>
                             <button data-url="{% url 'internal-comment' issue.id %}" data-store-url="{% url 'store-internal-comment' issue.id %}"
                                     class="btn btn-sm btn-warning comments"  data-toggle="modal" data-target="#internal-comments">
