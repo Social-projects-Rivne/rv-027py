@@ -51,45 +51,67 @@
             <h3>Comments:</h3>
             <table>
             {% for com in  object.comments_set.all %}
-            <tr>
-                <td>
-                  <h5>User {{ com.user.name }} {{ com.date_public }}</h5>
-                  <p>{{ com.comment|linebreaksbr }}</p>
-                </td>
-                <td>
-                  {% if user.is_authenticated and user.role.id == 1 or user.role.id == 2  %}
-                    {% if com.status != 'deleted' %}
-                    <a class="btn btn-danger status" data-toggle="modal" data-target="#deletion"
-                        data-elem-id="{{ com.id }}" data-func-name="delete" data-elem-name="comment"
-                        data-issue-id="{{ object.pk }}">&times;</a>
-                    {% elif com.status == 'deleted' %}
-                    <a class="btn btn-success status" data-toggle="modal" data-target="#deletion"
-                        data-elem-id="{{ com.id }}" data-func-name="restore" data-elem-name="comment"
-                        data-issue-id="{{ object.pk }}">&#10003;</a>
-                    {% endif %}
-                  {% endif %}
-                </td>
-            </tr>
+               {%  if user.pk == com.user_id or user.role.id == 1 or user.role.id == 2  and com.status != 'internal'%}
+               <tr>
+                 <td>
+                   <h5>{{ com.user.role.role|title }}: {{ com.user.name }} {{ com.date_public }} {{ com.status }}</h5>
+                   <p style="text-indent:20px;">{{ com.comment|linebreaksbr }}</p>
+                 </td>
+                 <td>
+                     {% if com.status != 'deleted' %}
+                     <a class="btn btn-danger status" data-toggle="modal" data-target="#deletion" data-elem-id="{{ com.id }}" data-func-name="delete" data-elem-name="comment" data-elem-name="comment" data-issue-id="{{ object.pk }}"><span class="glyphicon glyphicon-remove"></span></a>
+                     {% elif com.status == 'deleted' %}
+                     <a class="btn btn-success status" data-toggle="modal" data-target="#deletion" data-elem-id="{{ com.id }}" data-func-name="restore" data-elem-name="comment" data-issue-id="{{ object.pk }}"><span class="glyphicon glyphicon-ok"></span></a>
+                     {% endif %}
+                 </td>
+                   {% else %}
+                   {% if com.status == 'public' %}
+                   <td>
+                   <h5>{{ com.user.role.role|title }}: {{ com.user.name }} {{ com.date_public }}</h5>
+                   <p style="text-indent:20px;">{{ com.comment|linebreaksbr }}</p>
+                 </td>
+                       {% endif %}
+                   {% if user.is_authenticated %}
+                       {% if com.status == 'internal' %}
+                           <td>
+                   <h5>{{ com.user.role.role|title }}: {{ com.user.name }} {{ com.date_public }} {{ com.status }}</h5>
+                   <p style="text-indent:20px;">{{ com.comment|linebreaksbr }}</p>
+                 </td>
+                           {% endif %}
+                       {% endif %}
+               {% endif %}
+              </tr>
             {% endfor %}
             </table>
         </div>
     </div>
-    <div class="row">
+   {% if user.is_authenticated %}
+          <div class="row">
          <div class="col-sm-6" style="padding-right: 0">
              <br>
              <form action="{% url 'issue-comment' object.pk %}" method="POST">
                 {% csrf_token %}
-                     <label for={{ form.comment.id_for_label }}>Comment:</label>
-                    <textarea type="text" class="form-control"
-                              rows="5" name="{{ form.comment.name }}" maxlength="400"
-                              id={{ form.comment.id_for_label }}></textarea>
+                      <label for={{ form.comment.id_for_label }}>Comment:</label>
+                <textarea type="text" class="form-control"
+                          rows="5" name="{{ form.comment.name }}" maxlength="400"
+                          id={{ form.comment.id_for_label }}></textarea>
+                     <br>
+                     <input type="radio" name="status" value="public" checked> public<br>
+                     <input type="radio" name="status" value="private"> private<br>
+                     <input type="radio" name="status" value="internal"> internal<br>
+                     <br/>
+
+
+                 <input type='submit' class="btn btn-primary" value='Comment' name="Comment"/>
                          <br>
-                 <button class="btn btn-primary">Comment</button>
+                 <!--<button class="btn btn-primary">Comment</button>-->
              </form>
          </div>
     </div>
 		</div>
-	</div>
+    {% endif %}
+</div>
+
 
 <div class="modal fade" id="deletion" role="dialog">
   <div class="modal-dialog">
@@ -102,7 +124,7 @@
       <div class="modal-footer">
         <form id="delete-comment" method="post" action="#">
           {% csrf_token %}
-          <button type="submit" class="btn btn-danger button-confirm"> </button>
+          <button type="submit" class="btn button-confirm"> </button>
           <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
         </form>
       </div>
