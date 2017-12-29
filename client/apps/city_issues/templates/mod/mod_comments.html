@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% load bootstrap3%}
+
+{% block meta_title %}{{ title }}{% endblock meta_title %}
+
+{% block extra_css %}
+    {% load static %}
+    <link rel="stylesheet" type="text/css"
+          href="{% static 'mod_static/css/mod_comments.css' %}"/>
+{% endblock extra_css %}
+
+{% block content %}
+
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-5">
+                <h3>Add a new comment: {{ issue.title }}</h3>
+                <form action="{% url 'modcomment' issue.pk %}" method='post'>
+                    {% csrf_token %}
+                    {% bootstrap_form form %}
+
+                    <button name='submit'  class="btn btn-primary">Add comment</button>
+                    <a href="{% url 'mod_edit' issue.id %}" class="btn btn-danger">Return to edit issue</a>
+                </form>
+                <br>
+                <br>
+                {% for com in  issue.comments_set.all %}
+                        <span class="label label-warning">{{ com.date_public }}</span>
+                        <span class="label label-danger">{{ user.name }}</span>
+                        <br>
+                        <br>
+                        <div class="well well-sm"><p style="text-indent:20px;">{{ com.comment|safe|linebreaks }}</p></div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+{% endblock content %}

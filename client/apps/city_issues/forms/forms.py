@@ -389,3 +389,29 @@ class RegisterUserForm(RegistrationForm):
         fields = ("email",
                   "alias", "name", "password1",
                   "password2")
+
+
+class ModCommentForm(forms.ModelForm):
+    """Moderator comments form"""
+
+    comment = forms.CharField(
+        label='',
+        required=True,
+        min_length=1,
+        max_length=250,
+        widget=forms.Textarea(attrs={'class': 'form-control', 'rows': 4, 'placeholder': 'Type Message ...'}))
+
+    status = forms.ChoiceField(
+        label='',
+        required=False,
+        initial="public",
+        choices=(
+            ("public", "public"),
+            ("private", "private"),
+            ("internal", "internal")),
+        widget=forms.Select(
+            attrs={'class': 'form-control'}))
+
+    class Meta:
+        model = Comments
+        fields = ['comment', 'status']

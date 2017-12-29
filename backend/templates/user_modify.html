@@ -22,6 +22,18 @@
 		  {{ wtf.form_field(form.role_id) }}
 			{% endif %}
 		  <input class="btn btn-success" type="submit" name="save" value="Save">
+            {% if not user.delete_date %}
+                <a class="btn btn-danger" data-toggle="modal" data-target="#deletion" data-elem-id="{{ user.id }}"
+                       data-name="{{ user.name }}" data-func-name="delete" data-elem-name="user">Delete</a>
+            {% else %}
+                    <a class="btn btn-success" data-toggle="modal" data-target="#deletion" data-elem-id="{{ user.id }}"
+                       data-name="{{ user.name }}" data-func-name="restore" data-elem-name="user">Restore</a>
+            {% endif %}
 		</form>
+    <br>
+    <a href="{{ url_for('user_page') }}" class="btn btn-info">Return to users page</a>
     </div>
+
+    {% include 'modal_confirm.html' %}
+
 {% endblock %}
