@@ -82,11 +82,9 @@ class UserProfileView(View):
             messages.success(request, 'Changes successfully saved')
 
         else:
-            user_issues = Issues.objects.filter(user_id=user.id)
+            messages.error(request, form.errors)
             return render(request, self.template_name,
-                          {'form': form, 'has_error': 'error',
-                           'user_issues': user_issues,
-                           'comments_form': self.form_comments_class})
+                          {'form': form, 'has_error': 'error'})
 
         return redirect(self.success_url)
 
@@ -268,7 +266,7 @@ class CommentIssues(CreateView):
     """Comment issue"""
     template_name = 'issue_detailed.html'
     model = Comments
-    fields = ['comment']
+    fields = ['comment', 'status']
 
     def get_context_data(self, **kwargs):
         context = super(CommentIssues, self).get_context_data(**kwargs)
